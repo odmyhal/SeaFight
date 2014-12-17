@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="org.springsource.ide.eclipse.gradle.classpathcontainer"/>
+	<classpathentry kind="lib" path="/ship-fight/target/ship-fight-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/oleh/git/Bricks/bricks-enterprise/target/bricks-enterprise-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/oleh/git/Bricks/bricks/bricks-engine/target/bricks-engine-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/home/oleh/git/Bricks/bricks/bricks-extent/target/bricks-extent-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
