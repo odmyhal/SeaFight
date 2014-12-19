@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+    <root type="user">
+        <map/>
+        <node name="engine.settings">
+            <map>
+                <entry key="sector.length" value="500"/>
+				<entry key="buffer.luft" value="200"/>
+				<entry key="sector.initial.capacity" value="10"/>
+				<entry key="world.rows.count" value="5"/>
+				<entry key="world.cols.count" value="5"/>
+				<entry key="motor.count" value="4"/>
+				<entry key="event.handel.registrator" value="org.bricks.engine.event.handler.EventHandlerRegistrator"/> 
+				<entry key="model.construct.tool" value="org.bricks.enterprise.gen.GenModelConstructTool"/>
+				
+				<!-- Waves config -->
+ 				<entry key="waver.net.length" value="50"/>
+				<entry key="waver.net.step.x" value="10"/>
+				<entry key="waver.net.step.y" value="10"/>
+				<entry key="waver.net.amplitude" value="0.5"/>
+				<entry key="waver.net.wave.count" value="2"/>
+				<entry key="waver.animate.cycle.sectime" value="2"/> 
+
+            </map>
+        </node>
+    </root>
+</preferences>

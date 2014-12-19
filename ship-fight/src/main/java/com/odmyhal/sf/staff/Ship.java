@@ -31,6 +31,7 @@ import com.badlogic.gdx.utils.Pool;
 public class Ship extends MultiWalkRoller<ModelSubject> implements RenderableProvider {
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
+	private CameraSatellite cameraSatellite;
 
 	public Ship(AssetManager assets) {
 		if(!assets.update()){
@@ -101,19 +102,18 @@ public class Ship extends MultiWalkRoller<ModelSubject> implements RenderablePro
 	}
 	
 	public CameraSatellite initializeCamera(){
-		Camera camera = new PerspectiveCamera(37f, 1250f, 750f);
-		camera.far = 5000;
-		Ipoint origin = this.getOrigin();
-		double rotation = this.getRotation();
-//		double sinY = Math.sin(rotation);
-//		double cosX = Math.cos(rotation);
-//		camera.translate(origin.getFX() - (float)cosX * 300f, origin.getFY() - (float)sinY * 300f, 100f);
-		camera.translate(origin.getFX(), origin.getFY(), 250f);
-		camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
-//		camera.direction.rotateRad((float)(Math.PI * 75 / 180), 0f, -100f, 0f);
-		camera.update();
-		CameraSatellite cameraSatellite = new CameraSatellite(camera, this);
-		addSatellite(cameraSatellite);
+		if(this.cameraSatellite == null){
+			Camera camera = new PerspectiveCamera(37f, 1250f, 750f);
+			camera.far = 5000;
+			Ipoint origin = this.getOrigin();
+			double rotation = this.getRotation();
+			camera.translate(origin.getFX(), origin.getFY(), 250f);
+			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
+			camera.update();
+			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, this);
+			addSatellite(cameraSatelliteK);
+			this.cameraSatellite = cameraSatelliteK;
+		}
 		return cameraSatellite;
 	}
 

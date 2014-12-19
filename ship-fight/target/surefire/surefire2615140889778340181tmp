@@ -1,16 +1,16 @@
 #surefire
-#Mon Dec 15 21:03:37 EET 2014
-testClassesDirectory=/home/oleh/project/sea-workspace/ship-fight/target/test-classes
+#Fri Dec 19 22:46:40 EET 2014
+testClassesDirectory=/home/oleh/git/SeaFight/ship-fight/target/test-classes
 classPathUrl.4=/home/oleh/.m2/repository/com/odmyhal/bricks-engine/0.0.1-SNAPSHOT/bricks-engine-0.0.1-SNAPSHOT.jar
 classPathUrl.3=/home/oleh/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
 classPathUrl.2=/home/oleh/.m2/repository/junit/junit/4.11/junit-4.11.jar
 useManifestOnlyJar=true
-classPathUrl.1=/home/oleh/project/sea-workspace/ship-fight/target/classes
-reportsDirectory=/home/oleh/project/sea-workspace/ship-fight/target/surefire-reports
-classPathUrl.0=/home/oleh/project/sea-workspace/ship-fight/target/test-classes
+classPathUrl.1=/home/oleh/git/SeaFight/ship-fight/target/classes
+reportsDirectory=/home/oleh/git/SeaFight/ship-fight/target/surefire-reports
+classPathUrl.0=/home/oleh/git/SeaFight/ship-fight/target/test-classes
 dirscanner.0=directoryScannerOptions
 providerConfiguration=org.apache.maven.surefire.junit4.JUnit4Provider
-testSuiteDefinitionTestSourceDirectory=/home/oleh/project/sea-workspace/ship-fight/src/test/java
+testSuiteDefinitionTestSourceDirectory=/home/oleh/git/SeaFight/ship-fight/src/test/java
 surefireClassPathUrl.1=/home/oleh/.m2/repository/org/apache/maven/surefire/surefire-api/2.7.1/surefire-api-2.7.1.jar
 surefireClassPathUrl.0=/home/oleh/.m2/repository/org/apache/maven/surefire/surefire-junit4/2.7.1/surefire-junit4-2.7.1.jar
 report.2=org.apache.maven.surefire.report.XMLReporter
@@ -19,7 +19,7 @@ report.1=org.apache.maven.surefire.report.BriefFileReporter
 report.0=org.apache.maven.surefire.report.ForkingConsoleReporter
 excludes0=**/*$*
 isTrimStackTrace=true
-dirscanner.0.params=/home/oleh/project/sea-workspace/ship-fight/target/test-classes|[**/Test*.java, **/*Test.java, **/*TestCase.java]|[**/*$*]
+dirscanner.0.params=/home/oleh/git/SeaFight/ship-fight/target/test-classes|[**/Test*.java, **/*Test.java, **/*TestCase.java]|[**/*$*]
 includes2=**/*TestCase.java
 enableAssertions=true
 includes1=**/*Test.java

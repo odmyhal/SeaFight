@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+    <root type="user">
+        <map/>
+        <node name="sf.camera.defaults">
+            <map>
+                <entry key="camera.move.maxRadius" value="500.0"/>
+				<entry key="camera.move.speed" value="500.0"/>
+
+				<entry key="camera.target.constant.rotation" value="1.571"/>
+				<entry key="camera.roll.speed.radians" value="1.571"/>
+				
+				<entry key="camera.altitude.min" value="-100"/>
+				<entry key="camera.altitude.max" value="1000"/>
+				
+				<entry key="camera.vertical.roll.speed" value="3.14159"/>
+            </map>
+        </node>
+    </root>
+</preferences>
