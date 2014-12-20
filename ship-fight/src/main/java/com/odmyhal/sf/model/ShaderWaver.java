@@ -1,12 +1,9 @@
 package com.odmyhal.sf.model;
 
-import java.nio.FloatBuffer;
-
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.engine.Engine;
 import org.bricks.engine.item.Motorable;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;

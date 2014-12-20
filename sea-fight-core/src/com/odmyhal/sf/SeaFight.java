@@ -118,8 +118,8 @@ public class SeaFight extends ApplicationAdapter {
 		
 		Ship one = new Ship(assets);
 		one.translate(850, 500);
-		one.setVector(80, 0);
-		one.setRotationSpeed(0.3f);
+		one.setVector(30, 0);
+//		one.setRotationSpeed(0.3f);
 		cameraSatellite = one.initializeCamera();
 		camera = cameraSatellite.camera;
 		one.applyEngine(engine);

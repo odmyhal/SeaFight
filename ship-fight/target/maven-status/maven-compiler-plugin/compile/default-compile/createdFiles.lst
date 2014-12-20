@@ -8,6 +8,7 @@ com/odmyhal/sf/model/construct/BufferWaverConstructor.class
 com/odmyhal/sf/model/shader/WaveNativeShader.class
 com/odmyhal/sf/model/ShaderWaver.class
 com/odmyhal/sf/model/construct/ShaderWaveConstructor.class
+com/odmyhal/sf/control/ShipRollAction.class
 com/odmyhal/sf/model/ShaderWaver$WaveData.class
 com/odmyhal/sf/model/shader/WaveNativeShader$1.class
 com/odmyhal/sf/model/Island.class

@@ -5,7 +5,7 @@
         <map/>
         <node name="sf.camera.defaults">
             <map>
-                <entry key="camera.move.maxRadius" value="500.0"/>
+                <entry key="camera.move.maxRadius" value="1000.0"/>
 				<entry key="camera.move.speed" value="500.0"/>
 
 				<entry key="camera.target.constant.rotation" value="1.571"/>
