@@ -60,7 +60,7 @@ public class ShipMovePanel extends AnimationRisePanel{
 	
 	private FlowTouchPad createRollPad(Ship ship){
 		RotationProvider rotationProvider = ship.initializeCamera();
-		ShipRollAction shipRollAction = new ShipRollAction(ship, rotationProvider, 0.2f);
+		ShipRollAction shipRollAction = new ShipRollAction(ship, rotationProvider, 0.4f);
 		
 		DrawableRoll base = new DrawableRoll(Skinner.instance().skin().getRegion("movePanelBase"));
 		DrawableRoll nord = new DrawableRoll(Skinner.instance().skin().getRegion("movePanelNord"));

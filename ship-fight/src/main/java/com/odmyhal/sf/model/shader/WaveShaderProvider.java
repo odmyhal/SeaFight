@@ -21,8 +21,8 @@ public class WaveShaderProvider extends DefaultShaderProvider{
 		if(renderable.userData != null && renderable.userData instanceof ShaderWaver.WaveData){
 			return new WaveNativeShader(renderable);
 		}
-//		return super.createShader(renderable);
-		return new DefaultShader(renderable, config, createPrefixWithoutTextures(renderable, config));
+		return super.createShader(renderable);
+//		return new DefaultShader(renderable, config, createPrefixWithoutTextures(renderable, config));
 	}
 
 //disable texture coordinates

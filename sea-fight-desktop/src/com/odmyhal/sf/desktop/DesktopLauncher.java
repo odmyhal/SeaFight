@@ -2,6 +2,7 @@ package com.odmyhal.sf.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.odmyhal.sf.GL30Try;
 import com.odmyhal.sf.SeaFight;
 
 public class DesktopLauncher {
@@ -11,6 +12,7 @@ public class DesktopLauncher {
 		config.width = 400;
 		config.height = 700;
 //		config.useGL30 = true;
-		new LwjglApplication(new SeaFight(), config);
+		new LwjglApplication(new GL30Try(400, 700), config);
+//		new LwjglApplication(new SeaFight(), config);
 	}
 }

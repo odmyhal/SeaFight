@@ -5,6 +5,7 @@ import org.bricks.engine.Engine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.g3d.Attributes;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader;
@@ -51,7 +52,7 @@ public class WaveNativeShader extends DefaultShader{
 	
 
 	public WaveNativeShader(Renderable renderable) {
-		super(renderable, native_config, /*"#version 330\n" + */DefaultShader.createPrefix(renderable, native_config));
+		super(renderable, native_config, "#version 330\n" + DefaultShader.createPrefix(renderable, native_config));
 		String vert = super.program.getVertexShaderSource();
 //		System.out.println("--------------Vertex fragment---------------------------");
 //		System.out.println(vert);
@@ -67,6 +68,7 @@ public class WaveNativeShader extends DefaultShader{
 		int meshPartSize = renderable.meshPartSize;
 		renderable.meshPartSize = 0;
 		super.render(renderable, combinedAttributes);
+//		Gdx.gl30.glDrawElements(renderable.primitiveType, meshPartSize, GL30.GL_UNSIGNED_SHORT, renderable.meshPartOffset * 2);
 		Gdx.gl20.glDrawElements(renderable.primitiveType, meshPartSize, GL20.GL_UNSIGNED_SHORT, renderable.meshPartOffset * 2);
 //		Gdx.gl30.glDrawElementsInstanced(renderable.primitiveType, meshPartSize, GL20.GL_UNSIGNED_SHORT, renderable.meshPartOffset * 2, 10);
 //		renderable.mesh.render(program, renderable.primitiveType, renderable.meshPartOffset, renderable.meshPartSize, false);

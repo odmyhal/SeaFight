@@ -1,6 +1,9 @@
 package com.odmyhal.sf;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
@@ -33,6 +36,7 @@ import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShaderWaver;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
 import com.odmyhal.sf.staff.Ship;
+import com.badlogic.gdx.graphics.GL30;
 
 public class SeaFight extends ApplicationAdapter {
 	
@@ -51,7 +55,13 @@ public class SeaFight extends ApplicationAdapter {
 	
 	@Override
 	public void create(){
-		
+/*
+        try {
+			System.setOut(new PrintStream(new FileOutputStream("/home/oleh/sf_log.txt")));
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+*/		
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		
 		panelManager = new PanelManager();
@@ -118,7 +128,7 @@ public class SeaFight extends ApplicationAdapter {
 		
 		Ship one = new Ship(assets);
 		one.translate(850, 500);
-		one.setVector(30, 0);
+		one.setVector(70, 0);
 //		one.setRotationSpeed(0.3f);
 		cameraSatellite = one.initializeCamera();
 		camera = cameraSatellite.camera;
@@ -139,17 +149,21 @@ public class SeaFight extends ApplicationAdapter {
 		
         Gdx.app.debug("Sea Fight", "game create passed");
         System.out.println(Gdx.gl.getClass().getCanonicalName());
+        System.out.println("GL30 - " + Gdx.gl30.getClass().getCanonicalName());
 	}
 	
 	@Override
 	public void render(){
 		Gdx.gl.glClearColor(0.9f, 0.9f, 1f, 0.5f);
+//		Gdx.gl30.glClearColor(0.9f, 0.9f, 1f, 0.5f);
+//		Gdx.gl30.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		DataPool<RenderableProvider> entitiesPool = engine.getWorld().getRenderEntities();
 		modelBatch.begin(camera);
 		for(RenderableProvider entity : entitiesPool.getEntities()){
 			modelBatch.render(entity, environment);
 		}
+//		System.out.println("Trying to render system");
 		cameraSatellite.applyUpdates();
 		modelBatch.end();
 		if(DEBUG_ENABLED){
