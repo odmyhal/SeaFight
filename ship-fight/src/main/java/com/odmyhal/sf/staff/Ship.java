@@ -50,7 +50,8 @@ public class Ship extends MultiWalkRoller<ModelSubject> implements RenderablePro
 	}
 	
 	private ModelInstance fetchModel(AssetManager assets){
-		Model shipModel = assets.get("models/ship1.g3db", Model.class);
+//		Model shipModel = assets.get("models/ship1.g3db", Model.class);
+		Model shipModel = assets.get("models/ship_2.g3db", Model.class);
 		ModelInstance ship1 = new ModelInstance(shipModel);
 		return ship1;
 	}
