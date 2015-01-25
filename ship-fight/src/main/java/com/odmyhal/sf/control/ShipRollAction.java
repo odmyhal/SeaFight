@@ -7,11 +7,12 @@ import org.bricks.enterprise.control.widget.tool.RotationDependAction.RotationPr
 import org.bricks.extent.control.RollEntityAction;
 
 public class ShipRollAction extends RollEntityAction{
+
+	private static float halfPI = (float) Math.PI / 2;
 	
 	public RotationConsumer nord, direction;
 	
-	private boolean inProgress = false, initialized = false;
-	private float startRotationRad;
+	private boolean initialized = false;
 
 	public ShipRollAction(Roller target, RotationProvider rotationProvider,
 			float rotationSpeed) {
@@ -34,7 +35,6 @@ public class ShipRollAction extends RollEntityAction{
 				diffRad -= Roll.rotationCycle;
 			}
 			if(diffRad <= 0){
-				inProgress = false;
 				stop = true;;
 			}
 		}
@@ -43,24 +43,26 @@ public class ShipRollAction extends RollEntityAction{
 				diffRad += Roll.rotationCycle;
 			}
 			if(diffRad >= 0){
-				inProgress = false;
 				stop = true;
 			}
 		}
-		nord.consumeRotation((float)(Math.PI / 2) - curRad);
+		nord.consumeRotation(halfPI - curRad);
 		direction.consumeRotation(diffRad);
 		return stop;
 	}
 	
 	@Override
 	protected void initNewRotation(float targetRad, float currentRad){
-		if(inProgress){
-			targetRad -= currentRad - startRotationRad;
-		}else{
-			inProgress = true;
+		float curDiffRad = targetRad - halfPI;
+		targetRad = currentRad + curDiffRad;
+		while(targetRad >= rotationCycle){
+			targetRad -= rotationCycle;
 		}
-		startRotationRad = currentRad;
+		while(targetRad < 0){
+			targetRad += rotationCycle;
+		}
 		super.initNewRotation(targetRad, currentRad);
 		initialized = true;
 	}
+
 }

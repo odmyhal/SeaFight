@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
@@ -29,12 +30,12 @@ public class GL30Try extends ApplicationAdapter{
 	
 	@Override
 	public void render(){
-		Gdx.gl.glClearColor(0.9f, 0.9f, 1f, 0.5f);
+		Gdx.gl.glClearColor(0.8f, 0.8f, 1f, 1f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		shR.setProjectionMatrix(camera.combined);
 		shR.begin(ShapeType.Line);
 		shR.setColor(Color.RED);
-		for(float r = 10f; r < 500; r += 20f ){
+		for(float r = 10f; r < 150; r += 20f ){
 			shR.circle(0f, 0f, r);
 		}
 		shR.end();

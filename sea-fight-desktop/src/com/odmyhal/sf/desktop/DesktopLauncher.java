@@ -12,7 +12,7 @@ public class DesktopLauncher {
 		config.width = 400;
 		config.height = 700;
 //		config.useGL30 = true;
-		new LwjglApplication(new GL30Try(400, 700), config);
-//		new LwjglApplication(new SeaFight(), config);
+//		new LwjglApplication(new GL30Try(400, 700), config);
+		new LwjglApplication(new SeaFight(), config);
 	}
 }

@@ -17,5 +17,14 @@
 				<entry key="camera.vertical.roll.speed" value="3.14159"/>
             </map>
         </node>
+        
+        <node name="sf.ship.defaults">
+            <map>
+                <entry key="ship.roll.speed.radians" value="0.4"/>
+                <entry key="ship.speed.directional.min" value="-50"/>
+                <entry key="ship.speed.directional.max" value="200"/>
+                <entry key="ship.acceleration.directional" value="20"/>
+            </map>
+        </node>
     </root>
 </preferences>
