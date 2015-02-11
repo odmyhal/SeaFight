@@ -56,15 +56,16 @@ public class IslandConstructor implements ModelConstructor{
 	private void constructOne(ModelConstructTool modelBuilder, String islandName){
 		modelBuilder.node(islandName);
 		
-		Ipoint translate = new Ipoint(-200, -200);
+//		Ipoint translate = new Ipoint(-200, -200);
+		Ipoint translate = new Ipoint(0, 0);
 		
 		List<Vector3> vertexes = new ArrayList<Vector3>();
 		vertexes.add(new Vector3(50f, 0f, -15f));
 		vertexes.add(new Vector3(250f, 50f, -15f));
 		vertexes.add(new Vector3(400f, 200f, -15f));
 		vertexes.add(new Vector3(400f, 300f, -15f));
-		vertexes.add(new Vector3(350f, 400f, -15f));
-//		vertexes.add(new Vector3(350f, 350f, -15f));
+//		vertexes.add(new Vector3(350f, 400f, -15f));
+		vertexes.add(new Vector3(350f, 350f, -15f));
 		vertexes.add(new Vector3(300f, 350f, -15f));
 		vertexes.add(new Vector3(150f, 300f, -15f));
 		vertexes.add(new Vector3(50f, 250f, -15f));
@@ -76,7 +77,7 @@ public class IslandConstructor implements ModelConstructor{
 		vertexes.add(new Vector3(200f, 100f, 60f));
 		vertexes.add(new Vector3(250f, 150f, 65f));
 		vertexes.add(new Vector3(300f, 250f, 85f));
-		vertexes.add(new Vector3(200f, 300f, 70f));
+		vertexes.add(new Vector3(200f, 200f, 70f));
 		for(Vector3 v3 : vertexes){
 			v3.add(-225f, -175f, 0);
 		}

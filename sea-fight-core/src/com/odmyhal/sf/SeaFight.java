@@ -1,9 +1,6 @@
 package com.odmyhal.sf;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
@@ -32,6 +29,7 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.odmyhal.sf.control.ShipMovePanel;
+import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShaderWaver;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
@@ -48,7 +46,7 @@ public class SeaFight extends ApplicationAdapter {
 	CameraSatellite cameraSatellite;
 	
 	ShapeDebugger debug;
-	private static final boolean DEBUG_ENABLED = false;
+	private static final boolean DEBUG_ENABLED = true;
 	
 //	ModelInstance ship1/*, ship2*/;
 	AssetManager assets = new AssetManager();
@@ -116,20 +114,33 @@ public class SeaFight extends ApplicationAdapter {
 		m1.addSubject(waver);
 		
 		Island island1 = Island.instance("island_1");
-		island1.translate(1000, 1000);
+		island1.translate(800, 1000);
+		island1.setToRotation(80);
 		island1.applyEngine(engine);
 		
-		assets.load("models/ship1.g3db", Model.class);
-		assets.load("models/ship1_old.g3db", Model.class);
+		Island island2 = Island.instance("island_1");
+		island2.translate(1700, 1500);
+		island2.setToRotation(180);
+		island2.applyEngine(engine);
+		
+		Island island3 = Island.instance("island_1");
+		island3.translate(2050, 700);
+		island3.setToRotation(254);
+		island3.applyEngine(engine);
+		
+//		assets.load("models/ship7.g3db", Model.class);
+//		assets.load("models/ship5.g3db", Model.class);
+//		assets.load("models/ship_2.g3db", Model.class);
+		assets.load("models/ship_4.g3db", Model.class);
+		assets.load("models/ship7.g3db", Model.class);
 		assets.finishLoading();
 		if(assets.update()){
 			Gdx.app.debug("Sea fight", "Models are loaded");
 		}
 		
 		Ship one = new Ship(assets);
-		one.translate(850, 500);
-//		one.setVector(70, 0);
-//		one.setRotationSpeed(0.3f);
+//		one.translate(830, 500);
+		one.translate(700, 600);
 		cameraSatellite = one.initializeCamera();
 		camera = cameraSatellite.camera;
 		one.applyEngine(engine);
@@ -141,6 +152,9 @@ public class SeaFight extends ApplicationAdapter {
 		smp.setActive(true);
 		smp.inputControl();
 		panelManager.addPanel(smp);
+		
+		WeaponPanel wp = new WeaponPanel(one);
+		panelManager.addPanel(wp);
 
 		modelBatch = new ModelBatch(new WaveShaderProvider());
 		
@@ -168,7 +182,7 @@ public class SeaFight extends ApplicationAdapter {
 		modelBatch.end();
 		if(DEBUG_ENABLED){
 			debug.drawEntityShapes(entitiesPool.getEntities(), camera.combined);
-			debug.drawSectors(engine, camera.combined);
+//			debug.drawSectors(engine, camera.combined);
 		}
 		entitiesPool.free();
 		

@@ -12,10 +12,8 @@ import org.bricks.enterprise.control.widget.tool.FlowTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowWidgetProvider;
 import org.bricks.enterprise.control.widget.tool.RotationDependAction.RotationProvider;
 import org.bricks.extent.control.AccelerateToSpeedEntityAction;
-import org.bricks.extent.control.RollEntityAction;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

@@ -10,7 +10,7 @@
 				<entry key="sector.initial.capacity" value="10"/>
 				<entry key="world.rows.count" value="5"/>
 				<entry key="world.cols.count" value="5"/>
-				<entry key="motor.count" value="4"/>
+				<entry key="motor.count" value="2"/>
 				<entry key="event.handel.registrator" value="org.bricks.engine.event.handler.EventHandlerRegistrator"/> 
 				<entry key="model.construct.tool" value="org.bricks.enterprise.gen.GenModelConstructTool"/>
 				
