@@ -18,11 +18,11 @@ import org.bricks.engine.event.check.OwnEventChecker;
 import org.bricks.engine.event.overlap.OverlapStrategy;
 import org.bricks.engine.help.VectorSwapHelper;
 import org.bricks.engine.item.MultiWalkRoller;
-import org.bricks.engine.view.SubjectView;
-import org.bricks.engine.view.WalkView;
+import org.bricks.engine.neve.WalkPrint;
 import org.bricks.exception.Validate;
 import org.bricks.extent.entity.CameraSatellite;
-import org.bricks.extent.entity.subject.ModelSubject;
+import org.bricks.extent.entity.mesh.ModelSubjectOperable;
+import org.bricks.extent.entity.mesh.ModelSubjectPrint;
 import org.bricks.extent.event.ExtentEventGroups;
 import org.bricks.annotation.EventHandle;
 
@@ -42,7 +42,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
 
-public class Ship extends MultiWalkRoller<ModelSubject> implements RenderableProvider {
+public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> implements RenderableProvider {
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
@@ -81,14 +81,14 @@ public class Ship extends MultiWalkRoller<ModelSubject> implements RenderablePro
 			}
 			node.calculateTransforms(true);
 		}
-		ModelSubject<Ship> subject = new ShipSubject(brick, modelInstance);
+		ModelSubjectOperable<Ship, ModelSubjectPrint> subject = new ShipSubject(brick, modelInstance);
 		this.addSubject(subject);
 		registerEventChecker(OverlapChecker.instance());
 	}
 	
 	private ModelInstance fetchModel(AssetManager assets){
-		Model shipModel = assets.get("models/ship7.g3db", Model.class);
-//		Model shipModel = assets.get("models/ship_4.g3db", Model.class);
+//		Model shipModel = assets.get("models/ship7.g3db", Model.class);
+		Model shipModel = assets.get("models/ship_4.g3db", Model.class);
 		ModelInstance ship1 = new ModelInstance(shipModel);
 		return ship1;
 	}
@@ -154,7 +154,7 @@ public class Ship extends MultiWalkRoller<ModelSubject> implements RenderablePro
 	}
 
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
-		for(ModelSubject subject: getStaff()){
+		for(ModelSubjectOperable subject: getStaff()){
 			subject.getRenderables(renderables, pool);
 		}
 	}

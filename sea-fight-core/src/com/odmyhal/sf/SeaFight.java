@@ -1,6 +1,7 @@
 package com.odmyhal.sf;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
@@ -11,7 +12,7 @@ import org.bircks.enterprise.control.panel.camera.CameraPanel;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
-import org.bricks.engine.view.DataPool;
+import org.bricks.engine.data.DataPool;
 import org.bricks.extent.debug.ShapeDebugger;
 import org.bricks.extent.entity.CameraSatellite;
 
@@ -46,7 +47,7 @@ public class SeaFight extends ApplicationAdapter {
 	CameraSatellite cameraSatellite;
 	
 	ShapeDebugger debug;
-	private static final boolean DEBUG_ENABLED = true;
+	private static final boolean DEBUG_ENABLED = false;
 	
 //	ModelInstance ship1/*, ship2*/;
 	AssetManager assets = new AssetManager();
@@ -139,11 +140,15 @@ public class SeaFight extends ApplicationAdapter {
 		}
 		
 		Ship one = new Ship(assets);
+//		System.out.println("--Ship created");
 //		one.translate(830, 500);
+//		one.translate(700, 600);
 		one.translate(700, 600);
+//		System.out.println("--Ship translated");
 		cameraSatellite = one.initializeCamera();
 		camera = cameraSatellite.camera;
 		one.applyEngine(engine);
+//		System.out.println("--Ship applyed");
 		
 		CameraPanel cp = new CameraPanel(camera, cameraSatellite, "panel.defaults", "sf.camera.defaults");
 		panelManager.addPanel(cp);
@@ -172,19 +177,20 @@ public class SeaFight extends ApplicationAdapter {
 //		Gdx.gl30.glClearColor(0.9f, 0.9f, 1f, 0.5f);
 //		Gdx.gl30.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		DataPool<RenderableProvider> entitiesPool = engine.getWorld().getRenderEntities();
+//		DataPool<RenderableProvider> entitiesPool = engine.getWorld().getRenderEntities();
+		Collection<RenderableProvider> entitiesPool = engine.getWorld().getRenderEntities();
 		modelBatch.begin(camera);
-		for(RenderableProvider entity : entitiesPool.getEntities()){
+		for(RenderableProvider entity : entitiesPool){
 			modelBatch.render(entity, environment);
 		}
 //		System.out.println("Trying to render system");
 		cameraSatellite.applyUpdates();
 		modelBatch.end();
 		if(DEBUG_ENABLED){
-			debug.drawEntityShapes(entitiesPool.getEntities(), camera.combined);
+			debug.drawEntityShapes(entitiesPool, camera.combined);
 //			debug.drawSectors(engine, camera.combined);
 		}
-		entitiesPool.free();
+//		entitiesPool.free();
 		
 		panelManager.render(Gdx.graphics.getDeltaTime());
 	}
