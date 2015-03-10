@@ -5,8 +5,8 @@
         <map/>
         <node name="engine.settings">
             <map>
-                <entry key="sector.length" value="500"/>
-				<entry key="buffer.luft" value="200"/>
+                <entry key="sector.length" value="5000"/>
+				<entry key="buffer.luft" value="2000"/>
 				<entry key="sector.initial.capacity" value="10"/>
 				<entry key="world.rows.count" value="5"/>
 				<entry key="world.cols.count" value="5"/>
@@ -16,9 +16,9 @@
 				
 				<!-- Waves config -->
  				<entry key="waver.net.length" value="50"/>
-				<entry key="waver.net.step.x" value="10"/>
-				<entry key="waver.net.step.y" value="10"/>
-				<entry key="waver.net.amplitude" value="0.5"/>
+				<entry key="waver.net.step.x" value="100"/>
+				<entry key="waver.net.step.y" value="100"/>
+				<entry key="waver.net.amplitude" value="10"/>
 				<entry key="waver.net.wave.count" value="2"/>
 				<entry key="waver.animate.cycle.sectime" value="2"/> 
 

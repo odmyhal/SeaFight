@@ -24,6 +24,7 @@ import org.bricks.extent.entity.CameraSatellite;
 import org.bricks.extent.entity.mesh.ModelSubjectOperable;
 import org.bricks.extent.entity.mesh.ModelSubjectPrint;
 import org.bricks.extent.event.ExtentEventGroups;
+import org.bricks.extent.tool.MarkPoint;
 import org.bricks.annotation.EventHandle;
 
 import com.badlogic.gdx.assets.AssetManager;
@@ -46,6 +47,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
+	public MarkPoint gunMark;
 
 	public Ship(AssetManager assets) {
 		if(!assets.update()){
@@ -53,23 +55,9 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 		}
 		Brick brick = produceBrick();
 		ModelInstance modelInstance = fetchModel(assets);
-/*		Matrix4 helpMatrix = new Matrix4();
-		helpMatrix.idt().setToRotation(10f, 0f, 0f, -90f).tra();
-//		Matrix4 pushkaMatrix = new Matrix4();
-//		pushkaMatrix.idt().setToRotation(0f, 0f, 10f, 45f).tra();
-		for(Node node : modelInstance.nodes){
-			node.globalTransform.mulLeft(helpMatrix);
-			System.out.println("Transformed node " + node.id);
-//			if(node.id.equals("pushka_garmaty") || node.id.equals("pushka_osnova")){
-//				node.globalTransform.trn(-14f, 0f, -9f);
-//				System.out.println(node.globalTransform);
-//				node.globalTransform.trn(-8f, 4f, 0f);
-//				node.globalTransform.mulLeft(pushkaMatrix);
-//				node.globalTransform.trn(8f, -4f, 0f);
-//			}
-		}*/
 
-		Quaternion q = new Quaternion();
+
+/*		Quaternion q = new Quaternion();
 		q.setFromAxis(10f, 0f, 0f, 90f);
 		Matrix4 rMatrix = new Matrix4();
 		q.toMatrix(rMatrix.val);
@@ -80,75 +68,77 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 				node.translation.add(-14f, 0f, -9f);
 			}
 			node.calculateTransforms(true);
+		}*/
+		
+		Quaternion q = new Quaternion();
+		q.setFromAxis(1000f, 0f, 0f, 90f);
+		Matrix4 rMatrix = new Matrix4();
+		q.toMatrix(rMatrix.val);
+		for(Node node : modelInstance.nodes){
+			if(node.id.equals("Dummypushka1")){
+				node.translation.add(/*-125f*/-135f, -98f, 0f);
+			}
+			if(node.id.equals("Dummypushka2")){
+				node.translation.add(145f, -100f, 135f);
+			}
+			node.translation.add(0f, 30f, -68f);
+			node.translation.mul(rMatrix);
+			node.rotation.mulLeft(q);
+			node.calculateTransforms(true);
 		}
 		ModelSubjectOperable<Ship, ModelSubjectPrint> subject = new ShipSubject(brick, modelInstance);
 		this.addSubject(subject);
+		
+		gunMark = new MarkPoint(
+				new Vector3(18.131077f,  157.869476f,  5.421094f), 
+				new Vector3(25.742855f,  164.275574f,  5.676825f), 
+				new Vector3(38.976746f,  154.729126f,  6.235388f), 
+				new Vector3(25.742855f,  157.869461f,  6.266388f));
+		gunMark.addTransform(subject.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
+		gunMark.addTransform(subject.getNodeOperator("pushka").getNodeData("Dummypushka1").linkTransform());
+		gunMark.addTransform(subject.linkTransform());
+		
 		registerEventChecker(OverlapChecker.instance());
 	}
 	
 	private ModelInstance fetchModel(AssetManager assets){
-//		Model shipModel = assets.get("models/ship7.g3db", Model.class);
-		Model shipModel = assets.get("models/ship_4.g3db", Model.class);
+		Model shipModel = assets.get("models/ship11.g3db", Model.class);
+//		Model shipModel = assets.get("models/ship_4.g3db", Model.class);
 		ModelInstance ship1 = new ModelInstance(shipModel);
 		return ship1;
 	}
 	
 	private Brick produceBrick(){
-/*		Collection<Ipoint> points = new LinkedList<Ipoint>();
-		points.add(new Ipoint(75, 0));
-		points.add(new Ipoint(59, 2));
-		points.add(new Ipoint(47, 3));
-		points.add(new Ipoint(35, 5));
-		points.add(new Ipoint(23, 7));
-		points.add(new Ipoint(11, 9));
-		points.add(new Ipoint(0, 10));
-		points.add(new Ipoint(-11, 10));
-		points.add(new Ipoint(-24, 10));
-		points.add(new Ipoint(-36, 9));
-		points.add(new Ipoint(-48, 9));
-		points.add(new Ipoint(-62, 6));
-		points.add(new Ipoint(-71, 4));
-		points.add(new Ipoint(-75, 0));
-		points.add(new Ipoint(-71, -4));
-		points.add(new Ipoint(-62, -6));
-		points.add(new Ipoint(-48, -9));
-		points.add(new Ipoint(-36, -9));
-		points.add(new Ipoint(-24, -10));
-		points.add(new Ipoint(-11, -10));
-		points.add(new Ipoint(0, -10));
-		points.add(new Ipoint(11, -9));
-		points.add(new Ipoint(23, -7));
-		points.add(new Ipoint(35, -5));
-		points.add(new Ipoint(47, -3));
-		points.add(new Ipoint(59, -2));*/
+
 		
 		Collection<Ipoint> points = new LinkedList<Ipoint>();
-		points.add(new Ipoint(75, 0));
-		points.add(new Ipoint(64, 2));
-		points.add(new Ipoint(58, 3));
-		points.add(new Ipoint(45, 5));
-		points.add(new Ipoint(31, 7));
-		points.add(new Ipoint(16, 9));
-		points.add(new Ipoint(0, 10));
-		points.add(new Ipoint(-24, 10));
-		points.add(new Ipoint(-38, 9));
-		points.add(new Ipoint(-48, 8));
-		points.add(new Ipoint(-62, 6));
-		points.add(new Ipoint(-71, 4));
+		points.add(new Ipoint(844, 0));
+		points.add(new Ipoint(665, 40));
+		points.add(new Ipoint(531, 63));
+		points.add(new Ipoint(397, 84));
+		points.add(new Ipoint(129, 115));
+		points.add(new Ipoint(-3, 122));
+		points.add(new Ipoint(-135, 127));
+		points.add(new Ipoint(-273, 123));
+		points.add(new Ipoint(-417, 117));
+		points.add(new Ipoint(-554, 110));
+		points.add(new Ipoint(-713, 83));
+		points.add(new Ipoint(-809, 49));
 		
-		points.add(new Ipoint(-75, 0));
+		points.add(new Ipoint(-857, 0));
 		
-		points.add(new Ipoint(-71, -4));
-		points.add(new Ipoint(-62, -6));
-		points.add(new Ipoint(-48, -8));
-		points.add(new Ipoint(-38, -9));
-		points.add(new Ipoint(-24, -10));
-		points.add(new Ipoint(0, -10));
-		points.add(new Ipoint(16, -9));
-		points.add(new Ipoint(31, -7));
-		points.add(new Ipoint(45, -5));
-		points.add(new Ipoint(58, -3));
-		points.add(new Ipoint(64, -2));
+		points.add(new Ipoint(-809, -49));
+		points.add(new Ipoint(-714, -79));
+		points.add(new Ipoint(-555, -106));
+		points.add(new Ipoint(-418, -115));
+		points.add(new Ipoint(-272, -123));
+		points.add(new Ipoint(-135, -127));
+		points.add(new Ipoint(-3, -122));
+		points.add(new Ipoint(129, -115));
+		points.add(new Ipoint(263, -101));
+		points.add(new Ipoint(397, -84));
+		points.add(new Ipoint(531, -63));
+		points.add(new Ipoint(665, -40));
 		ConvexityApproveHelper.applyConvexity(points);
 		return new PointSetBrick(points);
 	}
@@ -166,10 +156,10 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 	public CameraSatellite initializeCamera(){
 		if(this.cameraSatellite == null){
 			Camera camera = new PerspectiveCamera(37f, 1250f, 750f);
-			camera.far = 5000;
+			camera.far = 50000;
 			Ipoint origin = this.getOrigin();
 			double rotation = this.getRotation();
-			camera.translate(origin.getFX(), origin.getFY(), 250f);
+			camera.translate(origin.getFX(), origin.getFY(), 2500f);
 			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
 			camera.update();
 			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, this);
@@ -205,5 +195,11 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 	public void rollBack(long curTime){
 		super.rollBack(curTime);
 		this.removeHistory(BaseEvent.touchEventCode);
+	}
+	
+	@Override
+	public void outOfWorld(){
+		super.outOfWorld();
+		System.out.println(this.getlog());
 	}
 }

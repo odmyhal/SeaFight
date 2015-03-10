@@ -5,14 +5,14 @@
         <map/>
         <node name="sf.camera.defaults">
             <map>
-                <entry key="camera.move.maxRadius" value="1000.0"/>
-				<entry key="camera.move.speed" value="500.0"/>
+                <entry key="camera.move.maxRadius" value="10000.0"/>
+				<entry key="camera.move.speed" value="5000.0"/>
 
 				<entry key="camera.target.constant.rotation" value="1.571"/>
 				<entry key="camera.roll.speed.radians" value="1.571"/>
 				
-				<entry key="camera.altitude.min" value="-100"/>
-				<entry key="camera.altitude.max" value="3000"/>
+				<entry key="camera.altitude.min" value="-1000"/>
+				<entry key="camera.altitude.max" value="30000"/>
 				
 				<entry key="camera.vertical.roll.speed" value="3.14159"/>
             </map>
@@ -21,9 +21,9 @@
         <node name="sf.ship.defaults">
             <map>
                 <entry key="ship.roll.speed.radians" value="0.4"/>
-                <entry key="ship.speed.directional.min" value="-50"/>
-                <entry key="ship.speed.directional.max" value="200"/>
-                <entry key="ship.acceleration.directional" value="20"/>
+                <entry key="ship.speed.directional.min" value="-500"/>
+                <entry key="ship.speed.directional.max" value="2000"/>
+                <entry key="ship.acceleration.directional" value="200"/>
             </map>
         </node>
     </root>

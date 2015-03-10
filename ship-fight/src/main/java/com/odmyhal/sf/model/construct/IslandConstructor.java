@@ -60,26 +60,26 @@ public class IslandConstructor implements ModelConstructor{
 		Ipoint translate = new Ipoint(0, 0);
 		
 		List<Vector3> vertexes = new ArrayList<Vector3>();
-		vertexes.add(new Vector3(50f, 0f, -15f));
-		vertexes.add(new Vector3(250f, 50f, -15f));
-		vertexes.add(new Vector3(400f, 200f, -15f));
-		vertexes.add(new Vector3(400f, 300f, -15f));
+		vertexes.add(new Vector3(500f, 0f, -150f));
+		vertexes.add(new Vector3(2500f, 500f, -150f));
+		vertexes.add(new Vector3(4000f, 2000f, -150f));
+		vertexes.add(new Vector3(4000f, 3000f, -150f));
 //		vertexes.add(new Vector3(350f, 400f, -15f));
-		vertexes.add(new Vector3(350f, 350f, -15f));
-		vertexes.add(new Vector3(300f, 350f, -15f));
-		vertexes.add(new Vector3(150f, 300f, -15f));
-		vertexes.add(new Vector3(50f, 250f, -15f));
-		vertexes.add(new Vector3(0f, 150f, -15f));
+		vertexes.add(new Vector3(3500f, 3500f, -150f));
+		vertexes.add(new Vector3(3000f, 3500f, -150f));
+		vertexes.add(new Vector3(1500f, 3000f, -150f));
+		vertexes.add(new Vector3(500f, 2500f, -150f));
+		vertexes.add(new Vector3(0f, 1500f, -150f));
 		
 		
 		
-		vertexes.add(new Vector3(100f, 100f, 50f));
-		vertexes.add(new Vector3(200f, 100f, 60f));
-		vertexes.add(new Vector3(250f, 150f, 65f));
-		vertexes.add(new Vector3(300f, 250f, 85f));
-		vertexes.add(new Vector3(200f, 200f, 70f));
+		vertexes.add(new Vector3(1000f, 1000f, 500f));
+		vertexes.add(new Vector3(2000f, 1000f, 600f));
+		vertexes.add(new Vector3(2500f, 1500f, 650f));
+		vertexes.add(new Vector3(3000f, 2500f, 850f));
+		vertexes.add(new Vector3(2000f, 2000f, 700f));
 		for(Vector3 v3 : vertexes){
-			v3.add(-225f, -175f, 0);
+			v3.add(-2250f, -1750f, 0);
 		}
 		applyVertexData(islandName, vertexes.subList(0, 9), translate);
 		Color color = new Color((float)241 / 256, (float)177 / 256, (float)106 / 256, 1f);

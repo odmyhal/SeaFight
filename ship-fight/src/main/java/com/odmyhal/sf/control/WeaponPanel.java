@@ -4,6 +4,7 @@ import org.bircks.enterprise.control.panel.AnimationRisePanel;
 import org.bircks.enterprise.control.panel.Skinner;
 import org.bricks.enterprise.control.widget.tool.FlowTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowWidgetProvider;
+import org.bricks.enterprise.control.widget.tool.HalfRTouchPad;
 import org.bricks.extent.control.NodeRollProcessorAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -32,11 +33,15 @@ public class WeaponPanel extends AnimationRisePanel{
 		controlPanel.add(l).pad(5).top().left();
 		controlPanel.row();
 		
-//		NodeRollAction<Ship, FlowTouchPad> nodeRollAction = new NodeRollAction<Ship, FlowTouchPad>(ship, new Vector3(0f, 0f, -10f), 
-//				new Vector3(15f, 0f, 0f), (float) Math.PI / 2, 0.5f, tower, gun);
-		NodeRollProcessorAction<?, FlowTouchPad> nodeRollAction = new NodeRollProcessorAction(ship, "pushka", 0.5f);
-		FlowTouchPad ftp = FlowWidgetProvider.produceFlowTouchPad(nodeRollAction, "NodeRollPad", (int)(Math.min(width, height) * 0.7));
+//Gun horizontal roll pad:
+		NodeRollProcessorAction<?, FlowTouchPad> pushkaHRollAction = new NodeRollProcessorAction(ship, "pushka", 0.5f);
+		FlowTouchPad ftp = FlowWidgetProvider.produceFlowTouchPad(pushkaHRollAction, "NodeRollPad", (int)(Math.min(width, height) * 0.7));
 		controlPanel.add(ftp).pad(5);
+		
+//Gun vertical roll pad:		
+		NodeRollProcessorAction<Ship, HalfRTouchPad> pushkaVRollAction = new NodeRollProcessorAction<Ship, HalfRTouchPad>(ship, "stvol", 0.5f);
+		HalfRTouchPad hrtp = FlowWidgetProvider.produceFlowHalfRTouchPad(pushkaVRollAction, "Pushka1VRoll", (int)(Math.min(width, height) * 0.7));
+		controlPanel.add(hrtp).pad(5);
 
 		return controlPanel;
 	}

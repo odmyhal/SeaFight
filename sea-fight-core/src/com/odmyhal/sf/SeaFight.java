@@ -15,6 +15,7 @@ import org.bricks.engine.Motor;
 import org.bricks.engine.data.DataPool;
 import org.bricks.extent.debug.ShapeDebugger;
 import org.bricks.extent.entity.CameraSatellite;
+import org.bricks.extent.tool.MarkPoint;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -22,6 +23,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -29,6 +31,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
@@ -36,6 +39,8 @@ import com.odmyhal.sf.model.ShaderWaver;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
 import com.odmyhal.sf.staff.Ship;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 
 public class SeaFight extends ApplicationAdapter {
 	
@@ -47,7 +52,9 @@ public class SeaFight extends ApplicationAdapter {
 	CameraSatellite cameraSatellite;
 	
 	ShapeDebugger debug;
-	private static final boolean DEBUG_ENABLED = false;
+	private static final boolean DEBUG_ENABLED = true;
+	
+	private Ship ship;
 	
 //	ModelInstance ship1/*, ship2*/;
 	AssetManager assets = new AssetManager();
@@ -115,17 +122,17 @@ public class SeaFight extends ApplicationAdapter {
 		m1.addSubject(waver);
 		
 		Island island1 = Island.instance("island_1");
-		island1.translate(800, 1000);
+		island1.translate(8000, 10000);
 		island1.setToRotation(80);
 		island1.applyEngine(engine);
 		
 		Island island2 = Island.instance("island_1");
-		island2.translate(1700, 1500);
+		island2.translate(17000, 15000);
 		island2.setToRotation(180);
 		island2.applyEngine(engine);
 		
 		Island island3 = Island.instance("island_1");
-		island3.translate(2050, 700);
+		island3.translate(20500, 7000);
 		island3.setToRotation(254);
 		island3.applyEngine(engine);
 		
@@ -133,32 +140,31 @@ public class SeaFight extends ApplicationAdapter {
 //		assets.load("models/ship5.g3db", Model.class);
 //		assets.load("models/ship_2.g3db", Model.class);
 		assets.load("models/ship_4.g3db", Model.class);
-		assets.load("models/ship7.g3db", Model.class);
+		assets.load("models/ship11.g3db", Model.class);
+		assets.load("models/ship9.g3db", Model.class);
 		assets.finishLoading();
 		if(assets.update()){
 			Gdx.app.debug("Sea fight", "Models are loaded");
 		}
 		
-		Ship one = new Ship(assets);
-//		System.out.println("--Ship created");
-//		one.translate(830, 500);
-//		one.translate(700, 600);
-		one.translate(700, 600);
-//		System.out.println("--Ship translated");
-		cameraSatellite = one.initializeCamera();
+		ship = new Ship(assets);
+		ship.translate(7000, 6000);
+//		one.translate(200, 200);
+//		one.translate(108, 0);
+		cameraSatellite = ship.initializeCamera();
 		camera = cameraSatellite.camera;
-		one.applyEngine(engine);
+		ship.applyEngine(engine);
 //		System.out.println("--Ship applyed");
 		
 		CameraPanel cp = new CameraPanel(camera, cameraSatellite, "panel.defaults", "sf.camera.defaults");
 		panelManager.addPanel(cp);
 	
-		ShipMovePanel smp = new ShipMovePanel(one);
+		ShipMovePanel smp = new ShipMovePanel(ship);
 		smp.setActive(true);
 		smp.inputControl();
 		panelManager.addPanel(smp);
 		
-		WeaponPanel wp = new WeaponPanel(one);
+		WeaponPanel wp = new WeaponPanel(ship);
 		panelManager.addPanel(wp);
 
 		modelBatch = new ModelBatch(new WaveShaderProvider());
@@ -169,7 +175,10 @@ public class SeaFight extends ApplicationAdapter {
         Gdx.app.debug("Sea Fight", "game create passed");
         System.out.println(Gdx.gl.getClass().getCanonicalName());
         System.out.println("GL30 - " + Gdx.gl30.getClass().getCanonicalName());
+        System.out.println("Before markTest...");
 	}
+	
+
 	
 	@Override
 	public void render(){
@@ -188,7 +197,17 @@ public class SeaFight extends ApplicationAdapter {
 		modelBatch.end();
 		if(DEBUG_ENABLED){
 			debug.drawEntityShapes(entitiesPool, camera.combined);
-//			debug.drawSectors(engine, camera.combined);
+			debug.drawSectors(engine, camera.combined);
+			
+			ship.gunMark.calculateTransforms();
+			debug.shR.setProjectionMatrix(camera.combined);
+			debug.shR.begin(ShapeType.Line);
+			debug.shR.setColor(Color.GREEN);
+//			debug.shR.line(ship.gunMark.getMark(0).x, ship.gunMark.getMark(0).y, ship.gunMark.getMark(1).x, ship.gunMark.getMark(1).y);
+//			System.out.format("Dubug print1 line x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f\n",  ship.gunMark.getMark(0).x, ship.gunMark.getMark(0).y, ship.gunMark.getMark(1).x, ship.gunMark.getMark(1).y);
+			debug.shR.line(ship.gunMark.getMark(2).x, ship.gunMark.getMark(2).y, ship.gunMark.getMark(3).x, ship.gunMark.getMark(3).y);
+//			System.out.format("Dubug print2 line x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f\n",  ship.gunMark.getMark(2).x, ship.gunMark.getMark(2).y, ship.gunMark.getMark(3).x, ship.gunMark.getMark(3).y);
+			debug.shR.end();
 		}
 //		entitiesPool.free();
 		
