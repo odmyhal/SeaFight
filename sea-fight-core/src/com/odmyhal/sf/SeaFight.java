@@ -13,6 +13,7 @@ import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
 import org.bricks.engine.data.DataPool;
+import org.bricks.engine.tool.Origin2D;
 import org.bricks.extent.debug.ShapeDebugger;
 import org.bricks.extent.entity.CameraSatellite;
 import org.bricks.extent.tool.MarkPoint;
@@ -52,7 +53,7 @@ public class SeaFight extends ApplicationAdapter {
 	CameraSatellite cameraSatellite;
 	
 	ShapeDebugger debug;
-	private static final boolean DEBUG_ENABLED = true;
+	private static final boolean DEBUG_ENABLED = false;
 	
 	private Ship ship;
 	
@@ -121,18 +122,23 @@ public class SeaFight extends ApplicationAdapter {
 		Motor m1 = engine.getLazyMotor();
 		m1.addSubject(waver);
 		
+		Origin2D tmpOrigin = new Origin2D();
+		
 		Island island1 = Island.instance("island_1");
-		island1.translate(8000, 10000);
+		tmpOrigin.set(8000, 10000);
+		island1.translate(tmpOrigin);
 		island1.setToRotation(80);
 		island1.applyEngine(engine);
 		
 		Island island2 = Island.instance("island_1");
-		island2.translate(17000, 15000);
+		tmpOrigin.set(17000, 15000);
+		island2.translate(tmpOrigin);
 		island2.setToRotation(180);
 		island2.applyEngine(engine);
 		
 		Island island3 = Island.instance("island_1");
-		island3.translate(20500, 7000);
+		tmpOrigin.set(20500, 7000);
+		island3.translate(tmpOrigin);
 		island3.setToRotation(254);
 		island3.applyEngine(engine);
 		
@@ -148,7 +154,8 @@ public class SeaFight extends ApplicationAdapter {
 		}
 		
 		ship = new Ship(assets);
-		ship.translate(7000, 6000);
+		tmpOrigin.set(7000, 6000);
+		ship.translate(tmpOrigin);
 //		one.translate(200, 200);
 //		one.translate(108, 0);
 		cameraSatellite = ship.initializeCamera();

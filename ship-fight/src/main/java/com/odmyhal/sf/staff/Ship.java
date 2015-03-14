@@ -157,7 +157,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 		if(this.cameraSatellite == null){
 			Camera camera = new PerspectiveCamera(37f, 1250f, 750f);
 			camera.far = 50000;
-			Ipoint origin = this.getOrigin();
+			Point origin = this.origin().source;
 			double rotation = this.getRotation();
 			camera.translate(origin.getFX(), origin.getFY(), 2500f);
 			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
