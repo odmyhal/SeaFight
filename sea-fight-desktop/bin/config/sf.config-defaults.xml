@@ -21,9 +21,18 @@
         <node name="sf.ship.defaults">
             <map>
                 <entry key="ship.roll.speed.radians" value="0.4"/>
-                <entry key="ship.speed.directional.min" value="-500"/>
-                <entry key="ship.speed.directional.max" value="2000"/>
+                <entry key="ship.speed.directional.min" value="-200"/>
+                <entry key="ship.speed.directional.max" value="500"/>
                 <entry key="ship.acceleration.directional" value="200"/>
+            </map>
+        </node>
+        
+        <node name="sf.ship.ammunition">
+            <map>
+                <entry key="ship.ammo1.speed.directional" value="7000"/>
+                <entry key="ship.ammo1.world.max" value="50000"/>
+                <entry key="ship.ammo1.world.min" value="-1000"/>
+                <entry key="ship.ammo1.acceleration.z" value="-1000"/>
             </map>
         </node>
     </root>

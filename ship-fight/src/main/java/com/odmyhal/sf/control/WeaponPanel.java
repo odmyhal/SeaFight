@@ -6,6 +6,9 @@ import org.bricks.enterprise.control.widget.tool.FlowTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowWidgetProvider;
 import org.bricks.enterprise.control.widget.tool.HalfRTouchPad;
 import org.bricks.extent.control.NodeRollProcessorAction;
+import org.bricks.extent.control.RiseEventButton;
+import org.bricks.extent.event.FireEvent;
+
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.odmyhal.sf.staff.Ship;
@@ -42,6 +45,8 @@ public class WeaponPanel extends AnimationRisePanel{
 		NodeRollProcessorAction<Ship, HalfRTouchPad> pushkaVRollAction = new NodeRollProcessorAction<Ship, HalfRTouchPad>(ship, "stvol", 0.5f);
 		HalfRTouchPad hrtp = FlowWidgetProvider.produceFlowHalfRTouchPad(pushkaVRollAction, "Pushka1VRoll", (int)(Math.min(width, height) * 0.7));
 		controlPanel.add(hrtp).pad(5);
+		
+		controlPanel.add(new RiseEventButton(ship, new FireEvent(), "FIRE")).pad(8);
 
 		return controlPanel;
 	}

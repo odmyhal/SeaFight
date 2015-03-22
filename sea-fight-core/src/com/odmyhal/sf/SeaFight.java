@@ -2,6 +2,7 @@ package com.odmyhal.sf;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
@@ -12,11 +13,10 @@ import org.bircks.enterprise.control.panel.camera.CameraPanel;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
-import org.bricks.engine.data.DataPool;
+import org.bricks.engine.help.RotationHelper;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.extent.debug.ShapeDebugger;
 import org.bricks.extent.entity.CameraSatellite;
-import org.bricks.extent.tool.MarkPoint;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -33,15 +33,14 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShaderWaver;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
 import com.odmyhal.sf.staff.Ship;
-import com.badlogic.gdx.graphics.GL30;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 
 public class SeaFight extends ApplicationAdapter {
 	
@@ -127,19 +126,22 @@ public class SeaFight extends ApplicationAdapter {
 		Island island1 = Island.instance("island_1");
 		tmpOrigin.set(8000, 10000);
 		island1.translate(tmpOrigin);
-		island1.setToRotation(80);
+		RotationHelper.setToRotation(89, island1);
+//		island1.setToRotation(80);
 		island1.applyEngine(engine);
 		
 		Island island2 = Island.instance("island_1");
 		tmpOrigin.set(17000, 15000);
 		island2.translate(tmpOrigin);
-		island2.setToRotation(180);
+		RotationHelper.setToRotation(180, island2);
+//		island2.setToRotation(180);
 		island2.applyEngine(engine);
 		
 		Island island3 = Island.instance("island_1");
 		tmpOrigin.set(20500, 7000);
 		island3.translate(tmpOrigin);
-		island3.setToRotation(254);
+		RotationHelper.setToRotation(254, island3);
+//		island3.setToRotation(254);
 		island3.applyEngine(engine);
 		
 //		assets.load("models/ship7.g3db", Model.class);
@@ -154,6 +156,51 @@ public class SeaFight extends ApplicationAdapter {
 		}
 		
 		ship = new Ship(assets);
+/*		System.out.println("Before calculate: " + ship.gunMark.getMark(2));
+		ship.gunMark.calculateTransforms();
+		System.out.println("After calculate: " + ship.gunMark.getMark(2));
+//		Vector3 tst = new Vector3(38.976746f,  154.729126f,  6.235388f); 
+//		Vector3 tst_1 = new Vector3(38.976746f,  154.729126f,  6.235388f);
+		Vector3 tst = new Vector3(0f,  0f,  200f); 
+		Vector3 tst_1 = new Vector3(0f,  0f,  200f);
+		
+		Iterator<Matrix4> iter = ship.gunMark.transforms.iterator();
+		Matrix4 matr1 = new Matrix4(iter.next());
+		matr1.setToRotation(0f, 999f, 0f, -90);
+		Matrix4 matr2 = new Matrix4(iter.next());
+		matr2.setToRotation(0f, 0f, 99f, -90);
+		Matrix4 matr3 = new Matrix4();
+		matr3.setToRotation(99f, 0f, 0f, -90);
+		
+		System.out.println("---------------startVector-----------------");
+		System.out.println(tst);
+		System.out.println("---------------Vector mul first-----------------");
+		System.out.println(tst.mul(matr1));
+		System.out.println("---------------Vector mul second-----------------");
+		System.out.println(tst.mul(matr2));
+		System.out.println("---------------Matrix1-----------------");
+		System.out.println(matr1);
+		System.out.println("---------------Matrix2-----------------");
+		System.out.println(matr2);
+		System.out.println("---------------Matrix3-----------------");
+		System.out.println(matr3);
+		System.out.println("---------------Matrix2xmult-----------------");
+		System.out.println(matr1.mul(matr2));
+		System.out.println("---------------Vector both matrix-----------------");
+		System.out.println(tst_1.mul(matr1));
+		
+		Matrix4 hMatrix = new Matrix4();
+		hMatrix.idt();
+		tst.mul(hMatrix);
+		for(Matrix4 transform : ship.gunMark.transforms){
+			System.out.println(transform);
+			System.out.println("***Multi: " + tst.mul(transform));
+			System.out.println("Help matrix: " + hMatrix.mul(transform));
+			System.out.println("-----------------------------------");
+		}
+		System.out.println("Hmatrix is: " + hMatrix);
+		System.out.println("Help matrix res " + tst_1.mul(hMatrix));
+*/		
 		tmpOrigin.set(7000, 6000);
 		ship.translate(tmpOrigin);
 //		one.translate(200, 200);
@@ -182,7 +229,6 @@ public class SeaFight extends ApplicationAdapter {
         Gdx.app.debug("Sea Fight", "game create passed");
         System.out.println(Gdx.gl.getClass().getCanonicalName());
         System.out.println("GL30 - " + Gdx.gl30.getClass().getCanonicalName());
-        System.out.println("Before markTest...");
 	}
 	
 
@@ -205,7 +251,7 @@ public class SeaFight extends ApplicationAdapter {
 		if(DEBUG_ENABLED){
 			debug.drawEntityShapes(entitiesPool, camera.combined);
 			debug.drawSectors(engine, camera.combined);
-			
+/*			
 			ship.gunMark.calculateTransforms();
 			debug.shR.setProjectionMatrix(camera.combined);
 			debug.shR.begin(ShapeType.Line);
@@ -214,7 +260,7 @@ public class SeaFight extends ApplicationAdapter {
 //			System.out.format("Dubug print1 line x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f\n",  ship.gunMark.getMark(0).x, ship.gunMark.getMark(0).y, ship.gunMark.getMark(1).x, ship.gunMark.getMark(1).y);
 			debug.shR.line(ship.gunMark.getMark(2).x, ship.gunMark.getMark(2).y, ship.gunMark.getMark(3).x, ship.gunMark.getMark(3).y);
 //			System.out.format("Dubug print2 line x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f\n",  ship.gunMark.getMark(2).x, ship.gunMark.getMark(2).y, ship.gunMark.getMark(3).x, ship.gunMark.getMark(3).y);
-			debug.shR.end();
+			debug.shR.end();*/
 		}
 //		entitiesPool.free();
 		

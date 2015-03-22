@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.bricks.core.entity.Fpoint;
 import org.bricks.core.entity.Ipoint;
 import org.bricks.core.entity.Point;
 import org.bricks.core.entity.impl.PointSetBrick;
@@ -14,17 +13,18 @@ import org.bricks.core.help.ConvexityApproveHelper;
 import org.bricks.engine.event.BaseEvent;
 import org.bricks.engine.event.OverlapEvent;
 import org.bricks.engine.event.check.OverlapChecker;
-import org.bricks.engine.event.check.OwnEventChecker;
 import org.bricks.engine.event.overlap.OverlapStrategy;
-import org.bricks.engine.help.VectorSwapHelper;
 import org.bricks.engine.item.MultiWalkRoller;
 import org.bricks.engine.neve.WalkPrint;
-import org.bricks.exception.Validate;
+import org.bricks.engine.tool.Origin;
 import org.bricks.extent.entity.CameraSatellite;
 import org.bricks.extent.entity.mesh.ModelSubjectOperable;
 import org.bricks.extent.entity.mesh.ModelSubjectPrint;
 import org.bricks.extent.event.ExtentEventGroups;
-import org.bricks.extent.tool.MarkPoint;
+import org.bricks.extent.event.FireEvent;
+import org.bricks.extent.space.MarkPoint;
+import org.bricks.extent.space.Origin3D;
+import org.bricks.extent.space.Roll3D;
 import org.bricks.annotation.EventHandle;
 
 import com.badlogic.gdx.assets.AssetManager;
@@ -43,11 +43,16 @@ import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
 
-public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> implements RenderableProvider {
+public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?>, WalkPrint> implements RenderableProvider {
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
-	public MarkPoint gunMark;
+	private MarkPoint gunMark;
+	
+	
+	private Origin<Vector3> fireOrigin = new Origin3D();
+	private Vector3 helpVector = new Vector3();
+	private Vector3 h2V = new Vector3();
 
 	public Ship(AssetManager assets) {
 		if(!assets.update()){
@@ -55,20 +60,6 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 		}
 		Brick brick = produceBrick();
 		ModelInstance modelInstance = fetchModel(assets);
-
-
-/*		Quaternion q = new Quaternion();
-		q.setFromAxis(10f, 0f, 0f, 90f);
-		Matrix4 rMatrix = new Matrix4();
-		q.toMatrix(rMatrix.val);
-		for(Node node : modelInstance.nodes){
-			node.translation.mul(rMatrix);
-			node.rotation.mul(q);
-			if(node.id.equals("pushka_garmaty") || node.id.equals("pushka_osnova")){
-				node.translation.add(-14f, 0f, -9f);
-			}
-			node.calculateTransforms(true);
-		}*/
 		
 		Quaternion q = new Quaternion();
 		q.setFromAxis(1000f, 0f, 0f, 90f);
@@ -92,11 +83,13 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 		gunMark = new MarkPoint(
 				new Vector3(18.131077f,  157.869476f,  5.421094f), 
 				new Vector3(25.742855f,  164.275574f,  5.676825f), 
-				new Vector3(38.976746f,  154.729126f,  6.235388f), 
-				new Vector3(25.742855f,  157.869461f,  6.266388f));
-		gunMark.addTransform(subject.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
-		gunMark.addTransform(subject.getNodeOperator("pushka").getNodeData("Dummypushka1").linkTransform());
+//				new Vector3(38.976746f,  154.729126f,  6.235388f), 
+//				new Vector3(25.742855f,  157.869461f,  6.266388f));
+		new Vector3(38.976746f,  154.729126f,  6.235388f), 
+		new Vector3(25.742855f,  154.729126f,  6.235388f));
 		gunMark.addTransform(subject.linkTransform());
+		gunMark.addTransform(subject.getNodeOperator("pushka").getNodeData("Dummypushka1").linkTransform());
+		gunMark.addTransform(subject.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
 		
 		registerEventChecker(OverlapChecker.instance());
 	}
@@ -162,7 +155,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 			camera.translate(origin.getFX(), origin.getFY(), 2500f);
 			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
 			camera.update();
-			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, this);
+			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, getRotation());
 			addSatellite(cameraSatelliteK);
 			this.cameraSatellite = cameraSatelliteK;
 		}
@@ -173,6 +166,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 		Map<String, OverlapStrategy> ballStrategy = new HashMap<String, OverlapStrategy>();
 		ballStrategy.put(Island.ISLAND_SF_SOURCE, OverlapStrategy.TRUE);
 		ballStrategy.put(SHIP_SOURCE_TYPE, OverlapStrategy.FALSE);
+		ballStrategy.put(Ammunition.SHIP_AMMUNITION_TYPE, OverlapStrategy.FALSE);
 		return ballStrategy;
 	}
 	
@@ -201,5 +195,51 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable, WalkPrint> imple
 	public void outOfWorld(){
 		super.outOfWorld();
 		System.out.println(this.getlog());
+	}
+	
+	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
+	public void shoot(FireEvent e){
+		this.fire(e);
+	}
+	
+	private void fire(FireEvent e){
+		Ammunition ammo = new Ammunition();
+		this.gunMark.calculateTransforms();
+		Vector3 one = this.gunMark.getMark(2);
+		Vector3 two = this.gunMark.getMark(3);
+		fireOrigin.source.set(one);
+		ammo.translate(fireOrigin);
+		helpVector.set(one.x - two.x, one.y - two.y, one.z - two.z);
+		float h = 9f;
+		h2V.set(h, 0f, 0f);
+		h2V.crs(helpVector);
+		//Rotates ammo to proper direction
+		float scalar_mult = h * helpVector.x;
+		double cos = scalar_mult / (helpVector.len() * h);
+		double rad = Math.acos(cos);
+		Roll3D roll = ammo.linkRoll();
+		roll.setSpin(h2V, e.getEventTime());
+		roll.setRotation((float) rad);
+		ammo.applyRotation();
+		
+		//Sets ammo acceleration
+		float ammoSpeed = Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f);
+		helpVector.nor().scl(ammoSpeed);
+		ammo.getVector().source.set(helpVector);
+		
+		fireOrigin.source.set(0f, 0f, Ammunition.accelerationZ);
+		ammo.setAcceleration(fireOrigin, e.getEventTime());
+		
+		//Sets ammo ratation
+		h2V.set(helpVector.x, helpVector.y, helpVector.z + Ammunition.accelerationZ);
+		scalar_mult = helpVector.x * h2V.x + helpVector.y * h2V.y + helpVector.z * h2V.z;
+		cos = scalar_mult / (h2V.len() * helpVector.len());
+		ammo.setRotationSpeed((float) Math.acos(cos));
+		helpVector.crs(h2V);
+		roll.setSpin(helpVector, e.getEventTime());
+		
+		//Set previous origin to current
+		ammo.previousOrigin.set(ammo.origin().source);
+		ammo.applyEngine(this.getEngine());
 	}
 }

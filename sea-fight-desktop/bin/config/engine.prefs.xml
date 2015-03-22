@@ -7,7 +7,7 @@
             <map>
                 <entry key="sector.length" value="5000"/>
 				<entry key="buffer.luft" value="2000"/>
-				<entry key="sector.initial.capacity" value="10"/>
+				<entry key="sector.initial.capacity" value="50"/>
 				<entry key="world.rows.count" value="5"/>
 				<entry key="world.cols.count" value="5"/>
 				<entry key="motor.count" value="2"/>
