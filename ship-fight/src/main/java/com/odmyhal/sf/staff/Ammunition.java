@@ -13,6 +13,7 @@ import org.bricks.extent.event.ExtentEventGroups;
 import org.bricks.extent.space.SpaceSubject;
 import org.bricks.extent.space.SpaceWalker;
 
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector3;
@@ -40,7 +41,9 @@ public class Ammunition extends SpaceWalker<SpaceSubject<?, ?>, WalkPrint<?, Vec
 	public Vector3 previousOrigin = new Vector3();
 	
 	public Ammunition(){
-		subject = new SpaceSubject(ModelStorage.instance().getModelInstance("ship_ammunition"), new Vector3());
+		Vector3 one = new Vector3(-24f, 0f, 0f);
+		Vector3 two = new Vector3(36f, 0f, 0f);
+		subject = new SpaceSubject(ModelStorage.instance().getModelInstance("ship_ammunition"), new Vector3(), one, two);
 		this.addSubject(subject);
 		this.registerEventChecker(inWorldProcessor);
 		this.registerEventChecker(FaceWaterEventChecker.instance());
@@ -67,7 +70,7 @@ public class Ammunition extends SpaceWalker<SpaceSubject<?, ?>, WalkPrint<?, Vec
 	
 	@EventHandle(eventType = SHIP_AMMUNITION_TYPE)
 	public void faceWater(FaceWaterEvent event){
-		System.out.println("Ammo has faced water: " + event.touchPoint());
+//		System.out.println("Ammo has faced water: " + event.touchPoint());
 	}
 /*
 	protected void translate(Origin<Vector3> trn, boolean adjustView) {

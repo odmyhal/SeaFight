@@ -17,6 +17,7 @@ import org.bricks.engine.help.RotationHelper;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.extent.debug.ShapeDebugger;
 import org.bricks.extent.entity.CameraSatellite;
+import org.bricks.extent.tool.ModelHelper;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -34,6 +35,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
@@ -122,26 +124,24 @@ public class SeaFight extends ApplicationAdapter {
 		m1.addSubject(waver);
 		
 		Origin2D tmpOrigin = new Origin2D();
-		
+
 		Island island1 = Island.instance("island_1");
 		tmpOrigin.set(8000, 10000);
 		island1.translate(tmpOrigin);
-		RotationHelper.setToRotation(89, island1);
-//		island1.setToRotation(80);
+		ModelHelper.setToRotation(89, island1);
 		island1.applyEngine(engine);
-		
+
 		Island island2 = Island.instance("island_1");
 		tmpOrigin.set(17000, 15000);
 		island2.translate(tmpOrigin);
-		RotationHelper.setToRotation(180, island2);
-//		island2.setToRotation(180);
+//		RotationHelper.setToRotation(180, island2);
+		ModelHelper.setToRotation(180, island2);
 		island2.applyEngine(engine);
 		
 		Island island3 = Island.instance("island_1");
 		tmpOrigin.set(20500, 7000);
 		island3.translate(tmpOrigin);
-		RotationHelper.setToRotation(254, island3);
-//		island3.setToRotation(254);
+		ModelHelper.setToRotation(254, island3);
 		island3.applyEngine(engine);
 		
 //		assets.load("models/ship7.g3db", Model.class);
@@ -209,7 +209,7 @@ public class SeaFight extends ApplicationAdapter {
 		camera = cameraSatellite.camera;
 		ship.applyEngine(engine);
 //		System.out.println("--Ship applyed");
-		
+//		rotateTest();
 		CameraPanel cp = new CameraPanel(camera, cameraSatellite, "panel.defaults", "sf.camera.defaults");
 		panelManager.addPanel(cp);
 	
@@ -229,6 +229,8 @@ public class SeaFight extends ApplicationAdapter {
         Gdx.app.debug("Sea Fight", "game create passed");
         System.out.println(Gdx.gl.getClass().getCanonicalName());
         System.out.println("GL30 - " + Gdx.gl30.getClass().getCanonicalName());
+        
+        
 	}
 	
 
@@ -281,4 +283,5 @@ public class SeaFight extends ApplicationAdapter {
 		modelBatch.dispose();
 		debug.dispose();
 	}
+
 }

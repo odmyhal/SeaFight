@@ -25,6 +25,7 @@ import org.bricks.extent.event.FireEvent;
 import org.bricks.extent.space.MarkPoint;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
+import org.bricks.extent.subject.model.ModelBrickOperable;
 import org.bricks.annotation.EventHandle;
 
 import com.badlogic.gdx.assets.AssetManager;
@@ -43,7 +44,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
 
-public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?>, WalkPrint> implements RenderableProvider {
+public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickOperable>, WalkPrint> implements RenderableProvider {
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
@@ -77,7 +78,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?>, WalkPrint>
 			node.rotation.mulLeft(q);
 			node.calculateTransforms(true);
 		}
-		ModelSubjectOperable<Ship, ModelSubjectPrint> subject = new ShipSubject(brick, modelInstance);
+		ModelSubjectOperable<Ship, ModelSubjectPrint, ModelBrickOperable> subject = new ShipSubject(brick, modelInstance);
 		this.addSubject(subject);
 		
 		gunMark = new MarkPoint(
@@ -87,9 +88,9 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?>, WalkPrint>
 //				new Vector3(25.742855f,  157.869461f,  6.266388f));
 		new Vector3(38.976746f,  154.729126f,  6.235388f), 
 		new Vector3(25.742855f,  154.729126f,  6.235388f));
-		gunMark.addTransform(subject.linkTransform());
-		gunMark.addTransform(subject.getNodeOperator("pushka").getNodeData("Dummypushka1").linkTransform());
-		gunMark.addTransform(subject.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
+		gunMark.addTransform(subject.modelBrick.linkTransform());
+		gunMark.addTransform(subject.modelBrick.getNodeOperator("pushka").getNodeData("Dummypushka1").linkTransform());
+		gunMark.addTransform(subject.modelBrick.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
 		
 		registerEventChecker(OverlapChecker.instance());
 	}
@@ -203,6 +204,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?>, WalkPrint>
 	}
 	
 	private void fire(FireEvent e){
+//		System.out.println("----------start-fire---------------");
 		Ammunition ammo = new Ammunition();
 		this.gunMark.calculateTransforms();
 		Vector3 one = this.gunMark.getMark(2);
@@ -226,7 +228,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?>, WalkPrint>
 		float ammoSpeed = Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f);
 		helpVector.nor().scl(ammoSpeed);
 		ammo.getVector().source.set(helpVector);
-		
+//		System.out.println("vector is: " + helpVector);
 		fireOrigin.source.set(0f, 0f, Ammunition.accelerationZ);
 		ammo.setAcceleration(fireOrigin, e.getEventTime());
 		
@@ -237,9 +239,13 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?>, WalkPrint>
 		ammo.setRotationSpeed((float) Math.acos(cos));
 		helpVector.crs(h2V);
 		roll.setSpin(helpVector, e.getEventTime());
-		
+//		System.out.println("spin is: " + helpVector);
 		//Set previous origin to current
 		ammo.previousOrigin.set(ammo.origin().source);
+//		count = count + 1;
 		ammo.applyEngine(this.getEngine());
+//		System.out.println("----------finish-fire---------------");
 	}
+	
+//	private volatile int count = 0;
 }

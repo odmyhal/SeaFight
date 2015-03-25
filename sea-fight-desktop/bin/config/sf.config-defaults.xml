@@ -12,7 +12,7 @@
 				<entry key="camera.roll.speed.radians" value="1.571"/>
 				
 				<entry key="camera.altitude.min" value="-1000"/>
-				<entry key="camera.altitude.max" value="10000"/>
+				<entry key="camera.altitude.max" value="8000"/>
 				
 				<entry key="camera.vertical.roll.speed" value="3.14159"/>
             </map>
@@ -22,14 +22,14 @@
             <map>
                 <entry key="ship.roll.speed.radians" value="0.4"/>
                 <entry key="ship.speed.directional.min" value="-200"/>
-                <entry key="ship.speed.directional.max" value="500"/>
+                <entry key="ship.speed.directional.max" value="1000"/>
                 <entry key="ship.acceleration.directional" value="200"/>
             </map>
         </node>
         
         <node name="sf.ship.ammunition">
             <map>
-                <entry key="ship.ammo1.speed.directional" value="7000"/>
+                <entry key="ship.ammo1.speed.directional" value="8000"/>
                 <entry key="ship.ammo1.world.max" value="50000"/>
                 <entry key="ship.ammo1.world.min" value="-1000"/>
                 <entry key="ship.ammo1.acceleration.z" value="-1000"/>
