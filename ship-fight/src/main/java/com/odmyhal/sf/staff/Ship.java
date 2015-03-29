@@ -82,12 +82,11 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		this.addSubject(subject);
 		
 		gunMark = new MarkPoint(
-				new Vector3(18.131077f,  157.869476f,  5.421094f), 
-				new Vector3(25.742855f,  164.275574f,  5.676825f), 
-//				new Vector3(38.976746f,  154.729126f,  6.235388f), 
-//				new Vector3(25.742855f,  157.869461f,  6.266388f));
-		new Vector3(38.976746f,  154.729126f,  6.235388f), 
-		new Vector3(25.742855f,  154.729126f,  6.235388f));
+			new Vector3(45f,  152.7f,  3.8f), 
+			new Vector3(33.8f,  152.7f,  3.8f),
+			new Vector3(45f,  154.729126f,  5.85f), 
+			new Vector3(33.8f,  154.729126f,  5.85f)
+		);
 		gunMark.addTransform(subject.modelBrick.linkTransform());
 		gunMark.addTransform(subject.modelBrick.getNodeOperator("pushka").getNodeData("Dummypushka1").linkTransform());
 		gunMark.addTransform(subject.modelBrick.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
@@ -153,8 +152,10 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 			camera.far = 50000;
 			Point origin = this.origin().source;
 			double rotation = this.getRotation();
-			camera.translate(origin.getFX(), origin.getFY(), 2500f);
+//			camera.translate(origin.getFX(), origin.getFY(), 2500f);
+			camera.translate(origin.getFX() - 2500, origin.getFY(), 1000f);
 			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
+			camera.direction.rotate(80, 0f, -100f, 0f);
 			camera.update();
 			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, getRotation());
 			addSatellite(cameraSatelliteK);
@@ -174,16 +175,6 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
 	public void hitCannon(OverlapEvent e){
 		this.rollBack(e.getEventTime());
-/*		SubjectView myView = e.getTargetView();
-		System.out.println("ship: " + myView.getPoints());
-		System.out.println("ship center: " + myView.getCenter());
-		
-		SubjectView stoneView = e.getSourceView();
-		System.out.println("stone: " + stoneView.getPoints());
-		System.out.println("Stone center: " + stoneView.getCenter());
-		
-		System.out.println("Touch: " + e.getTouchPoint());*/
-//		this.removeHistory(BaseEvent.touchEventCode);
 	}
 
 	@Override
@@ -198,18 +189,23 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		System.out.println(this.getlog());
 	}
 	
+	private boolean que = true;
+	
 	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
 	public void shoot(FireEvent e){
-		this.fire(e);
+		if(que = !que){
+			this.fire(e, 1, 0);
+		}else{
+			this.fire(e, 3, 2);
+		}
 	}
 	
-	private void fire(FireEvent e){
-//		System.out.println("----------start-fire---------------");
+	private void fire(FireEvent e, int base, int cone){
 		Ammunition ammo = new Ammunition();
 		this.gunMark.calculateTransforms();
-		Vector3 one = this.gunMark.getMark(2);
-		Vector3 two = this.gunMark.getMark(3);
-		fireOrigin.source.set(one);
+		Vector3 one = this.gunMark.getMark(cone);
+		Vector3 two = this.gunMark.getMark(base);
+		fireOrigin.source.set(two);
 		ammo.translate(fireOrigin);
 		helpVector.set(one.x - two.x, one.y - two.y, one.z - two.z);
 		float h = 9f;
@@ -228,7 +224,6 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		float ammoSpeed = Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f);
 		helpVector.nor().scl(ammoSpeed);
 		ammo.getVector().source.set(helpVector);
-//		System.out.println("vector is: " + helpVector);
 		fireOrigin.source.set(0f, 0f, Ammunition.accelerationZ);
 		ammo.setAcceleration(fireOrigin, e.getEventTime());
 		
@@ -239,13 +234,9 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		ammo.setRotationSpeed((float) Math.acos(cos));
 		helpVector.crs(h2V);
 		roll.setSpin(helpVector, e.getEventTime());
-//		System.out.println("spin is: " + helpVector);
 		//Set previous origin to current
 		ammo.previousOrigin.set(ammo.origin().source);
-//		count = count + 1;
 		ammo.applyEngine(this.getEngine());
-//		System.out.println("----------finish-fire---------------");
 	}
 	
-//	private volatile int count = 0;
 }

@@ -14,6 +14,7 @@ com/odmyhal/sf/model/shader/WaveMesh.class
 com/odmyhal/sf/staff/Ammunition.class
 com/odmyhal/sf/model/BufferWaver.class
 org/bricks/engine/event/handler/ShipOverlapEventHandler.class
+com/odmyhal/sf/model/construct/WaterBallConstructor.class
 com/odmyhal/sf/model/construct/IslandConstructor.class
 com/odmyhal/sf/model/construct/BufferWaverConstructor.class
 com/odmyhal/sf/model/shader/WaveNativeShader.class

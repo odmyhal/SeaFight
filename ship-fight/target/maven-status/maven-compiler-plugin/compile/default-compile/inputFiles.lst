@@ -5,6 +5,7 @@
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/process/FaceWaterEvent.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/shader/WaveNativeShader.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/BufferWaverConstructor.java
+/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/WaterBallConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/ShaderWaveConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/AmmunitionConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/ShipRollAction.java

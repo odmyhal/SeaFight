@@ -57,6 +57,9 @@ public class SeaFight extends ApplicationAdapter {
 	private static final boolean DEBUG_ENABLED = false;
 	
 	private Ship ship;
+
+	private float totalDeltaTime = 0;
+	private int totalFramesCount = 0;
 	
 //	ModelInstance ship1/*, ship2*/;
 	AssetManager assets = new AssetManager();
@@ -121,7 +124,7 @@ public class SeaFight extends ApplicationAdapter {
 		ShaderWaver waver = new ShaderWaver();
 		engine.getWorld().addDecor(waver);
 		Motor m1 = engine.getLazyMotor();
-		m1.addSubject(waver);
+		m1.addLiver(waver);
 		
 		Origin2D tmpOrigin = new Origin2D();
 
@@ -237,6 +240,10 @@ public class SeaFight extends ApplicationAdapter {
 	
 	@Override
 	public void render(){
+
+		this.totalDeltaTime += Gdx.graphics.getDeltaTime();
+		this.totalFramesCount++;
+		
 		Gdx.gl.glClearColor(0.9f, 0.9f, 1f, 0.5f);
 //		Gdx.gl30.glClearColor(0.9f, 0.9f, 1f, 0.5f);
 //		Gdx.gl30.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
@@ -282,6 +289,7 @@ public class SeaFight extends ApplicationAdapter {
 	public void dispose(){
 		modelBatch.dispose();
 		debug.dispose();
+		Gdx.app.debug("OLEH-TEST", "Average frame time: " + (this.totalDeltaTime / this.totalFramesCount));
 	}
 
 }

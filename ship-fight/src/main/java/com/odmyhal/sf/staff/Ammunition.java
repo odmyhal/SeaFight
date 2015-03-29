@@ -6,10 +6,14 @@ import java.util.prefs.Preferences;
 
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.annotation.EventHandle;
+import org.bricks.engine.event.check.ChunkEventChecker;
 import org.bricks.engine.event.overlap.OverlapStrategy;
+import org.bricks.engine.event.processor.GetOutProcessor;
 import org.bricks.engine.neve.WalkPrint;
 import org.bricks.engine.tool.Origin;
+import org.bricks.extent.engine.checker.NodeScaleProcessor;
 import org.bricks.extent.event.ExtentEventGroups;
+import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.SpaceSubject;
 import org.bricks.extent.space.SpaceWalker;
 
@@ -20,14 +24,17 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
+import com.odmyhal.sf.model.WaterBall;
 import com.odmyhal.sf.process.FaceWaterEvent;
 import com.odmyhal.sf.process.FaceWaterEventChecker;
 
 import org.bricks.extent.space.SSPrint;
 import org.bricks.extent.space.check.CheckInWorldProcessor;
+import org.bricks.extent.subject.model.MBPrint;
+import org.bricks.extent.subject.model.ModelBrick;
 
 
-public class Ammunition extends SpaceWalker<SpaceSubject<?, ?>, WalkPrint<?, Vector3>> implements RenderableProvider{
+public class Ammunition extends SpaceWalker<SpaceSubject<?, ?, ?>, WalkPrint<?, Vector3>> implements RenderableProvider{
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.ammunition");
 	public static final String SHIP_AMMUNITION_TYPE = "ShipAmmunitio@sf.myhal.com";
@@ -36,7 +43,8 @@ public class Ammunition extends SpaceWalker<SpaceSubject<?, ?>, WalkPrint<?, Vec
 				prefs.getInt("ship.ammo1.world.max", 10000));
 	public static final float accelerationZ = prefs.getFloat("ship.ammo1.acceleration.z", 0f);
 	
-	private SpaceSubject<SpaceWalker, SSPrint> subject;
+	private SpaceSubject<SpaceWalker, SSPrint, ModelBrick> subject;
+	Origin<Vector3> tmpOrigin = new Origin3D();
 	//
 	public Vector3 previousOrigin = new Vector3();
 	
@@ -70,13 +78,11 @@ public class Ammunition extends SpaceWalker<SpaceSubject<?, ?>, WalkPrint<?, Vec
 	
 	@EventHandle(eventType = SHIP_AMMUNITION_TYPE)
 	public void faceWater(FaceWaterEvent event){
-//		System.out.println("Ammo has faced water: " + event.touchPoint());
+		WaterBall wb = new WaterBall();
+		tmpOrigin.source.set(event.touchPoint());
+		wb.translate(tmpOrigin);
+		wb.applyEngine(this.getEngine());
 	}
-/*
-	protected void translate(Origin<Vector3> trn, boolean adjustView) {
-		previousOrigin.set(origin().source);
-		super.translate(trn, adjustView);
-	}
-	*/
+
 
 }

@@ -29,7 +29,7 @@
         
         <node name="sf.ship.ammunition">
             <map>
-                <entry key="ship.ammo1.speed.directional" value="8000"/>
+                <entry key="ship.ammo1.speed.directional" value="7000"/>
                 <entry key="ship.ammo1.world.max" value="50000"/>
                 <entry key="ship.ammo1.world.min" value="-1000"/>
                 <entry key="ship.ammo1.acceleration.z" value="-1000"/>
