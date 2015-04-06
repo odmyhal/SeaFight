@@ -27,7 +27,7 @@ public class SfTest {
 		matrix.set(translation, rotation, scale);
 		point.mul(matrix);
 		
-		System.out.println("Result point: " + Math.sqrt(10.0352));
+		System.out.println("Result point: " + Math.sqrt(80.0 * 80.0 * 2));
 	}
 	
 }

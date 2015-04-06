@@ -13,6 +13,7 @@ import org.bricks.core.help.ConvexityApproveHelper;
 import org.bricks.engine.event.BaseEvent;
 import org.bricks.engine.event.OverlapEvent;
 import org.bricks.engine.event.check.OverlapChecker;
+import org.bricks.engine.event.overlap.BrickOverlapAlgorithm;
 import org.bricks.engine.event.overlap.OverlapStrategy;
 import org.bricks.engine.item.MultiWalkRoller;
 import org.bricks.engine.neve.WalkPrint;
@@ -22,11 +23,12 @@ import org.bricks.extent.entity.mesh.ModelSubjectOperable;
 import org.bricks.extent.entity.mesh.ModelSubjectPrint;
 import org.bricks.extent.event.ExtentEventGroups;
 import org.bricks.extent.event.FireEvent;
-import org.bricks.extent.space.MarkPoint;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
+import org.bricks.extent.space.overlap.MarkPoint;
 import org.bricks.extent.subject.model.ModelBrickOperable;
 import org.bricks.annotation.EventHandle;
+import org.bricks.annotation.OverlapCheck;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
@@ -54,6 +56,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 	private Origin<Vector3> fireOrigin = new Origin3D();
 	private Vector3 helpVector = new Vector3();
 	private Vector3 h2V = new Vector3();
+	private Quaternion helpQ = new Quaternion();
 
 	public Ship(AssetManager assets) {
 		if(!assets.update()){
@@ -163,16 +166,17 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		}
 		return cameraSatellite;
 	}
-	
+/*	
 	public Map<String, OverlapStrategy> initOverlapStrategy() {
 		Map<String, OverlapStrategy> ballStrategy = new HashMap<String, OverlapStrategy>();
-		ballStrategy.put(Island.ISLAND_SF_SOURCE, OverlapStrategy.TRUE);
+//		ballStrategy.put(Island.ISLAND_SF_SOURCE, OverlapStrategy.TRUE);
 		ballStrategy.put(SHIP_SOURCE_TYPE, OverlapStrategy.FALSE);
 		ballStrategy.put(Ammunition.SHIP_AMMUNITION_TYPE, OverlapStrategy.FALSE);
 		return ballStrategy;
 	}
-	
+*/	
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
+	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, sourceType = Island.ISLAND_SF_SOURCE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
 	public void hitCannon(OverlapEvent e){
 		this.rollBack(e.getEventTime());
 	}
@@ -208,6 +212,15 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		fireOrigin.source.set(two);
 		ammo.translate(fireOrigin);
 		helpVector.set(one.x - two.x, one.y - two.y, one.z - two.z);
+		
+		//Little randomazation of direction
+		h2V.set(helpVector.y, helpVector.z, helpVector.x);
+		helpQ.setFromAxisRad(helpVector, (float) (Math.random() * Math.PI * 2));
+		h2V.mul(helpQ);
+		helpQ.setFromAxis(h2V, (float) (0.5 - Math.random()));
+		helpVector.mul(helpQ);
+		//end randomization
+		
 		float h = 9f;
 		h2V.set(h, 0f, 0f);
 		h2V.crs(helpVector);
@@ -235,7 +248,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		helpVector.crs(h2V);
 		roll.setSpin(helpVector, e.getEventTime());
 		//Set previous origin to current
-		ammo.previousOrigin.set(ammo.origin().source);
+//		ammo.previousOrigin.set(ammo.origin().source);
 		ammo.applyEngine(this.getEngine());
 	}
 	

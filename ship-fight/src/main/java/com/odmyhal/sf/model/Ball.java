@@ -27,35 +27,22 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
-public class WaterBall extends MultiLiver<SpaceSubjectOperable, EntityPrint, Vector3> implements RenderableProvider{
+public class Ball extends MultiLiver<SpaceSubjectOperable, EntityPrint, Vector3> implements RenderableProvider{
 	
-	private SpaceSubjectOperable<WaterBall, SSPrint, ModelBrickOperable> subject;
-	public static final String modelNodeName = "water-ball_10";
+	private SpaceSubjectOperable<Ball, SSPrint, ModelBrickOperable> subject;
+	public static final String modelWaterName = "water-ball_10";
+	public static final String modelStoneExploit = "stone-exploit_10";
 	public static final CheckerType WATER_BALL_CH_TYPE = CheckerType.registerCheckerType();
 	
-	public WaterBall(){
-		ModelInstance waterBall = ModelStorage.instance().getModelInstance(modelNodeName);
-		subject = new SpaceSubjectOperable(waterBall, new String[]{modelNodeName}, new Vector3());
-		NodeOperator nodeOperator = subject.modelBrick.getNodeOperator(modelNodeName);
+	public Ball(String modelName){
+		ModelInstance waterBall = ModelStorage.instance().getModelInstance(modelName);
+		subject = new SpaceSubjectOperable(waterBall, new String[]{modelName}, new Vector3());
+		NodeOperator nodeOperator = subject.modelBrick.getNodeOperator(modelName);
 		Validate.isFalse(nodeOperator == null, "NodeOperatior has not been initialized :-(");
 		this.addSubject(subject);
-
-		NodeScaleProcessor NSProcessor1 = new NodeScaleProcessor(this, WaterBall.modelNodeName);
-		NSProcessor1.init(13f, 13f, 50f, 500L);
-		
-		NodeScaleProcessor NSProcessor2 = new NodeScaleProcessor(this, WaterBall.modelNodeName);
-		NSProcessor2.init(13f, 13f, 0.1f, 1200L);
-		
-		ChunkEventChecker<WaterBall> chck = new ChunkEventChecker<WaterBall>(WaterBall.WATER_BALL_CH_TYPE, NSProcessor1, NSProcessor2, GetOutProcessor.instance());
-		
-		this.registerEventChecker(chck);
 	}
 
 	public String sourceType() {
-		return null;
-	}
-
-	public Map<String, OverlapStrategy> initOverlapStrategy() {
 		return null;
 	}
 

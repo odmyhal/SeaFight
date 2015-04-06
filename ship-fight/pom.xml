@@ -22,6 +22,9 @@
                     <annotationProcessor>
                         org.bricks.annotation.processor.ModelConstructProcessor
                     </annotationProcessor>
+                    <annotationProcessor>
+                        org.bricks.annotation.processor.OverlapStrategyProcessor
+                    </annotationProcessor>
                 </annotationProcessors>
             </configuration>
         </plugin>

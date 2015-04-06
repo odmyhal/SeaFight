@@ -8,12 +8,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.odmyhal.sf.model.WaterBall;
+import com.odmyhal.sf.model.Ball;
 
-@ConstructModel({WaterBall.modelNodeName})
+@ConstructModel({Ball.modelWaterName, Ball.modelStoneExploit})
 public class WaterBallConstructor implements ModelConstructor{
 	
 	private static WaterBallConstructor instance = new WaterBallConstructor();
@@ -27,11 +28,16 @@ public class WaterBallConstructor implements ModelConstructor{
 	public void construct(ModelConstructTool modelBuilder, String... partName) {
 		for(String pName: partName){
 			modelBuilder.node(pName);
-			produceBall(modelBuilder, pName);
+			if(pName.equals(Ball.modelWaterName)){
+				produceWaterBall(modelBuilder, pName);
+			}
+			if(pName.equals(Ball.modelStoneExploit)){
+				produceExploitBall(modelBuilder, pName);
+			}
 		}
 	}
 	
-	private void produceBall(ModelBuilder modelBuilder, String name){
+	private void produceWaterBall(ModelBuilder modelBuilder, String name){
 		String[] pName = name.split("_");
 		Color ballColor = new Color(0.357f, 0.765f, 0.863f, 0.3f);
 		ballColor.mul(1.13f);
@@ -44,4 +50,14 @@ public class WaterBallConstructor implements ModelConstructor{
 		meshBuilder.sphere(d, d, d, 20, 20, 0, 180, 0, 180);
 	}
 
+	private void produceExploitBall(ModelBuilder modelBuilder, String name){
+		String[] pName = name.split("_");
+		Color ballColor = Color.DARK_GRAY;
+		ballColor.a = 0.5f;
+		BlendingAttribute ba = new BlendingAttribute();
+		ba.opacity = 0.99f;
+		MeshPartBuilder meshBuilder = modelBuilder.part(pName[0], GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(ballColor), ba));
+		float d = Float.parseFloat(pName[1]);
+		meshBuilder.sphere(d, d, d, 20, 20/*, 0, 180, 0, 180*/);
+	}
 }

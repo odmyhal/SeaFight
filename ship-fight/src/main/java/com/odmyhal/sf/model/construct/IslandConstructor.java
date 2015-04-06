@@ -3,26 +3,32 @@ package com.odmyhal.sf.model.construct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.bircks.entierprise.model.ModelConstructTool;
 import org.bircks.entierprise.model.ModelConstructor;
 import org.bricks.annotation.ConstructModel;
 import org.bricks.core.entity.Ipoint;
+import org.bricks.core.entity.Tuple;
 import org.bricks.enterprise.d3.help.ModelConstructHelper;
+import org.bricks.extent.tool.SkeletonConstructor;
+import org.bricks.extent.tool.SkeletonDataStore;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 @ConstructModel({"island_1"})
-public class IslandConstructor implements ModelConstructor{
+public class IslandConstructor extends SkeletonConstructor{
 	
 	private static final IslandConstructor instance = new IslandConstructor();
 	private static final HashMap<String, Collection<Ipoint>> idata = new HashMap<String, Collection<Ipoint>>();
@@ -64,7 +70,6 @@ public class IslandConstructor implements ModelConstructor{
 		vertexes.add(new Vector3(2500f, 500f, -150f));
 		vertexes.add(new Vector3(4000f, 2000f, -150f));
 		vertexes.add(new Vector3(4000f, 3000f, -150f));
-//		vertexes.add(new Vector3(350f, 400f, -15f));
 		vertexes.add(new Vector3(3500f, 3500f, -150f));
 		vertexes.add(new Vector3(3000f, 3500f, -150f));
 		vertexes.add(new Vector3(1500f, 3000f, -150f));
@@ -84,12 +89,28 @@ public class IslandConstructor implements ModelConstructor{
 		applyVertexData(islandName, vertexes.subList(0, 9), translate);
 		Color color = new Color((float)241 / 256, (float)177 / 256, (float)106 / 256, 1f);
 		
-		MeshPartBuilder meshBuilder = modelBuilder.part("tower", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(color)));
+//		BlendingAttribute ba = new BlendingAttribute();
+//		ba.opacity = 0.99f;
+		MeshPartBuilder meshBuilder = modelBuilder.part("tower", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(color)/*, ba*/));
 
 		Matrix4 m4 = new Matrix4();
 		m4.translate(translate.getFX(), translate.getFY(), 0f);
 		meshBuilder.setVertexTransform(m4);
 		
+		List<Integer> indexData = new ArrayList<Integer>();
+		applyRect(meshBuilder, vertexes, indexData, 0, 9, 1, 10);
+		applyRect(meshBuilder, vertexes, indexData, 1, 10, 2, 11);
+		applyTriangleNC(meshBuilder, vertexes, indexData, 2, 12, 11);
+		applyTriangleNC(meshBuilder, vertexes, indexData, 2, 3, 12);
+		applyTriangleNC(meshBuilder, vertexes, indexData, 3, 4, 12);
+		applyTriangleNC(meshBuilder, vertexes, indexData, 4, 5, 12);
+		applyRect(meshBuilder, vertexes, indexData, 5, 12, 6, 13);
+		applyTriangleNC(meshBuilder, vertexes, indexData, 6, 7, 13);
+		applyRect(meshBuilder, vertexes, indexData, 7, 13, 8, 9);
+		applyTriangleNC(meshBuilder, vertexes, indexData, 8, 0, 9);
+		applyRect(meshBuilder, vertexes, indexData, 9, 13, 10, 11);
+		applyTriangleNC(meshBuilder, vertexes, indexData, 11, 12, 13);
+/*		
 		ModelConstructHelper.applyRect(vertexes.get(0), vertexes.get(9), vertexes.get(1), vertexes.get(10), meshBuilder);
 		ModelConstructHelper.applyRect(vertexes.get(1), vertexes.get(10), vertexes.get(2), vertexes.get(11), meshBuilder);
 		ModelConstructHelper.applyTriangleNC(vertexes.get(2), vertexes.get(12), vertexes.get(11), meshBuilder);
@@ -103,6 +124,21 @@ public class IslandConstructor implements ModelConstructor{
 		
 		ModelConstructHelper.applyRect(vertexes.get(9), vertexes.get(13), vertexes.get(10), vertexes.get(11), meshBuilder);
 		ModelConstructHelper.applyTriangleNC(vertexes.get(11), vertexes.get(12), vertexes.get(13), meshBuilder);
+	*/	
+		
+		for(Vector3 v: vertexes){
+			v.mul(m4);
+		}
+		int[] intData = new int[indexData.size()];
+		for(int i = 0; i < intData.length; i++){
+			intData[i] = indexData.get(i);
+		}
+//		int[] intData = ArrayUtils.toPrimitive(indexData.toArray(new Integer[indexData.size()]));
+		Vector3[] vertexData = vertexes.toArray(new Vector3[vertexes.size()]);
+		SkeletonDataStore.registerSkeletonData(islandName, vertexData, intData);
+		
+		constructDebug(modelBuilder, islandName + ".DEBUG", vertexData, intData);
 	}
+
 
 }

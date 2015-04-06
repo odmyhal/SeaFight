@@ -33,10 +33,6 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector3;
 import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
@@ -55,6 +51,7 @@ public class SeaFight extends ApplicationAdapter {
 	
 	ShapeDebugger debug;
 	private static final boolean DEBUG_ENABLED = false;
+	private static final boolean SPACE_DEBUG_ENABLED = false;
 	
 	private Ship ship;
 
@@ -96,7 +93,7 @@ public class SeaFight extends ApplicationAdapter {
 		
 		environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 1f, 0.8f, 0.2f));
         
 		
 		FileHandle fh = Gdx.files.internal("config/engine.prefs.xml");
@@ -253,6 +250,9 @@ public class SeaFight extends ApplicationAdapter {
 		modelBatch.begin(camera);
 		for(RenderableProvider entity : entitiesPool){
 			modelBatch.render(entity, environment);
+		}
+		if(SPACE_DEBUG_ENABLED){
+			debug.drawSpaceShapes(modelBatch, entitiesPool);
 		}
 //		System.out.println("Trying to render system");
 		cameraSatellite.applyUpdates();
