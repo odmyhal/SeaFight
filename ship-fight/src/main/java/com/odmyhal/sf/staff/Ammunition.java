@@ -88,6 +88,12 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, ?>, OriginMovePri
 		wb.applyEngine(this.getEngine());
 	}
 	
+	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)
+	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, sourceType = Ship.SHIP_SOURCE_TYPE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
+	public void hitShip(OverlapEvent<?, ?, Vector3> event){
+		hitStone(event);
+	}
+	
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
 	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, sourceType = Island.ISLAND_SF_SOURCE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
 	public void hitStone(OverlapEvent<?, ?, Vector3> event){

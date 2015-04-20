@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.core.entity.Ipoint;
 import org.bricks.core.entity.Point;
 import org.bricks.core.entity.impl.PointSetBrick;
@@ -18,6 +19,9 @@ import org.bricks.engine.event.overlap.OverlapStrategy;
 import org.bricks.engine.item.MultiWalkRoller;
 import org.bricks.engine.neve.WalkPrint;
 import org.bricks.engine.tool.Origin;
+import org.bricks.exception.Validate;
+import org.bricks.extent.debug.SkeletonDebug;
+import org.bricks.extent.debug.SpaceDebug;
 import org.bricks.extent.entity.CameraSatellite;
 import org.bricks.extent.entity.mesh.ModelSubjectOperable;
 import org.bricks.extent.entity.mesh.ModelSubjectPrint;
@@ -26,7 +30,13 @@ import org.bricks.extent.event.FireEvent;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
 import org.bricks.extent.space.overlap.MarkPoint;
+import org.bricks.extent.space.overlap.Skeleton;
+import org.bricks.extent.subject.model.ModelBrick;
 import org.bricks.extent.subject.model.ModelBrickOperable;
+import org.bricks.extent.subject.model.ModelBrickSubject;
+import org.bricks.extent.tool.ModelHelper;
+import org.bricks.extent.tool.SkeletonDataStore;
+import org.bricks.extent.tool.SkeletonHelper;
 import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
 
@@ -46,12 +56,13 @@ import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
 
-public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickOperable>, WalkPrint> implements RenderableProvider {
+public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickOperable>, WalkPrint> implements RenderableProvider, SpaceDebug {
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
 	private MarkPoint gunMark;
 	
+	private SkeletonDebug skeletonDebug;
 	
 	private Origin<Vector3> fireOrigin = new Origin3D();
 	private Vector3 helpVector = new Vector3();
@@ -82,8 +93,9 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 			node.calculateTransforms(true);
 		}
 		ModelSubjectOperable<Ship, ModelSubjectPrint, ModelBrickOperable> subject = new ShipSubject(brick, modelInstance);
-		this.addSubject(subject);
 		
+		this.addSubject(subject);
+		enrichSkeleton(subject);
 		gunMark = new MarkPoint(
 			new Vector3(45f,  152.7f,  3.8f), 
 			new Vector3(33.8f,  152.7f,  3.8f),
@@ -97,9 +109,28 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		registerEventChecker(OverlapChecker.instance());
 	}
 	
+	private void enrichSkeleton(ModelBrickSubject mbs){
+		ModelBrick mb = mbs.linkModelBrick();
+		ModelInstance mi = mb.linkModelInstance();
+		String dataName = "SHIP.DEBUG";
+		Skeleton skeleton = mb.initSkeleton(SkeletonDataStore.getVertexes(dataName), SkeletonDataStore.getIndexes(dataName));
+		Matrix4 nodeMatrix = new Matrix4();
+		Node node = ModelHelper.findNode("Dummyship1/ship1", mi.nodes);
+		nodeMatrix.set(node.globalTransform);
+		skeleton.addTransform(nodeMatrix);
+		
+		ModelInstance debugModel = ModelStorage.instance().getModelInstance(dataName);
+		Validate.isFalse(debugModel == null, "Could not find model " + dataName);
+		
+		Node debugNode = ModelHelper.findNode(dataName, debugModel.nodes);
+		debugNode.globalTransform.set(nodeMatrix);
+		skeletonDebug = new SkeletonDebug(debugModel, mb);
+		
+	}
+	
 	private ModelInstance fetchModel(AssetManager assets){
 		Model shipModel = assets.get("models/ship11.g3db", Model.class);
-//		Model shipModel = assets.get("models/ship_4.g3db", Model.class);
+//		Model shipModel = assets.get("models/ship11.g3db", Model.class);
 		ModelInstance ship1 = new ModelInstance(shipModel);
 		return ship1;
 	}
@@ -155,10 +186,10 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 			camera.far = 50000;
 			Point origin = this.origin().source;
 			double rotation = this.getRotation();
-//			camera.translate(origin.getFX(), origin.getFY(), 2500f);
-			camera.translate(origin.getFX() - 2500, origin.getFY(), 1000f);
+			camera.translate(origin.getFX(), origin.getFY(), 2500f);
+//			camera.translate(origin.getFX() - 2500, origin.getFY(), 1000f);
 			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
-			camera.direction.rotate(80, 0f, -100f, 0f);
+//			camera.direction.rotate(80, 0f, -100f, 0f);*/
 			camera.update();
 			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, getRotation());
 			addSatellite(cameraSatelliteK);
@@ -202,6 +233,11 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		}else{
 			this.fire(e, 3, 2);
 		}
+	}
+	
+	@EventHandle(eventType = Ammunition.SHIP_AMMUNITION_TYPE)
+	public void ammoHurt(OverlapEvent<?, ?, Vector3> event){
+		System.out.println("Ship got ammo hurt: " + event.getTouchPoint());
 	}
 	
 	private void fire(FireEvent e, int base, int cone){
@@ -250,6 +286,10 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		//Set previous origin to current
 //		ammo.previousOrigin.set(ammo.origin().source);
 		ammo.applyEngine(this.getEngine());
+	}
+
+	public RenderableProvider debugModel() {
+		return skeletonDebug;
 	}
 	
 }

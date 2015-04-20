@@ -11,8 +11,11 @@ import org.bircks.enterprise.control.panel.InvisiblePanel;
 import org.bircks.enterprise.control.panel.PanelManager;
 import org.bircks.enterprise.control.panel.camera.CameraPanel;
 import org.bircks.entierprise.model.ModelStorage;
+import org.bricks.core.entity.Fpoint;
 import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
+import org.bricks.engine.event.check.AccelerateToSpeedProcessorChecker;
+import org.bricks.engine.event.check.RouteChecker;
 import org.bricks.engine.help.RotationHelper;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.extent.debug.ShapeDebugger;
@@ -30,6 +33,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
@@ -37,6 +41,7 @@ import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShaderWaver;
+import com.odmyhal.sf.model.construct.ShipConstructor;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
 import com.odmyhal.sf.staff.Ship;
 
@@ -116,6 +121,15 @@ public class SeaFight extends ApplicationAdapter {
 		engine = new Engine<RenderableProvider>();
 		engine.init(prefs);
 		
+		assets.load("models/ship_4.g3db", Model.class);
+		assets.load("models/ship11.g3db", Model.class);
+		assets.load("models/ship_11.g3db", Model.class);
+		assets.load("models/ship9.g3db", Model.class);
+		assets.finishLoading();
+		if(assets.update()){
+			Gdx.app.debug("Sea fight", "Models are loaded");
+		}
+		ShipConstructor.setModel(new ModelInstance(assets.get("models/ship11.g3db", Model.class)));
 		ModelStorage.instance().init(prefs.get("model.construct.tool", null));
 		
 		ShaderWaver waver = new ShaderWaver();
@@ -147,60 +161,17 @@ public class SeaFight extends ApplicationAdapter {
 //		assets.load("models/ship7.g3db", Model.class);
 //		assets.load("models/ship5.g3db", Model.class);
 //		assets.load("models/ship_2.g3db", Model.class);
-		assets.load("models/ship_4.g3db", Model.class);
-		assets.load("models/ship11.g3db", Model.class);
-		assets.load("models/ship9.g3db", Model.class);
-		assets.finishLoading();
-		if(assets.update()){
-			Gdx.app.debug("Sea fight", "Models are loaded");
-		}
 		
+		initRover();
+/*		
+		Ship kr = new Ship(assets);
+		tmpOrigin.set(10000, 5800);
+		kr.translate(tmpOrigin);
+		kr.setToRotation((float) Math.PI / 2 );
+		kr.applyEngine(engine);
+*/
 		ship = new Ship(assets);
-/*		System.out.println("Before calculate: " + ship.gunMark.getMark(2));
-		ship.gunMark.calculateTransforms();
-		System.out.println("After calculate: " + ship.gunMark.getMark(2));
-//		Vector3 tst = new Vector3(38.976746f,  154.729126f,  6.235388f); 
-//		Vector3 tst_1 = new Vector3(38.976746f,  154.729126f,  6.235388f);
-		Vector3 tst = new Vector3(0f,  0f,  200f); 
-		Vector3 tst_1 = new Vector3(0f,  0f,  200f);
 		
-		Iterator<Matrix4> iter = ship.gunMark.transforms.iterator();
-		Matrix4 matr1 = new Matrix4(iter.next());
-		matr1.setToRotation(0f, 999f, 0f, -90);
-		Matrix4 matr2 = new Matrix4(iter.next());
-		matr2.setToRotation(0f, 0f, 99f, -90);
-		Matrix4 matr3 = new Matrix4();
-		matr3.setToRotation(99f, 0f, 0f, -90);
-		
-		System.out.println("---------------startVector-----------------");
-		System.out.println(tst);
-		System.out.println("---------------Vector mul first-----------------");
-		System.out.println(tst.mul(matr1));
-		System.out.println("---------------Vector mul second-----------------");
-		System.out.println(tst.mul(matr2));
-		System.out.println("---------------Matrix1-----------------");
-		System.out.println(matr1);
-		System.out.println("---------------Matrix2-----------------");
-		System.out.println(matr2);
-		System.out.println("---------------Matrix3-----------------");
-		System.out.println(matr3);
-		System.out.println("---------------Matrix2xmult-----------------");
-		System.out.println(matr1.mul(matr2));
-		System.out.println("---------------Vector both matrix-----------------");
-		System.out.println(tst_1.mul(matr1));
-		
-		Matrix4 hMatrix = new Matrix4();
-		hMatrix.idt();
-		tst.mul(hMatrix);
-		for(Matrix4 transform : ship.gunMark.transforms){
-			System.out.println(transform);
-			System.out.println("***Multi: " + tst.mul(transform));
-			System.out.println("Help matrix: " + hMatrix.mul(transform));
-			System.out.println("-----------------------------------");
-		}
-		System.out.println("Hmatrix is: " + hMatrix);
-		System.out.println("Help matrix res " + tst_1.mul(hMatrix));
-*/		
 		tmpOrigin.set(7000, 6000);
 		ship.translate(tmpOrigin);
 //		one.translate(200, 200);
@@ -233,7 +204,18 @@ public class SeaFight extends ApplicationAdapter {
         
 	}
 	
-
+	private void initRover(){
+		Origin2D tmpOrigin = new Origin2D();
+		Ship rover = new Ship(assets);
+		tmpOrigin.set(24000, 24000);
+		rover.translate(tmpOrigin);
+		rover.setToRotation((float) Math.PI * 5 / 4);
+		rover.registerEventChecker(new AccelerateToSpeedProcessorChecker(20f, 600f));
+		rover.registerEventChecker(new RouteChecker((float) Math.PI/7, 100, new Fpoint(22000f, 22000f),
+				new Fpoint(8000f, 19000f), new Fpoint(15000f, 9000f), new Fpoint(21000f, 15000f)));
+		rover.applyEngine(engine);
+		
+	}
 	
 	@Override
 	public void render(){

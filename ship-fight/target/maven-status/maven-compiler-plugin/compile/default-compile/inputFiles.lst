@@ -13,6 +13,7 @@
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/IslandConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/ShaderWaver.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/WeaponPanel.java
+/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/ShipConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/shader/WaveMesh.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/staff/Ammunition.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/ShipMovePanel.java

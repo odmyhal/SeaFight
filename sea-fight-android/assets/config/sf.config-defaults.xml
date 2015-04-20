@@ -12,7 +12,7 @@
 				<entry key="camera.roll.speed.radians" value="1.571"/>
 				
 				<entry key="camera.altitude.min" value="-1000"/>
-				<entry key="camera.altitude.max" value="8000"/>
+				<entry key="camera.altitude.max" value="15000"/>
 				
 				<entry key="camera.vertical.roll.speed" value="3.14159"/>
             </map>
