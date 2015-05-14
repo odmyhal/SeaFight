@@ -20,6 +20,7 @@ import org.bricks.engine.help.RotationHelper;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.extent.debug.ShapeDebugger;
 import org.bricks.extent.entity.CameraSatellite;
+import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.tool.ModelHelper;
 
 import com.badlogic.gdx.Application;
@@ -55,10 +56,10 @@ public class SeaFight extends ApplicationAdapter {
 	CameraSatellite cameraSatellite;
 	
 	ShapeDebugger debug;
-	private static final boolean DEBUG_ENABLED = false;
+	private static final boolean DEBUG_ENABLED = true;
 	private static final boolean SPACE_DEBUG_ENABLED = false;
 	
-	private Ship ship;
+	private Ship ship, testo;
 
 	private float totalDeltaTime = 0;
 	private int totalFramesCount = 0;
@@ -97,8 +98,12 @@ public class SeaFight extends ApplicationAdapter {
 		panelManager.addPanel(new InvisiblePanel());
 		
 		environment = new Environment();
+ //       environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+ //       environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 1f, 0.8f, 0.2f));
+        
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 1f, 0.8f, 0.2f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        
         
 		
 		FileHandle fh = Gdx.files.internal("config/engine.prefs.xml");
@@ -137,32 +142,34 @@ public class SeaFight extends ApplicationAdapter {
 		Motor m1 = engine.getLazyMotor();
 		m1.addLiver(waver);
 		
-		Origin2D tmpOrigin = new Origin2D();
+		Origin2D tmp2Origin = new Origin2D();
 
 		Island island1 = Island.instance("island_1");
-		tmpOrigin.set(8000, 10000);
-		island1.translate(tmpOrigin);
+		tmp2Origin.source.set(8000f, 10000f);
+		island1.translate(tmp2Origin);
 		ModelHelper.setToRotation(89, island1);
 		island1.applyEngine(engine);
+		System.out.println("Island on center: " + island1.getStaff().get(0).getCenter());
 
 		Island island2 = Island.instance("island_1");
-		tmpOrigin.set(17000, 15000);
-		island2.translate(tmpOrigin);
-//		RotationHelper.setToRotation(180, island2);
+		tmp2Origin.source.set(17000f, 15000f);
+		island2.translate(tmp2Origin);
 		ModelHelper.setToRotation(180, island2);
 		island2.applyEngine(engine);
+		System.out.println("Island2 on center: " + island2.getStaff().get(0).getCenter());
 		
 		Island island3 = Island.instance("island_1");
-		tmpOrigin.set(20500, 7000);
-		island3.translate(tmpOrigin);
+		tmp2Origin.source.set(20500f, 7000f);
+		island3.translate(tmp2Origin);
 		ModelHelper.setToRotation(254, island3);
 		island3.applyEngine(engine);
-		
-//		assets.load("models/ship7.g3db", Model.class);
-//		assets.load("models/ship5.g3db", Model.class);
-//		assets.load("models/ship_2.g3db", Model.class);
+		System.out.println("Island3 on center: " + island3.getStaff().get(0).getCenter());
+
 		
 		initRover();
+
+//		initTestShip();
+		
 /*		
 		Ship kr = new Ship(assets);
 		tmpOrigin.set(10000, 5800);
@@ -172,15 +179,14 @@ public class SeaFight extends ApplicationAdapter {
 */
 		ship = new Ship(assets);
 		
-		tmpOrigin.set(7000, 6000);
-		ship.translate(tmpOrigin);
-//		one.translate(200, 200);
-//		one.translate(108, 0);
+		
+		tmp2Origin.set(7000, 6000);
+		ship.translate(tmp2Origin);
 		cameraSatellite = ship.initializeCamera();
 		camera = cameraSatellite.camera;
+//		ship.setVector(new Origin2D(new Fpoint(50f, 0f)));
 		ship.applyEngine(engine);
-//		System.out.println("--Ship applyed");
-//		rotateTest();
+//		ship.se
 		CameraPanel cp = new CameraPanel(camera, cameraSatellite, "panel.defaults", "sf.camera.defaults");
 		panelManager.addPanel(cp);
 	
@@ -194,6 +200,7 @@ public class SeaFight extends ApplicationAdapter {
 
 		modelBatch = new ModelBatch(new WaveShaderProvider());
 		
+
 		debug = new ShapeDebugger();
 		engine.start();
 		
@@ -215,6 +222,15 @@ public class SeaFight extends ApplicationAdapter {
 				new Fpoint(8000f, 19000f), new Fpoint(15000f, 9000f), new Fpoint(21000f, 15000f)));
 		rover.applyEngine(engine);
 		
+	}
+	
+	private void initTestShip(){
+		Origin2D tmpOrigin = new Origin2D();
+		testo = new Ship(assets);
+		tmpOrigin.set(8500, 6000);
+		testo.translate(tmpOrigin);
+		testo.setToRotation((float) Math.PI * 5 / 4);
+		testo.applyEngine(engine);
 	}
 	
 	@Override
@@ -269,6 +285,10 @@ public class SeaFight extends ApplicationAdapter {
 	
 	@Override
 	public void dispose(){
+/*		System.out.println("                      *Main ship log:*");
+		System.out.println(ship.getlog());
+		System.out.println("                      *Test ship log:*");
+		System.out.println(testo.getlog());*/
 		modelBatch.dispose();
 		debug.dispose();
 		Gdx.app.debug("OLEH-TEST", "Average frame time: " + (this.totalDeltaTime / this.totalFramesCount));

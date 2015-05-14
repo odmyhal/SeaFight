@@ -11,6 +11,7 @@ com/odmyhal/sf/model/construct/ShaderWaveConstructor.class
 com/odmyhal/sf/model/Ball.class
 com/odmyhal/sf/process/FaceWaterEventChecker.class
 com/odmyhal/sf/model/Island.class
+org/bricks/engine/event/handler/ShipOverlapEventHandler_2.class
 org/bricks/engine/event/handler/EventHandlerRegistrator.class
 com/odmyhal/sf/model/shader/WaveMesh.class
 com/odmyhal/sf/model/construct/ShipConstructor.class

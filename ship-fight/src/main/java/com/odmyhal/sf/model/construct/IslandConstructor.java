@@ -31,7 +31,7 @@ import com.badlogic.gdx.math.Vector3;
 public class IslandConstructor extends SkeletonConstructor{
 	
 	private static final IslandConstructor instance = new IslandConstructor();
-	private static final HashMap<String, Collection<Ipoint>> idata = new HashMap<String, Collection<Ipoint>>();
+//	private static final HashMap<String, Collection<Ipoint>> idata = new HashMap<String, Collection<Ipoint>>();
 
 	private IslandConstructor(){};
 	
@@ -42,7 +42,7 @@ public class IslandConstructor extends SkeletonConstructor{
 	public void construct(ModelConstructTool arg0, String... arg1) {
 		constructOne(arg0, arg1[0]);
 	}
-	
+/*	
 	private void applyVertexData(String dataName, Collection<Vector3> data){
 		applyVertexData(dataName, data, new Ipoint(0, 0));
 	}
@@ -58,7 +58,7 @@ public class IslandConstructor extends SkeletonConstructor{
 	public static Collection<Ipoint> getVertexData(String dataName){
 		return idata.get(dataName);
 	}
-	
+*/
 	private void constructOne(ModelConstructTool modelBuilder, String islandName){
 		modelBuilder.node(islandName);
 		
@@ -86,7 +86,9 @@ public class IslandConstructor extends SkeletonConstructor{
 		for(Vector3 v3 : vertexes){
 			v3.add(-2250f, -1750f, 0);
 		}
-		applyVertexData(islandName, vertexes.subList(0, 9), translate);
+		//Adding central point of island (14):
+		vertexes.add(new Vector3(-254f, 98f, 0f));
+//		applyVertexData(islandName, vertexes.subList(0, 9), translate);
 		Color color = new Color((float)241 / 256, (float)177 / 256, (float)106 / 256, 1f);
 		
 //		BlendingAttribute ba = new BlendingAttribute();
@@ -130,12 +132,14 @@ public class IslandConstructor extends SkeletonConstructor{
 			v.mul(m4);
 		}
 		int[] intData = new int[indexData.size()];
+		int[] planeData = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8};
 		for(int i = 0; i < intData.length; i++){
 			intData[i] = indexData.get(i);
 		}
 //		int[] intData = ArrayUtils.toPrimitive(indexData.toArray(new Integer[indexData.size()]));
 		Vector3[] vertexData = vertexes.toArray(new Vector3[vertexes.size()]);
-		SkeletonDataStore.registerSkeletonData(islandName, vertexData, intData);
+//		SkeletonDataStore.registerSkeletonData(islandName, vertexData, intData);
+		SkeletonDataStore.registerPlaneSkeletonData(islandName, vertexData, intData, planeData, 14);
 		
 		constructDebug(modelBuilder, islandName + ".DEBUG", vertexData, intData);
 	}

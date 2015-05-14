@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import org.bircks.entierprise.model.ModelStorage;
+import org.bricks.core.entity.Fpoint;
 import org.bricks.core.entity.Ipoint;
 import org.bricks.core.entity.Point;
 import org.bricks.core.entity.impl.PointSetBrick;
@@ -16,7 +17,10 @@ import org.bricks.engine.event.OverlapEvent;
 import org.bricks.engine.event.check.OverlapChecker;
 import org.bricks.engine.event.overlap.BrickOverlapAlgorithm;
 import org.bricks.engine.event.overlap.OverlapStrategy;
+import org.bricks.engine.event.overlap.SmallEventStrategy;
 import org.bricks.engine.item.MultiWalkRoller;
+import org.bricks.engine.item.MultiWalkRoller2D;
+import org.bricks.engine.neve.PlanePointsPrint;
 import org.bricks.engine.neve.WalkPrint;
 import org.bricks.engine.tool.Origin;
 import org.bricks.exception.Validate;
@@ -29,8 +33,12 @@ import org.bricks.extent.event.ExtentEventGroups;
 import org.bricks.extent.event.FireEvent;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
+import org.bricks.extent.space.SSPlanePrint;
+import org.bricks.extent.space.SpaceSubject;
+import org.bricks.extent.space.SpaceSubjectOperable;
 import org.bricks.extent.space.overlap.MarkPoint;
 import org.bricks.extent.space.overlap.Skeleton;
+import org.bricks.extent.space.overlap.SkeletonWithPlane;
 import org.bricks.extent.subject.model.ModelBrick;
 import org.bricks.extent.subject.model.ModelBrickOperable;
 import org.bricks.extent.subject.model.ModelBrickSubject;
@@ -39,6 +47,7 @@ import org.bricks.extent.tool.SkeletonDataStore;
 import org.bricks.extent.tool.SkeletonHelper;
 import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
+import org.bricks.engine.tool.Roll;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
@@ -56,7 +65,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
 
-public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickOperable>, WalkPrint> implements RenderableProvider, SpaceDebug {
+public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint> implements RenderableProvider, SpaceDebug {
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
@@ -70,11 +79,14 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 	private Quaternion helpQ = new Quaternion();
 
 	public Ship(AssetManager assets) {
+//		System.out.println("---Creating ship");
 		if(!assets.update()){
 			throw new RuntimeException("Accets not ready yet");
 		}
-		Brick brick = produceBrick();
+//		Brick brick = produceBrick();
+//		System.out.println("The center of ship brick is: " + brick.getCenter());
 		ModelInstance modelInstance = fetchModel(assets);
+//		System.out.println("Creating ship of modelInstance: " + modelInstance);
 		
 		Quaternion q = new Quaternion();
 		q.setFromAxis(1000f, 0f, 0f, 90f);
@@ -92,10 +104,12 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 			node.rotation.mulLeft(q);
 			node.calculateTransforms(true);
 		}
-		ModelSubjectOperable<Ship, ModelSubjectPrint, ModelBrickOperable> subject = new ShipSubject(brick, modelInstance);
+//		ModelSubjectOperable<Ship, ModelSubjectPrint, ModelBrickOperable> subject = new ShipSubject(brick, modelInstance);
+		SpaceSubjectOperable<Ship, SSPlanePrint, Fpoint, Roll, ModelBrickOperable> subject = new ShipSubject(modelInstance);
 		
 		this.addSubject(subject);
 		enrichSkeleton(subject);
+//		System.out.println("***New ship enriched with PlaneSkeleton");
 		gunMark = new MarkPoint(
 			new Vector3(45f,  152.7f,  3.8f), 
 			new Vector3(33.8f,  152.7f,  3.8f),
@@ -107,17 +121,26 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		gunMark.addTransform(subject.modelBrick.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
 		
 		registerEventChecker(OverlapChecker.instance());
+//		System.out.println("Before ship adjustCurrentPrint");
+		this.adjustCurrentPrint();
+		SSPlanePrint sspp = subject.getSafePrint();
+		ConvexityApproveHelper.applyConvexity(sspp);
+		sspp.free();
+		System.out.println("Created ship " + this);
 	}
 	
 	private void enrichSkeleton(ModelBrickSubject mbs){
 		ModelBrick mb = mbs.linkModelBrick();
 		ModelInstance mi = mb.linkModelInstance();
 		String dataName = "SHIP.DEBUG";
-		Skeleton skeleton = mb.initSkeleton(SkeletonDataStore.getVertexes(dataName), SkeletonDataStore.getIndexes(dataName));
+		SkeletonWithPlane swp = new SkeletonWithPlane(SkeletonDataStore.getIndexes(dataName), SkeletonDataStore.getVertexes(dataName), 
+				SkeletonDataStore.getPlaneIndexes(dataName), SkeletonDataStore.getPlaneCenterIndex(dataName));
+//		Skeleton skeleton = mb.initSkeleton(SkeletonDataStore.getVertexes(dataName), SkeletonDataStore.getIndexes(dataName));
+		mb.applySkeletonWithPlane(swp);
 		Matrix4 nodeMatrix = new Matrix4();
 		Node node = ModelHelper.findNode("Dummyship1/ship1", mi.nodes);
 		nodeMatrix.set(node.globalTransform);
-		skeleton.addTransform(nodeMatrix);
+		swp.addTransform(nodeMatrix);
 		
 		ModelInstance debugModel = ModelStorage.instance().getModelInstance(dataName);
 		Validate.isFalse(debugModel == null, "Could not find model " + dataName);
@@ -125,7 +148,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		Node debugNode = ModelHelper.findNode(dataName, debugModel.nodes);
 		debugNode.globalTransform.set(nodeMatrix);
 		skeletonDebug = new SkeletonDebug(debugModel, mb);
-		
+//		mb.adjustCurrentPrint();
 	}
 	
 	private ModelInstance fetchModel(AssetManager assets){
@@ -134,7 +157,7 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		ModelInstance ship1 = new ModelInstance(shipModel);
 		return ship1;
 	}
-	
+/*	
 	private Brick produceBrick(){
 
 		
@@ -169,9 +192,9 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		ConvexityApproveHelper.applyConvexity(points);
 		return new PointSetBrick(points);
 	}
-
+*/
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
-		for(ModelSubjectOperable subject: getStaff()){
+		for(SpaceSubjectOperable subject: getStaff()){
 			subject.getRenderables(renderables, pool);
 		}
 	}
@@ -197,24 +220,17 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 		}
 		return cameraSatellite;
 	}
-/*	
-	public Map<String, OverlapStrategy> initOverlapStrategy() {
-		Map<String, OverlapStrategy> ballStrategy = new HashMap<String, OverlapStrategy>();
-//		ballStrategy.put(Island.ISLAND_SF_SOURCE, OverlapStrategy.TRUE);
-		ballStrategy.put(SHIP_SOURCE_TYPE, OverlapStrategy.FALSE);
-		ballStrategy.put(Ammunition.SHIP_AMMUNITION_TYPE, OverlapStrategy.FALSE);
-		return ballStrategy;
-	}
-*/	
+
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
 	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, sourceType = Island.ISLAND_SF_SOURCE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
 	public void hitCannon(OverlapEvent e){
+//		System.out.println("Face island " + e.getTouchPoint());
 		this.rollBack(e.getEventTime());
 	}
 
 	@Override
-	public void rollBack(long curTime){
-		super.rollBack(curTime);
+	public void rollBack(long curTime, float k){
+		super.rollBack(curTime, k);
 		this.removeHistory(BaseEvent.touchEventCode);
 	}
 	
@@ -238,6 +254,14 @@ public class Ship extends MultiWalkRoller<ModelSubjectOperable<?, ?, ModelBrickO
 	@EventHandle(eventType = Ammunition.SHIP_AMMUNITION_TYPE)
 	public void ammoHurt(OverlapEvent<?, ?, Vector3> event){
 		System.out.println("Ship got ammo hurt: " + event.getTouchPoint());
+	}
+	
+	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)
+	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, sourceType = Ship.SHIP_SOURCE_TYPE, strategyClass = /*OverlapStrategy.TrueOverlapStrategy.class*/SmallEventStrategy.class)
+	public void hitAnotherShip(OverlapEvent<PlanePointsPrint<? extends SpaceSubject>, PlanePointsPrint<? extends SpaceSubject>, Point> event){
+		System.out.println("Found overlap with ship. Rolling back " + this);
+		this.rollBack(event.getEventTime(), 2f);
+//		this.rollBack(event.getEventTime());
 	}
 	
 	private void fire(FireEvent e, int base, int cone){

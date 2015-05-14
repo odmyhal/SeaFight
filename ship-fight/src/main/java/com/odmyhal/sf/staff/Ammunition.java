@@ -35,10 +35,11 @@ import com.odmyhal.sf.process.FaceWaterEventChecker;
 import org.bricks.extent.space.SSPrint;
 import org.bricks.extent.space.check.CheckInWorldProcessor;
 import org.bricks.extent.space.overlap.LineCrossMBAlgorithm;
+import org.bricks.extent.subject.model.MBSVehicle;
 import org.bricks.extent.subject.model.ModelBrick;
 
 
-public class Ammunition extends OriginMover<SpaceSubject<?, ?, ?>, OriginMovePrint<?, Vector3>, Vector3, Roll3D> implements RenderableProvider{
+public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, ?>, OriginMovePrint<?, Vector3>, Vector3, Roll3D> implements RenderableProvider{
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.ammunition");
 	public static final String SHIP_AMMUNITION_TYPE = "ShipAmmunitio@sf.myhal.com";
@@ -47,7 +48,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, ?>, OriginMovePri
 				prefs.getInt("ship.ammo1.world.max", 10000));
 	public static final float accelerationZ = prefs.getFloat("ship.ammo1.acceleration.z", 0f);
 	
-	private SpaceSubject<SpaceWalker, SSPrint, ModelBrick> subject;
+	private SpaceSubject<SpaceWalker, SSPrint, Vector3, Roll3D, ModelBrick> subject;
 	Origin<Vector3> tmpOrigin = new Origin3D();
 	//
 //	public Vector3 previousOrigin = new Vector3();
@@ -55,7 +56,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, ?>, OriginMovePri
 	public Ammunition(){
 		Vector3 one = new Vector3(-24f, 0f, 0f);
 		Vector3 two = new Vector3(36f, 0f, 0f);
-		subject = new SpaceSubject(ModelStorage.instance().getModelInstance("ship_ammunition"), new Vector3(), one, two);
+		subject = new SpaceSubject(new MBSVehicle.Space(), ModelStorage.instance().getModelInstance("ship_ammunition"), new Vector3(), one, two);
 		this.addSubject(subject);
 		this.registerEventChecker(inWorldProcessor);
 		this.registerEventChecker(new FaceWaterEventChecker());
