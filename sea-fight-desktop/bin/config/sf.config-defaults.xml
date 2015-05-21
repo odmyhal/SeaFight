@@ -32,7 +32,13 @@
                 <entry key="ship.ammo1.speed.directional" value="7000"/>
                 <entry key="ship.ammo1.world.max" value="50000"/>
                 <entry key="ship.ammo1.world.min" value="-1000"/>
-                <entry key="ship.ammo1.acceleration.z" value="-1000"/>
+                <entry key="ship.ammo1.acceleration.z" value="-1000"/> 
+ <!--                 
+                <entry key="ship.ammo1.speed.directional" value="2236.06797749979"/>
+                <entry key="ship.ammo1.world.max" value="50000"/>
+                <entry key="ship.ammo1.world.min" value="-1000"/>
+                <entry key="ship.ammo1.acceleration.z" value="-500"/>
+                  --> 
             </map>
         </node>
     </root>

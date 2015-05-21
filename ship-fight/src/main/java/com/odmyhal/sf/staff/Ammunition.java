@@ -62,7 +62,19 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		this.registerEventChecker(new FaceWaterEventChecker());
 		this.registerEventChecker(OverlapChecker.instance());
 	}
-
+/*	
+	public Vector3 maxPoint = new Vector3();
+	public long maxPointTime = 0;
+	public long creationTime = 0;
+	protected void innerProcess(long currentTime){
+		super.innerProcess(currentTime);
+		Vector3 myOrigin = origin().source;
+		if(myOrigin.z > maxPoint.z){
+			maxPoint.set(myOrigin);
+			maxPointTime = currentTime;
+		}
+	}
+*/
 	public String sourceType() {
 		return SHIP_AMMUNITION_TYPE;
 	}
@@ -75,6 +87,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 
 	@EventHandle(eventType = SHIP_AMMUNITION_TYPE)
 	public void faceWater(FaceWaterEvent event){
+//		System.out.println("Ammo max point: " + this.maxPoint + ", raized in " + (this.maxPointTime - this.creationTime));
 		Ball wb = new Ball(Ball.modelWaterName);
 
 		NodeScaleProcessor NSProcessor1 = new NodeScaleProcessor(wb, Ball.modelWaterName);

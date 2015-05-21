@@ -53,7 +53,7 @@ public class WaveNativeShader extends DefaultShader{
 
 	public WaveNativeShader(Renderable renderable) {
 		super(renderable, native_config, /*"#version 330\n" + */DefaultShader.createPrefix(renderable, native_config));
-		String vert = super.program.getVertexShaderSource();
+//		String vert = super.program.getVertexShaderSource();
 //		System.out.println("--------------Vertex fragment---------------------------");
 //		System.out.println(vert);
 //		System.out.println("--------------------------------------------------------");

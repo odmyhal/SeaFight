@@ -2,7 +2,6 @@ package com.odmyhal.sf;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 import java.util.prefs.Preferences;
@@ -12,15 +11,18 @@ import org.bircks.enterprise.control.panel.PanelManager;
 import org.bircks.enterprise.control.panel.camera.CameraPanel;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.core.entity.Fpoint;
+import org.bricks.core.help.AlgebraHelper;
 import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
 import org.bricks.engine.event.check.AccelerateToSpeedProcessorChecker;
 import org.bricks.engine.event.check.RouteChecker;
-import org.bricks.engine.help.RotationHelper;
 import org.bricks.engine.tool.Origin2D;
+import org.bricks.engine.tool.Roll;
+import org.bricks.extent.auto.RollNodeToEntityHProcessor;
 import org.bricks.extent.debug.ShapeDebugger;
 import org.bricks.extent.entity.CameraSatellite;
-import org.bricks.extent.space.Origin3D;
+import org.bricks.extent.space.SpaceSubjectOperable;
+import org.bricks.extent.subject.model.ModelBrickOperable;
 import org.bricks.extent.tool.ModelHelper;
 
 import com.badlogic.gdx.Application;
@@ -29,7 +31,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -38,12 +39,16 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShaderWaver;
 import com.odmyhal.sf.model.construct.ShipConstructor;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
+import com.odmyhal.sf.process.ShipGunVRollProcessor;
 import com.odmyhal.sf.staff.Ship;
 
 public class SeaFight extends ApplicationAdapter {
@@ -56,7 +61,7 @@ public class SeaFight extends ApplicationAdapter {
 	CameraSatellite cameraSatellite;
 	
 	ShapeDebugger debug;
-	private static final boolean DEBUG_ENABLED = true;
+	private static final boolean DEBUG_ENABLED = false;
 	private static final boolean SPACE_DEBUG_ENABLED = false;
 	
 	private Ship ship, testo;
@@ -149,26 +154,25 @@ public class SeaFight extends ApplicationAdapter {
 		island1.translate(tmp2Origin);
 		ModelHelper.setToRotation(89, island1);
 		island1.applyEngine(engine);
-		System.out.println("Island on center: " + island1.getStaff().get(0).getCenter());
+//		System.out.println("Island on center: " + island1.getStaff().get(0).getCenter());
 
 		Island island2 = Island.instance("island_1");
 		tmp2Origin.source.set(17000f, 15000f);
 		island2.translate(tmp2Origin);
 		ModelHelper.setToRotation(180, island2);
 		island2.applyEngine(engine);
-		System.out.println("Island2 on center: " + island2.getStaff().get(0).getCenter());
+//		System.out.println("Island2 on center: " + island2.getStaff().get(0).getCenter());
 		
 		Island island3 = Island.instance("island_1");
 		tmp2Origin.source.set(20500f, 7000f);
 		island3.translate(tmp2Origin);
 		ModelHelper.setToRotation(254, island3);
 		island3.applyEngine(engine);
-		System.out.println("Island3 on center: " + island3.getStaff().get(0).getCenter());
+//		System.out.println("Island3 on center: " + island3.getStaff().get(0).getCenter());
 
 		
-		initRover();
 
-//		initTestShip();
+		initTestShip();
 		
 /*		
 		Ship kr = new Ship(assets);
@@ -180,13 +184,31 @@ public class SeaFight extends ApplicationAdapter {
 		ship = new Ship(assets);
 		
 		
-		tmp2Origin.set(7000, 6000);
+		tmp2Origin.set(3595, 6000);
 		ship.translate(tmp2Origin);
 		cameraSatellite = ship.initializeCamera();
 		camera = cameraSatellite.camera;
 //		ship.setVector(new Origin2D(new Fpoint(50f, 0f)));
+//Testing RollToEntityHProcessor:
+		
+		SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable> sso = ship.getStaff().get(0);
+		RollNodeToEntityHProcessor<Ship, Fpoint> rntp = 
+				new RollNodeToEntityHProcessor.FpointProcessor<Ship>(ship, "pushka", 0d,
+						sso.modelBrick.linkTransform(), 
+						sso.modelBrick.getNodeOperator("pushka").getNodeData().linkTransform());
+		rntp.setButt(testo);
+		rntp.setRotationSpeed(1f);
+		ship.registerEventChecker(rntp);
+//Testing RollToEntityVProcessor:
+		
+		ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(ship, "stvol");
+		sgvrp.setButt(testo);
+		ship.registerEventChecker(sgvrp);
+
+//End processors testing.
+
 		ship.applyEngine(engine);
-//		ship.se
+		initRover();
 		CameraPanel cp = new CameraPanel(camera, cameraSatellite, "panel.defaults", "sf.camera.defaults");
 		panelManager.addPanel(cp);
 	
@@ -199,7 +221,7 @@ public class SeaFight extends ApplicationAdapter {
 		panelManager.addPanel(wp);
 
 		modelBatch = new ModelBatch(new WaveShaderProvider());
-		
+//		myTest();
 
 		debug = new ShapeDebugger();
 		engine.start();
@@ -220,6 +242,16 @@ public class SeaFight extends ApplicationAdapter {
 		rover.registerEventChecker(new AccelerateToSpeedProcessorChecker(20f, 600f));
 		rover.registerEventChecker(new RouteChecker((float) Math.PI/7, 100, new Fpoint(22000f, 22000f),
 				new Fpoint(8000f, 19000f), new Fpoint(15000f, 9000f), new Fpoint(21000f, 15000f)));
+		
+		SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable> sso = rover.getStaff().get(0);
+		RollNodeToEntityHProcessor<Ship, Fpoint> rntp = 
+				new RollNodeToEntityHProcessor.FpointProcessor<Ship>(rover, "pushka", 0d,
+						sso.modelBrick.linkTransform(), 
+						sso.modelBrick.getNodeOperator("pushka").getNodeData().linkTransform());
+		rntp.setButt(ship);
+		rntp.setRotationSpeed(1.8f);
+		rover.registerEventChecker(rntp);
+		
 		rover.applyEngine(engine);
 		
 	}
@@ -227,9 +259,10 @@ public class SeaFight extends ApplicationAdapter {
 	private void initTestShip(){
 		Origin2D tmpOrigin = new Origin2D();
 		testo = new Ship(assets);
-		tmpOrigin.set(8500, 6000);
+		tmpOrigin.set(12000, 6000);
 		testo.translate(tmpOrigin);
-		testo.setToRotation((float) Math.PI * 5 / 4);
+//		testo.setToRotation((float) Math.PI * 5 / 4);
+		testo.setToRotation((float) Math.PI / 2);
 		testo.applyEngine(engine);
 	}
 	
@@ -285,13 +318,32 @@ public class SeaFight extends ApplicationAdapter {
 	
 	@Override
 	public void dispose(){
-/*		System.out.println("                      *Main ship log:*");
-		System.out.println(ship.getlog());
-		System.out.println("                      *Test ship log:*");
-		System.out.println(testo.getlog());*/
 		modelBatch.dispose();
 		debug.dispose();
 		Gdx.app.debug("OLEH-TEST", "Average frame time: " + (this.totalDeltaTime / this.totalFramesCount));
 	}
 
+	private void myTest(){
+		Quaternion helpQ = new Quaternion();
+		helpQ.setFromAxis(new Vector3(0f, 0f, 99f), 90);
+		Vector3 trn = new Vector3(2f, 0f, 0f);
+		Vector3 scl = new Vector3(1f, 1f, 1f);
+		Matrix4 matr = new Matrix4(trn, helpQ, scl);
+		
+		Vector3 check = new Vector3(1f, 0f, 0f);
+		System.out.println("OLEH-TEST after one rotation result: " + check.mul(matr));
+		
+		Vector3 nroll = new Vector3(5f, 1f, 0f);
+		Vector3 check2 = new Vector3(1f, 0f, 0f);
+		Quaternion helpQ2 = new Quaternion();
+		helpQ2.setFromAxis(new Vector3(0f, 0f, 99f), -90);
+		helpQ.mulLeft(helpQ2);
+		helpQ2.toMatrix(matr.val);
+		trn.sub(nroll);
+		trn.mul(matr);
+		trn.sub(nroll);
+		
+		Matrix4 matr2 = new Matrix4(trn, helpQ, scl);
+		System.out.println("OLEH-TEST after two rotation result: " + check2.mul(matr2));
+	}
 }

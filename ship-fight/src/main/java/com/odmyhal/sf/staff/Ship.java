@@ -11,6 +11,7 @@ import org.bricks.core.entity.Ipoint;
 import org.bricks.core.entity.Point;
 import org.bricks.core.entity.impl.PointSetBrick;
 import org.bricks.core.entity.type.Brick;
+import org.bricks.core.help.AlgebraHelper;
 import org.bricks.core.help.ConvexityApproveHelper;
 import org.bricks.engine.event.BaseEvent;
 import org.bricks.engine.event.OverlapEvent;
@@ -42,6 +43,7 @@ import org.bricks.extent.space.overlap.SkeletonWithPlane;
 import org.bricks.extent.subject.model.ModelBrick;
 import org.bricks.extent.subject.model.ModelBrickOperable;
 import org.bricks.extent.subject.model.ModelBrickSubject;
+import org.bricks.extent.subject.model.NodeOperator;
 import org.bricks.extent.tool.ModelHelper;
 import org.bricks.extent.tool.SkeletonDataStore;
 import org.bricks.extent.tool.SkeletonHelper;
@@ -65,7 +67,7 @@ import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
 
-public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint> implements RenderableProvider, SpaceDebug {
+public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint<?, Fpoint>> implements RenderableProvider, SpaceDebug {
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
@@ -77,6 +79,8 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	private Vector3 helpVector = new Vector3();
 	private Vector3 h2V = new Vector3();
 	private Quaternion helpQ = new Quaternion();
+	private long gunMarkTime = 0;
+	private NodeOperator pushkaOperator, stvolOperator;
 
 	public Ship(AssetManager assets) {
 //		System.out.println("---Creating ship");
@@ -111,14 +115,24 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		enrichSkeleton(subject);
 //		System.out.println("***New ship enriched with PlaneSkeleton");
 		gunMark = new MarkPoint(
-			new Vector3(45f,  152.7f,  3.8f), 
+//			new Vector3(45f,  152.7f,  3.8f), 
 			new Vector3(33.8f,  152.7f,  3.8f),
-			new Vector3(45f,  154.729126f,  5.85f), 
-			new Vector3(33.8f,  154.729126f,  5.85f)
+//			new Vector3(45f,  154.729126f,  5.85f), 
+			new Vector3(33.8f,  154.729126f,  5.85f),
+			new Vector3(33.8f, (152.7f + 154.729126f) / 2, (3.8f + 5.85f) / 2)
 		);
+/*		gunMark = new MarkPoint(
+//				new Vector3(49.347694f, 156.32007f, 6.140491f), 
+				new Vector3(21.856441f, 156.32007f, 6.140491f),
+//				new Vector3(49.347694f, 156.32007f, 3.9210343f), 
+				new Vector3(21.856441f, 156.32007f, 3.9210343f)
+//				new Vector3(33.8f, 153.5f, (3.8f + 5.85f) / 2)
+			);*/
+		pushkaOperator = subject.modelBrick.getNodeOperator("pushka");
+		stvolOperator = subject.modelBrick.getNodeOperator("stvol");
 		gunMark.addTransform(subject.modelBrick.linkTransform());
-		gunMark.addTransform(subject.modelBrick.getNodeOperator("pushka").getNodeData("Dummypushka1").linkTransform());
-		gunMark.addTransform(subject.modelBrick.getNodeOperator("stvol").getNodeData("pushka_garmaty1").linkTransform());
+		gunMark.addTransform(pushkaOperator.getNodeData().linkTransform());
+		gunMark.addTransform(stvolOperator.getNodeData().linkTransform());
 		
 		registerEventChecker(OverlapChecker.instance());
 //		System.out.println("Before ship adjustCurrentPrint");
@@ -127,6 +141,15 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		ConvexityApproveHelper.applyConvexity(sspp);
 		sspp.free();
 		System.out.println("Created ship " + this);
+	}
+	
+	//use in motor thread
+	public Vector3 getGunPoint(int num, long procTime){
+		if(gunMarkTime < procTime){
+			gunMark.calculateTransforms();
+			gunMarkTime = procTime;
+		}
+		return gunMark.getMark(num);
 	}
 	
 	private void enrichSkeleton(ModelBrickSubject mbs){
@@ -226,14 +249,15 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	public void hitCannon(OverlapEvent e){
 //		System.out.println("Face island " + e.getTouchPoint());
 		this.rollBack(e.getEventTime());
+		this.removeHistory(BaseEvent.touchEventCode);
 	}
-
+/*
 	@Override
 	public void rollBack(long curTime, float k){
 		super.rollBack(curTime, k);
 		this.removeHistory(BaseEvent.touchEventCode);
 	}
-	
+*/	
 	@Override
 	public void outOfWorld(){
 		super.outOfWorld();
@@ -245,9 +269,9 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
 	public void shoot(FireEvent e){
 		if(que = !que){
-			this.fire(e, 1, 0);
+			this.fire(e, 0);
 		}else{
-			this.fire(e, 3, 2);
+			this.fire(e, 1);
 		}
 	}
 	
@@ -259,19 +283,27 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)
 	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, sourceType = Ship.SHIP_SOURCE_TYPE, strategyClass = /*OverlapStrategy.TrueOverlapStrategy.class*/SmallEventStrategy.class)
 	public void hitAnotherShip(OverlapEvent<PlanePointsPrint<? extends SpaceSubject>, PlanePointsPrint<? extends SpaceSubject>, Point> event){
-		System.out.println("Found overlap with ship. Rolling back " + this);
+//		System.out.println("Found overlap with ship. Rolling back " + this);
 		this.rollBack(event.getEventTime(), 2f);
 //		this.rollBack(event.getEventTime());
+		this.removeHistory(BaseEvent.touchEventCode);
 	}
 	
-	private void fire(FireEvent e, int base, int cone){
+	private void fire(FireEvent e, int base/*, int cone*/){
 		Ammunition ammo = new Ammunition();
 		this.gunMark.calculateTransforms();
-		Vector3 one = this.gunMark.getMark(cone);
-		Vector3 two = this.gunMark.getMark(base);
-		fireOrigin.source.set(two);
+//		Vector3 one = this.getGunPoint(cone, e.getEventTime());//this.gunMark.getMark(cone);
+		Vector3 baseVector = this.getGunPoint(base, e.getEventTime());//this.gunMark.getMark(base);
+//		helpVector.set(baseVector);
+		
+		
+		fireOrigin.source.set(baseVector);
 		ammo.translate(fireOrigin);
-		helpVector.set(one.x - two.x, one.y - two.y, one.z - two.z);
+
+		double hRad = this.getRotation() + pushkaOperator.rotatedRadians() - Math.PI / 2;
+		double vRad = Math.PI - stvolOperator.rotatedRadians();
+		helpVector.set(1000f * (float) Math.cos(hRad), 1000f * (float) Math.sin(hRad), 1000f * (float) Math.tan(vRad));
+//		helpVector.set(one.x - two.x, one.y - two.y, one.z - two.z);
 		
 		//Little randomazation of direction
 		h2V.set(helpVector.y, helpVector.z, helpVector.x);
@@ -295,8 +327,13 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		
 		//Sets ammo acceleration
 		float ammoSpeed = Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f);
-		helpVector.nor().scl(ammoSpeed);
+		helpVector.nor();
+
+		
+		helpVector.scl(ammoSpeed);
 		ammo.getVector().source.set(helpVector);
+//		System.out.println("AmmoVector: " + helpVector);
+//		ammo.creationTime = e.getEventTime();
 		fireOrigin.source.set(0f, 0f, Ammunition.accelerationZ);
 		ammo.setAcceleration(fireOrigin, e.getEventTime());
 		

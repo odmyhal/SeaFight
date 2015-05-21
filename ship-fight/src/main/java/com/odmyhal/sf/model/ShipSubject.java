@@ -23,7 +23,10 @@ public class ShipSubject extends SpaceSubjectOperable<Ship, SSPlanePrint, Fpoint
 		pushkaOperator.setRotatedRadians((float) Math.PI / 2);
 		
 		NodeOperator stvolOperator = this.modelBrick.addNodeOperator("stvol", "Dummypushka1/pushka_garmaty1");
-		stvolOperator.setPoint(new Vector3(20f, 8f, 0f));
+//		stvolOperator.setPoint(new Vector3(20f, 8f, 0f));
+//		stvolOperator.setPoint(new Vector3(19.917f, 8f, 0f));
+//		stvolOperator.setPoint(new Vector3(19.917027f, 8.006868f, 6.8015304f));
+		stvolOperator.setPoint(new Vector3(19.917027f, 7.8888726f, 6.5233417f));
 		stvolOperator.setSpin(new Vector3(0f, 0f, -99f));
 		stvolOperator.setRotatedRadians((float) Math.PI );
 

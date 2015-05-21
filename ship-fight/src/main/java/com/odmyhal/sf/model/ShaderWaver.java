@@ -114,12 +114,12 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 			return this.color;
 		}*/
 	}
-
+/*
 	public Renderable showRenderable(){
 		Renderable result = new Renderable();
 		Node node = waveInstance.nodes.get(0);
 		NodePart nodePart = node.parts.get(0);
 		return waveInstance.getRenderable(result, node, nodePart);
 	}
-	
+	*/
 }
