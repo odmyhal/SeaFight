@@ -4,6 +4,7 @@ import org.bricks.engine.Engine;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.g3d.Attributes;
@@ -13,12 +14,14 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader.Setter;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.odmyhal.sf.model.ShaderWaver;
+import com.odmyhal.sf.model.bubble.BlabKeeper;
 
 public class WaveNativeShader extends DefaultShader{
 	
-	private static final Setter startPoint = new BaseShader.Setter() {
-		
-		private float start = 0;
+	private int bubblesLoc, bubblesCountLoc, bubbleSize;
+	private int bubble0ind, bubble1ind, bubblesCountInd;
+	
+	private final Setter startPoint = new BaseShader.Setter() {
 		
 		public boolean isGlobal (BaseShader shader, int inputID) {
 			return false;
@@ -29,10 +32,20 @@ public class WaveNativeShader extends DefaultShader{
 				System.out.println("OLEH: REnderable is null");
 			}
 			ShaderWaver.WaveData waveData = (ShaderWaver.WaveData) renderable.userData;
-			synchronized(waveData){
-				start = waveData.start();
+			ShaderWaver.WaveDataPrint waveDataPrint = waveData.getSafePrint();
+			
+			shader.set(inputID, waveDataPrint.start);
+			shader.program.setUniformi(bubblesCountLoc, waveDataPrint.size);
+/*			if(waveDataPrint.size > 0){
+				System.out.println(waveDataPrint.bubbles[0]);
+			}*/
+			for(int i=0; i<waveDataPrint.size; i++){
+				shader.program.setUniformf(bubblesLoc + bubbleSize * i,
+//						i * 5000f + 2500f, 2500f, 
+						waveDataPrint.bubbles[i].x, waveDataPrint.bubbles[i].y,
+						waveDataPrint.bubbles[i].amplitude, waveDataPrint.bubbles[i].radius);
 			}
-			shader.set(inputID, start);
+			waveDataPrint.free();
 		}
 	};
 	
@@ -45,7 +58,7 @@ public class WaveNativeShader extends DefaultShader{
 		float waveCount = Engine.preferences.getFloat("waver.net.wave.count", 1f);
 		float amplitude = Engine.preferences.getFloat("waver.net.amplitude", 4);
 //		System.out.println("Amplitude is : " + amplitude);
-		vert = String.format(vert, lenX, lenY, amplitude, waveCount);
+		vert = String.format(vert, BlabKeeper.BLAB_COUNT_TOTAL, lenX, lenY, amplitude, waveCount);
         String frag = Gdx.files.internal("shaders/native.fragment.glsl").readString();
         native_config = new DefaultShader.Config(vert, frag);
 	}
@@ -57,7 +70,20 @@ public class WaveNativeShader extends DefaultShader{
 //		System.out.println("--------------Vertex fragment---------------------------");
 //		System.out.println(vert);
 //		System.out.println("--------------------------------------------------------");
+		
 		register(new Uniform("u_start"), startPoint);
+		register(new Uniform("u_bubbles"));
+		bubble0ind = register(new Uniform("u_bubbles[0]"));
+		bubble1ind = register(new Uniform("u_bubbles[1]"));
+		bubblesCountInd = register(new Uniform("u_count_bubbles"));
+	}
+	
+	@Override
+	public void init () {
+		super.init();
+		bubblesLoc = loc(bubble0ind);
+		bubbleSize = loc(bubble1ind) - bubblesLoc;
+		bubblesCountLoc = loc(bubblesCountInd);
 	}
 
 	public boolean canRender(Renderable instance) {

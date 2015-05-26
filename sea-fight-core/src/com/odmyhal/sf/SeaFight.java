@@ -18,8 +18,8 @@ import org.bricks.engine.event.check.AccelerateToSpeedProcessorChecker;
 import org.bricks.engine.event.check.RouteChecker;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.engine.tool.Roll;
-import org.bricks.extent.auto.RollNodeToEntityHProcessor;
 import org.bricks.extent.debug.ShapeDebugger;
+import org.bricks.extent.engine.processor.RollNodeToEntityHProcessor;
 import org.bricks.extent.entity.CameraSatellite;
 import org.bricks.extent.space.SpaceSubjectOperable;
 import org.bricks.extent.subject.model.ModelBrickOperable;
@@ -46,8 +46,10 @@ import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShaderWaver;
+import com.odmyhal.sf.model.bubble.BlabKeeper;
 import com.odmyhal.sf.model.construct.ShipConstructor;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
+import com.odmyhal.sf.process.DropBubbleProcessor;
 import com.odmyhal.sf.process.ShipGunVRollProcessor;
 import com.odmyhal.sf.staff.Ship;
 
@@ -182,7 +184,7 @@ public class SeaFight extends ApplicationAdapter {
 		kr.applyEngine(engine);
 */
 		ship = new Ship(assets);
-		
+		ship.registerEventChecker(new DropBubbleProcessor(waver.blabKeeper));
 		
 		tmp2Origin.set(3595, 6000);
 		ship.translate(tmp2Origin);
@@ -208,7 +210,7 @@ public class SeaFight extends ApplicationAdapter {
 //End processors testing.
 
 		ship.applyEngine(engine);
-		initRover();
+		initRover(waver.blabKeeper);
 		CameraPanel cp = new CameraPanel(camera, cameraSatellite, "panel.defaults", "sf.camera.defaults");
 		panelManager.addPanel(cp);
 	
@@ -233,7 +235,7 @@ public class SeaFight extends ApplicationAdapter {
         
 	}
 	
-	private void initRover(){
+	private void initRover(BlabKeeper bk){
 		Origin2D tmpOrigin = new Origin2D();
 		Ship rover = new Ship(assets);
 		tmpOrigin.set(24000, 24000);
@@ -251,6 +253,7 @@ public class SeaFight extends ApplicationAdapter {
 		rntp.setButt(ship);
 		rntp.setRotationSpeed(1.8f);
 		rover.registerEventChecker(rntp);
+		rover.registerEventChecker(new DropBubbleProcessor(bk));
 		
 		rover.applyEngine(engine);
 		

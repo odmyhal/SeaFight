@@ -15,7 +15,8 @@ import org.bricks.engine.item.OriginMover;
 import org.bricks.engine.neve.OriginMovePrint;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Walk;
-import org.bricks.extent.engine.checker.NodeScaleProcessor;
+import org.bricks.extent.engine.processor.CheckInWorldProcessor;
+import org.bricks.extent.engine.processor.NodeScaleProcessor;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
 import org.bricks.extent.space.SpaceSubject;
@@ -33,7 +34,6 @@ import com.odmyhal.sf.process.FaceWaterEvent;
 import com.odmyhal.sf.process.FaceWaterEventChecker;
 
 import org.bricks.extent.space.SSPrint;
-import org.bricks.extent.space.check.CheckInWorldProcessor;
 import org.bricks.extent.space.overlap.LineCrossMBAlgorithm;
 import org.bricks.extent.subject.model.MBSVehicle;
 import org.bricks.extent.subject.model.ModelBrick;

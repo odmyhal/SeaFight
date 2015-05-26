@@ -2,9 +2,8 @@ package com.odmyhal.sf.process;
 
 import org.bricks.core.entity.Fpoint;
 import org.bricks.exception.Validate;
-import org.bricks.extent.auto.RollNodeToEntityVProcessor;
+import org.bricks.extent.engine.processor.RollNodeToEntityVProcessor;
 
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.odmyhal.sf.staff.Ammunition;
 import com.odmyhal.sf.staff.Ship;

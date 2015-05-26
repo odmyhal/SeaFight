@@ -11,7 +11,6 @@ import org.bricks.engine.item.MultiLiver;
 import org.bricks.engine.neve.EntityPrint;
 import org.bricks.engine.tool.Origin;
 import org.bricks.exception.Validate;
-import org.bricks.extent.engine.checker.NodeScaleProcessor;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
 import org.bricks.extent.space.SSPrint;

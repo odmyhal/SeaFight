@@ -41,5 +41,19 @@
                   --> 
             </map>
         </node>
+        
+        <node name="sf.ship.bubble">
+            <map>
+                <entry key="ship.bubble.amount.total" value="100"/>
+                <entry key="ship.bubble.time.interval.min" value="200"/>
+                <entry key="ship.bubble.time.interval.max" value="1000"/>
+                <entry key="ship.bubble.time.live" value="3000"/>
+                <entry key="ship.bubble.radius.min" value="400"/>
+                <entry key="ship.bubble.radius.max" value="700"/>
+                <entry key="ship.bubble.radius.start" value="200"/>
+                <entry key="ship.bubble.amplitude.min" value="0.04"/>
+                <entry key="ship.bubble.amplitude.max" value="0.2"/>
+            </map>
+        </node>
     </root>
 </preferences>

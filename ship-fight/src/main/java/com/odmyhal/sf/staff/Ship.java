@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.core.entity.Fpoint;
@@ -68,6 +69,8 @@ import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
 
 public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint<?, Fpoint>> implements RenderableProvider, SpaceDebug {
+	
+	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.defaults");
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;

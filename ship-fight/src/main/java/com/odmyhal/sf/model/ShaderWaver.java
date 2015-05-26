@@ -3,6 +3,10 @@ package com.odmyhal.sf.model;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.engine.Engine;
 import org.bricks.engine.item.Motorable;
+import org.bricks.engine.neve.BasePrint;
+import org.bricks.engine.neve.Imprint;
+import org.bricks.engine.neve.PrintStore;
+import org.bricks.engine.neve.PrintableBase;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -11,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import com.odmyhal.sf.model.bubble.BlabKeeper;
 
 public class ShaderWaver implements RenderableProvider, Motorable{
 	
@@ -24,6 +29,9 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	
 	private float translateX, translateY;
 	private int rowsCount, colsCount;
+	private int waverPerSectorX, waverPerSectorY;
+	
+	public final BlabKeeper blabKeeper = new BlabKeeper();
 	
 	public ShaderWaver(){
 		waveData = new WaveData();
@@ -39,6 +47,10 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 		
 		rowsCount = Engine.preferences.getInt("world.rows.count", 1);
 		colsCount = Engine.preferences.getInt("world.cols.count", 1);
+		
+		float sectorLength = Engine.preferences.getFloat("sector.length", 5000f);
+		waverPerSectorX = (int) (sectorLength / translateX);
+		waverPerSectorY = (int) (sectorLength / translateY);
 	}
 
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
@@ -47,9 +59,14 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 		waveInstance.transform.setToTranslation(x, y, z);
 		synchronized(this){
 			for(int i = 0; i < colsCount; i++){
-				for(int j = 0; j < rowsCount; j++){
-					waveInstance.transform.setToTranslation(j * translateX, i * translateY, z);
-					waveInstance.getRenderables(renderables, pool);
+				for(int ix = 0; ix < waverPerSectorX; ix++){
+					for(int j = 0; j < rowsCount; j++){
+						for(int jy = 0; jy < waverPerSectorY; jy++){
+							waveInstance.transform.setToTranslation( (i * waverPerSectorX + ix) * translateX, 
+									(j * waverPerSectorY + jy) * translateY, z);
+							waveInstance.getRenderables(renderables, pool);
+						}
+					}
 				}
 			}
 		}
@@ -68,17 +85,20 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	
 	public void motorProcess(long curTime) {
 		long diffTime = curTime - lastCheckTime;
-		add = radSpeed * diffTime;
-		synchronized(waveData){
-			waveData.start += add;
+		if(diffTime > 20){
+			waveData.start += radSpeed * diffTime;
 			if(waveData.start > PI2){
 				waveData.start -= PI2;
 			}
+			blabKeeper.processBubbles(curTime);
+			waveData.adjustCurrentPrint();
+			lastCheckTime = curTime;
 		}
-		lastCheckTime += diffTime;
 	}
 	
-	public class WaveData{
+	
+	
+	public class WaveData extends PrintableBase<WaveDataPrint>{
 		
 		private float amplitude;
 		private float lenX, lenY;
@@ -91,6 +111,7 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 			this.lenY = Engine.preferences.getFloat("waver.net.step.y", 4) * length;
 			this.amplitude = Engine.preferences.getInt("waver.net.amplitude", 3);
 			this.start = 0f;//(float) Math.PI / 2;
+			this.initPrintStore();
 //			this.color = new Color(0.357f, 0.765f, 0.863f, 1f);
 		}
 		
@@ -109,17 +130,34 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 		public float start(){
 			return this.start;
 		}
-/*		
-		public Color color(){
-			return this.color;
-		}*/
+
+		public WaveDataPrint print() {
+			return new WaveDataPrint(this.printStore);
+		}
+
 	}
-/*
-	public Renderable showRenderable(){
-		Renderable result = new Renderable();
-		Node node = waveInstance.nodes.get(0);
-		NodePart nodePart = node.parts.get(0);
-		return waveInstance.getRenderable(result, node, nodePart);
+
+	public class WaveDataPrint extends BasePrint<WaveData>{
+		
+		public float start;
+		public BlabKeeper.Blab[] bubbles = new BlabKeeper.Blab[BlabKeeper.BLAB_COUNT_TOTAL];
+		public int size;
+
+		public WaveDataPrint(PrintStore ps) {
+			super(ps);
+			for(int i = 0; i < bubbles.length; i++){
+				bubbles[i] = blabKeeper.new Blab();
+			}
+		}
+
+		public void init() {
+			this.start = this.getTarget().start;
+			int i = -1;
+			size = blabKeeper.size();
+			for(BlabKeeper.Blab source : blabKeeper){
+				bubbles[++i].setShaderData(source.x, source.y, source.amplitude, source.radius);
+			}
+		}
+
 	}
-	*/
 }
