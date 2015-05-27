@@ -1,6 +1,7 @@
 package com.odmyhal.sf.process;
 
 import org.bricks.core.entity.Fpoint;
+import org.bricks.engine.neve.WalkPrint;
 import org.bricks.exception.Validate;
 import org.bricks.extent.engine.processor.RollNodeToEntityVProcessor;
 
@@ -8,13 +9,15 @@ import com.badlogic.gdx.math.Vector3;
 import com.odmyhal.sf.staff.Ammunition;
 import com.odmyhal.sf.staff.Ship;
 
-public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship, Fpoint>{
+public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship, Ship>{
+	
+	private static final float stepBack = 150f;
 
-	public ShipGunVRollProcessor(Ship target, String nodeOperatorName/*, Matrix4... linkMatrices*/) {
-		super(target, nodeOperatorName/*, linkMatrices*/);
+	public ShipGunVRollProcessor(Ship target) {
+		super(target, "stvol");
 		this.setBulletSpeed(Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f));
 		this.setBulletAcceleration(Ammunition.prefs.getFloat("ship.ammo1.acceleration.z", 0f));
-		this.setRotationSpeed(0.5f);
+		this.setRotationSpeed(Ship.prefs.getFloat("ship.roll.speed.radians", 0.5f));
 	}
 
 	@Override
@@ -24,8 +27,14 @@ public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship, Fpoi
 	}
 
 	@Override
-	public void fetchButtPoint(Fpoint buttOrigin, Vector3 buttCentral) {
-		buttCentral.set(buttOrigin.x, buttOrigin.y, 20f);
+	public void fetchButtPoint(Ship butt, Vector3 buttCentral) {
+		WalkPrint<?, Fpoint> sp = butt.getSafePrint();
+		Fpoint shipCenter = sp.getOrigin().source;
+		double rotation = sp.getRotation();
+		buttCentral.x = shipCenter.getFX() - stepBack * (float) Math.cos(rotation);
+		buttCentral.y = shipCenter.getFY() - stepBack * (float) Math.sin(rotation);
+		buttCentral.z = 20f;
+		sp.free();
 	}
 
 	@Override

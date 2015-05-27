@@ -10,7 +10,7 @@ import org.bricks.engine.event.check.ChunkEventChecker;
 import org.bricks.engine.event.check.OverlapChecker;
 import org.bricks.engine.event.overlap.BrickOverlapAlgorithm;
 import org.bricks.engine.event.overlap.OverlapStrategy;
-import org.bricks.engine.event.processor.GetOutProcessor;
+import org.bricks.engine.processor.GetOutProcessor;
 import org.bricks.engine.item.OriginMover;
 import org.bricks.engine.neve.OriginMovePrint;
 import org.bricks.engine.tool.Origin;

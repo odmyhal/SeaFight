@@ -40,12 +40,12 @@ public class WeaponPanel extends AnimationRisePanel{
 		controlPanel.row();
 		
 //Gun horizontal roll pad:
-		NodeRollProcessorAction<?, FlowTouchPad> pushkaHRollAction = new NodeRollProcessorAction(ship, "pushka", 0.5f);
+		NodeRollProcessorAction<?, FlowTouchPad> pushkaHRollAction = new NodeRollProcessorAction(ship, "pushka", Ship.prefs.getFloat("ship.roll.speed.radians", 0.5f));
 		FlowTouchPad ftp = FlowWidgetProvider.produceFlowTouchPad(pushkaHRollAction, "NodeRollPad", (int)(Math.min(width, height) * 0.7));
 		controlPanel.add(ftp).pad(5);
 		
 //Gun vertical roll pad:		
-		NodeRollProcessorAction pushkaVRollAction = new NodeRollProcessorAction(ship, "stvol", 0.5f);
+		NodeRollProcessorAction pushkaVRollAction = new NodeRollProcessorAction(ship, "stvol", Ship.prefs.getFloat("ship.roll.speed.radians", 0.5f));
 		HalfRTouchPad hrtp = FlowWidgetProvider.produceFlowHalfRTouchPad(pushkaVRollAction, "Pushka1VRoll", (int)(Math.min(width, height) * 0.7));
 		controlPanel.add(hrtp).pad(5);
 		

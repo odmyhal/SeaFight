@@ -6,7 +6,7 @@ import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.engine.event.check.CheckerType;
 import org.bricks.engine.event.check.ChunkEventChecker;
 import org.bricks.engine.event.overlap.OverlapStrategy;
-import org.bricks.engine.event.processor.GetOutProcessor;
+import org.bricks.engine.processor.GetOutProcessor;
 import org.bricks.engine.item.MultiLiver;
 import org.bricks.engine.neve.EntityPrint;
 import org.bricks.engine.tool.Origin;

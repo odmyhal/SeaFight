@@ -12,6 +12,8 @@ import org.bricks.enterprise.control.widget.tool.FlowTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowWidgetProvider;
 import org.bricks.enterprise.control.widget.tool.RotationDependAction.RotationProvider;
 import org.bricks.extent.control.AccelerateToSpeedEntityAction;
+import org.bricks.extent.control.RiseEventButton;
+import org.bricks.extent.event.FireEvent;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -20,6 +22,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.odmyhal.sf.staff.GetOnSightEvent;
 import com.odmyhal.sf.staff.Ship;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Slider.SliderStyle;
@@ -64,6 +67,10 @@ public class ShipMovePanel extends AnimationRisePanel{
 		FlowSlider speedSlider = createSpeedSlider(ship, panelHeight);
 		controlPanel.add(speedSlider).height(panelHeight).padLeft(20f);
 		//		controlPanel.setDebug(true);
+		
+		controlPanel.add(new RiseEventButton(ship, new FireEvent(), "FIRE")).pad(8);
+		controlPanel.add(new RiseEventButton(ship, new GetOnSightEvent(), "SIGHT")).pad(8);
+		
 		return controlPanel;
 	}
 	

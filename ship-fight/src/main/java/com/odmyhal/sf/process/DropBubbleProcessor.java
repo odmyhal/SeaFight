@@ -3,7 +3,7 @@ package com.odmyhal.sf.process;
 import org.bricks.core.entity.Fpoint;
 import org.bricks.core.help.VectorHelper;
 import org.bricks.engine.event.check.CheckerType;
-import org.bricks.engine.event.processor.Processor;
+import org.bricks.engine.processor.Processor;
 
 import com.odmyhal.sf.model.bubble.BlabKeeper;
 import com.odmyhal.sf.staff.Ship;

@@ -16,6 +16,7 @@ import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
 import org.bricks.engine.event.check.AccelerateToSpeedProcessorChecker;
 import org.bricks.engine.event.check.RouteChecker;
+import org.bricks.engine.processor.tool.TimerApprover;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.engine.tool.Roll;
 import org.bricks.extent.debug.ShapeDebugger;
@@ -42,6 +43,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.odmyhal.sf.bot.ShipFightProcessor;
 import com.odmyhal.sf.control.ShipMovePanel;
 import com.odmyhal.sf.control.WeaponPanel;
 import com.odmyhal.sf.model.Island;
@@ -50,6 +52,7 @@ import com.odmyhal.sf.model.bubble.BlabKeeper;
 import com.odmyhal.sf.model.construct.ShipConstructor;
 import com.odmyhal.sf.model.shader.WaveShaderProvider;
 import com.odmyhal.sf.process.DropBubbleProcessor;
+import com.odmyhal.sf.process.ShipGunHRollProcessor;
 import com.odmyhal.sf.process.ShipGunVRollProcessor;
 import com.odmyhal.sf.staff.Ship;
 
@@ -190,27 +193,21 @@ public class SeaFight extends ApplicationAdapter {
 		ship.translate(tmp2Origin);
 		cameraSatellite = ship.initializeCamera();
 		camera = cameraSatellite.camera;
-//		ship.setVector(new Origin2D(new Fpoint(50f, 0f)));
-//Testing RollToEntityHProcessor:
-		
-		SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable> sso = ship.getStaff().get(0);
-		RollNodeToEntityHProcessor<Ship, Fpoint> rntp = 
-				new RollNodeToEntityHProcessor.FpointProcessor<Ship>(ship, "pushka", 0d,
-						sso.modelBrick.linkTransform(), 
-						sso.modelBrick.getNodeOperator("pushka").getNodeData().linkTransform());
-		rntp.setButt(testo);
-		rntp.setRotationSpeed(1f);
-		ship.registerEventChecker(rntp);
+/*	
+		ShipGunHRollProcessor sgrp = new ShipGunHRollProcessor(ship);
+		sgrp.setButt(testo);
+		ship.registerEventChecker(sgrp);
 //Testing RollToEntityVProcessor:
 		
-		ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(ship, "stvol");
+		ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(ship);
 		sgvrp.setButt(testo);
 		ship.registerEventChecker(sgvrp);
-
+*/
 //End processors testing.
 
 		ship.applyEngine(engine);
-		initRover(waver.blabKeeper);
+		ship.tmpSetOnSight(initRover(waver.blabKeeper));
+		
 		CameraPanel cp = new CameraPanel(camera, cameraSatellite, "panel.defaults", "sf.camera.defaults");
 		panelManager.addPanel(cp);
 	
@@ -235,7 +232,7 @@ public class SeaFight extends ApplicationAdapter {
         
 	}
 	
-	private void initRover(BlabKeeper bk){
+	private Ship initRover(BlabKeeper bk){
 		Origin2D tmpOrigin = new Origin2D();
 		Ship rover = new Ship(assets);
 		tmpOrigin.set(24000, 24000);
@@ -244,19 +241,22 @@ public class SeaFight extends ApplicationAdapter {
 		rover.registerEventChecker(new AccelerateToSpeedProcessorChecker(20f, 600f));
 		rover.registerEventChecker(new RouteChecker((float) Math.PI/7, 100, new Fpoint(22000f, 22000f),
 				new Fpoint(8000f, 19000f), new Fpoint(15000f, 9000f), new Fpoint(21000f, 15000f)));
+
+		ShipGunHRollProcessor sgrp = new ShipGunHRollProcessor(rover);
+		sgrp.setButt(ship);
+		rover.registerEventChecker(sgrp);
 		
-		SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable> sso = rover.getStaff().get(0);
-		RollNodeToEntityHProcessor<Ship, Fpoint> rntp = 
-				new RollNodeToEntityHProcessor.FpointProcessor<Ship>(rover, "pushka", 0d,
-						sso.modelBrick.linkTransform(), 
-						sso.modelBrick.getNodeOperator("pushka").getNodeData().linkTransform());
-		rntp.setButt(ship);
-		rntp.setRotationSpeed(1.8f);
-		rover.registerEventChecker(rntp);
+		ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(rover);
+		sgvrp.setButt(ship);
+		rover.registerEventChecker(sgvrp);
+		
+		ShipFightProcessor sfp = new ShipFightProcessor(new TimerApprover<Ship>(200), sgrp, sgvrp);
+		rover.registerEventChecker(sfp);
+		
 		rover.registerEventChecker(new DropBubbleProcessor(bk));
 		
 		rover.applyEngine(engine);
-		
+		return rover;
 	}
 	
 	private void initTestShip(){

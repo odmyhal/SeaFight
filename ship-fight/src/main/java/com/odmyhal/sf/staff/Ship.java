@@ -67,6 +67,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.ShipSubject;
+import com.odmyhal.sf.process.ShipGunHRollProcessor;
+import com.odmyhal.sf.process.ShipGunVRollProcessor;
 
 public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint<?, Fpoint>> implements RenderableProvider, SpaceDebug {
 	
@@ -179,46 +181,10 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	
 	private ModelInstance fetchModel(AssetManager assets){
 		Model shipModel = assets.get("models/ship11.g3db", Model.class);
-//		Model shipModel = assets.get("models/ship11.g3db", Model.class);
 		ModelInstance ship1 = new ModelInstance(shipModel);
 		return ship1;
 	}
-/*	
-	private Brick produceBrick(){
 
-		
-		Collection<Ipoint> points = new LinkedList<Ipoint>();
-		points.add(new Ipoint(844, 0));
-		points.add(new Ipoint(665, 40));
-		points.add(new Ipoint(531, 63));
-		points.add(new Ipoint(397, 84));
-		points.add(new Ipoint(129, 115));
-		points.add(new Ipoint(-3, 122));
-		points.add(new Ipoint(-135, 127));
-		points.add(new Ipoint(-273, 123));
-		points.add(new Ipoint(-417, 117));
-		points.add(new Ipoint(-554, 110));
-		points.add(new Ipoint(-713, 83));
-		points.add(new Ipoint(-809, 49));
-		
-		points.add(new Ipoint(-857, 0));
-		
-		points.add(new Ipoint(-809, -49));
-		points.add(new Ipoint(-714, -79));
-		points.add(new Ipoint(-555, -106));
-		points.add(new Ipoint(-418, -115));
-		points.add(new Ipoint(-272, -123));
-		points.add(new Ipoint(-135, -127));
-		points.add(new Ipoint(-3, -122));
-		points.add(new Ipoint(129, -115));
-		points.add(new Ipoint(263, -101));
-		points.add(new Ipoint(397, -84));
-		points.add(new Ipoint(531, -63));
-		points.add(new Ipoint(665, -40));
-		ConvexityApproveHelper.applyConvexity(points);
-		return new PointSetBrick(points);
-	}
-*/
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
 		for(SpaceSubjectOperable subject: getStaff()){
 			subject.getRenderables(renderables, pool);
@@ -267,15 +233,28 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		System.out.println(this.getlog());
 	}
 	
-	private boolean que = true;
+	private Ship onSight;
+	
+	public void tmpSetOnSight(Ship sight){
+		this.onSight = sight;
+	}
+	
+	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
+	public void getOnSight(GetOnSightEvent e){
+		if(onSight != null){
+			ShipGunHRollProcessor sgrp = new ShipGunHRollProcessor(this);
+			sgrp.setButt(onSight);
+			registerEventChecker(sgrp);
+			
+			ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(this);
+			sgvrp.setButt(onSight);
+			registerEventChecker(sgvrp);
+		}
+	}
 	
 	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
 	public void shoot(FireEvent e){
-		if(que = !que){
-			this.fire(e, 0);
-		}else{
-			this.fire(e, 1);
-		}
+		fire(e.getEventTime());
 	}
 	
 	@EventHandle(eventType = Ammunition.SHIP_AMMUNITION_TYPE)
@@ -291,12 +270,21 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 //		this.rollBack(event.getEventTime());
 		this.removeHistory(BaseEvent.touchEventCode);
 	}
+
+	private boolean que = true;
+	public void fire(long fireTime){
+		if(que = !que){
+			this.fire(0, fireTime);
+		}else{
+			this.fire(1, fireTime);
+		}
+	}
 	
-	private void fire(FireEvent e, int base/*, int cone*/){
+	private void fire(int base, long fireTime){
 		Ammunition ammo = new Ammunition();
 		this.gunMark.calculateTransforms();
 //		Vector3 one = this.getGunPoint(cone, e.getEventTime());//this.gunMark.getMark(cone);
-		Vector3 baseVector = this.getGunPoint(base, e.getEventTime());//this.gunMark.getMark(base);
+		Vector3 baseVector = this.getGunPoint(base, fireTime);//this.gunMark.getMark(base);
 //		helpVector.set(baseVector);
 		
 		
@@ -324,7 +312,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		double cos = scalar_mult / (helpVector.len() * h);
 		double rad = Math.acos(cos);
 		Roll3D roll = ammo.linkRoll();
-		roll.setSpin(h2V, e.getEventTime());
+		roll.setSpin(h2V, fireTime);
 		roll.setRotation((float) rad);
 		ammo.applyRotation();
 		
@@ -338,7 +326,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 //		System.out.println("AmmoVector: " + helpVector);
 //		ammo.creationTime = e.getEventTime();
 		fireOrigin.source.set(0f, 0f, Ammunition.accelerationZ);
-		ammo.setAcceleration(fireOrigin, e.getEventTime());
+		ammo.setAcceleration(fireOrigin, fireTime);
 		
 		//Sets ammo ratation
 		h2V.set(helpVector.x, helpVector.y, helpVector.z + Ammunition.accelerationZ);
@@ -346,7 +334,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		cos = scalar_mult / (h2V.len() * helpVector.len());
 		ammo.setRotationSpeed((float) Math.acos(cos));
 		helpVector.crs(h2V);
-		roll.setSpin(helpVector, e.getEventTime());
+		roll.setSpin(helpVector, fireTime);
 		//Set previous origin to current
 //		ammo.previousOrigin.set(ammo.origin().source);
 		ammo.applyEngine(this.getEngine());
