@@ -13,7 +13,7 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.bubble");
 	public static final int BLAB_COUNT_TOTAL = prefs.getInt("ship.bubble.amount.total", 100);
 	
-	private Quarantine<Blab> quarantine = new Quarantine<Blab>(10);
+	private Quarantine<Blab> quarantine = new Quarantine<Blab>(prefs.getInt("blab.keeper.quarantine.size", 10));
 	private List<Blab> bubbles = new LinkedList<Blab>();
 	private long checkTime = 0;
 	private int size;

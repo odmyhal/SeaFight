@@ -15,7 +15,7 @@ import org.bricks.core.help.AlgebraHelper;
 import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
 import org.bricks.engine.event.check.AccelerateToSpeedProcessorChecker;
-import org.bricks.engine.event.check.RouteChecker;
+import org.bricks.engine.event.check.DurableRouteChecker;
 import org.bricks.engine.processor.tool.TimerApprover;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.engine.tool.Roll;
@@ -54,6 +54,7 @@ import com.odmyhal.sf.model.shader.WaveShaderProvider;
 import com.odmyhal.sf.process.DropBubbleProcessor;
 import com.odmyhal.sf.process.ShipGunHRollProcessor;
 import com.odmyhal.sf.process.ShipGunVRollProcessor;
+import com.odmyhal.sf.staff.Ammunition;
 import com.odmyhal.sf.staff.Ship;
 
 public class SeaFight extends ApplicationAdapter {
@@ -186,6 +187,8 @@ public class SeaFight extends ApplicationAdapter {
 		kr.setToRotation((float) Math.PI / 2 );
 		kr.applyEngine(engine);
 */
+		Ammunition.setBlabKeeper(waver.blabKeeper);
+		
 		ship = new Ship(assets);
 		ship.registerEventChecker(new DropBubbleProcessor(waver.blabKeeper));
 		
@@ -239,7 +242,10 @@ public class SeaFight extends ApplicationAdapter {
 		rover.translate(tmpOrigin);
 		rover.setToRotation((float) Math.PI * 5 / 4);
 		rover.registerEventChecker(new AccelerateToSpeedProcessorChecker(20f, 600f));
-		rover.registerEventChecker(new RouteChecker((float) Math.PI/7, 100, new Fpoint(22000f, 22000f),
+		
+		
+		
+		rover.registerEventChecker(new DurableRouteChecker<Ship>((float) Math.PI/7, 100f, new Fpoint(22000f, 22000f),
 				new Fpoint(8000f, 19000f), new Fpoint(15000f, 9000f), new Fpoint(21000f, 15000f)));
 
 		ShipGunHRollProcessor sgrp = new ShipGunHRollProcessor(rover);

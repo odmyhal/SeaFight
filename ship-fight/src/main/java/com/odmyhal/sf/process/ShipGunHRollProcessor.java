@@ -26,7 +26,7 @@ public class ShipGunHRollProcessor extends RollNodeToEntityHProcessor<Ship, Ship
 	}
 
 	@Override
-	public void fetchButtPoint(Ship butt, Fpoint buttCentral) {
+	protected void fetchButtPoint(Ship butt, Fpoint buttCentral) {
 		WalkPrint<?, Fpoint> sp = butt.getSafePrint();
 		Fpoint shipCenter = sp.getOrigin().source;
 		double rotation = sp.getRotation();
@@ -36,14 +36,14 @@ public class ShipGunHRollProcessor extends RollNodeToEntityHProcessor<Ship, Ship
 	}
 
 	@Override
-	public void fetchRollOrigin(Fpoint rollCenter) {
+	protected void fetchRollOrigin(Fpoint rollCenter) {
 		rollPoint.set(this.nodeOperator.linkPoint());
 		rollPoint.mul(transform);
 		rollCenter.set(rollPoint.x, rollPoint.y);
 	}
 
 	@Override
-	public float provideAbsoluteCurrentRotation() {
+	protected float provideAbsoluteCurrentRotation() {
 //		System.out.println("ship rotation " + this.checkEntity.getRotation() + ", pushka rotation: " + nodeOperator.rotatedRadians());
 		float res = this.checkEntity.getRotation() + this.nodeOperator.rotatedRadians() - (float) Math.PI / 2;
 		while(res < 0){

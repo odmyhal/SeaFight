@@ -58,6 +58,7 @@ public class ShipMovePanel extends AnimationRisePanel{
 		controlPanel.pad(10f);
 		Label l = new Label("Moveing control panel", Skinner.instance().skin(), "default");
 		controlPanel.add(l).pad(5).top().left();
+		controlPanel.row();
 		
 		FlowTouchPad ftp = createRollPad(ship);
 		Cell cell = controlPanel.add(ftp);

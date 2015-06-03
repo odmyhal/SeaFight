@@ -44,6 +44,8 @@
         
         <node name="sf.ship.bubble">
             <map>
+                <entry key="blab.keeper.quarantine.size" value="20"/>
+                
                 <entry key="ship.bubble.amount.total" value="100"/>
                 <entry key="ship.bubble.time.interval.min" value="200"/>
                 <entry key="ship.bubble.time.interval.max" value="800"/>
@@ -55,5 +57,6 @@
                 <entry key="ship.bubble.amplitude.max" value="0.3"/>
             </map>
         </node>
+        
     </root>
 </preferences>
