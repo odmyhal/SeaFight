@@ -49,7 +49,10 @@ public class WeaponPanel extends AnimationRisePanel{
 		HalfRTouchPad hrtp = FlowWidgetProvider.produceFlowHalfRTouchPad(pushkaVRollAction, "Pushka1VRoll", (int)(Math.min(width, height) * 0.7));
 		controlPanel.add(hrtp).pad(5);
 		
-		controlPanel.add(new RiseEventButton(ship, new FireEvent(), "FIRE")).pad(8);
+
+		int buttonWidth = (int)(Math.min(width, height) * 0.5);
+		int buttonHeight = (int)(Math.min(width, height) * 0.3);
+		controlPanel.add(ShipMovePanel.provideButton(ship, new FireEvent(), "FIRE", buttonWidth, buttonHeight)).pad(8);
 
 		return controlPanel;
 	}

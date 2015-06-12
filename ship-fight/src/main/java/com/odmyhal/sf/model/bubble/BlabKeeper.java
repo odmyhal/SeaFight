@@ -7,6 +7,8 @@ import java.util.prefs.Preferences;
 
 import org.bricks.engine.tool.Quarantine;
 import org.bricks.exception.Validate;
+import org.bricks.utils.LinkLoop;
+import org.bricks.utils.Loop;
 
 public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 	
@@ -14,7 +16,7 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 	public static final int BLAB_COUNT_TOTAL = prefs.getInt("ship.bubble.amount.total", 100);
 	
 	private Quarantine<Blab> quarantine = new Quarantine<Blab>(prefs.getInt("blab.keeper.quarantine.size", 10));
-	private List<Blab> bubbles = new LinkedList<Blab>();
+	private Loop<Blab> bubbles = new LinkLoop<Blab>();
 	private long checkTime = 0;
 	private int size;
 	
@@ -28,9 +30,9 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 			++size;
 			Validate.isFalse(size > BLAB_COUNT_TOTAL, "BlabKeeper exceeded maximum amound of bubbles..." );
 		}
-		Iterator<Blab> iterator = bubbles.iterator();
 		long diffTime = currentTime - checkTime;
 		if(diffTime > 20){
+			Iterator<Blab> iterator = bubbles.iterator();
 			while(iterator.hasNext()){
 				Blab blab = iterator.next();
 				if( !blab.live(diffTime) ){

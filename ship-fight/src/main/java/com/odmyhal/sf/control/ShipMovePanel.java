@@ -4,6 +4,8 @@ import java.util.prefs.Preferences;
 
 import org.bircks.enterprise.control.panel.AnimationRisePanel;
 import org.bircks.enterprise.control.panel.Skinner;
+import org.bricks.engine.event.Event;
+import org.bricks.engine.staff.Liver;
 import org.bricks.enterprise.control.widget.draw.DrawableRoll;
 import org.bricks.enterprise.control.widget.tool.FlowMutableAction;
 import org.bricks.enterprise.control.widget.tool.FlowSlider;
@@ -18,10 +20,12 @@ import org.bricks.extent.event.FireEvent;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.odmyhal.sf.staff.GetOnSightEvent;
 import com.odmyhal.sf.staff.Ship;
 
@@ -69,10 +73,42 @@ public class ShipMovePanel extends AnimationRisePanel{
 		controlPanel.add(speedSlider).height(panelHeight).padLeft(20f);
 		//		controlPanel.setDebug(true);
 		
-		controlPanel.add(new RiseEventButton(ship, new FireEvent(), "FIRE")).pad(8);
-		controlPanel.add(new RiseEventButton(ship, new GetOnSightEvent(), "SIGHT")).pad(8);
+		Table buttTable = new Table();
+		buttTable.left().center();
+		buttTable.pad(15);
+		
+
+		int buttonWidth = (int)(Math.min(width, height) * 0.5/* * 0.20*/);
+		int buttonHeight = (int)(Math.min(width, height) * 0.3/* * 0.15*/);
+		buttTable.add(provideButton(ship, new FireEvent(), "FIRE", buttonWidth, buttonHeight)).pad(8);
+		buttTable.row();
+		buttTable.add(provideButton(ship, new GetOnSightEvent(), "SIGHT", buttonWidth, buttonHeight)).pad(8);
+		
+		controlPanel.add(buttTable).pad(4);
+		
+//		controlPanel.add(new RiseEventButton(ship, new FireEvent(), "FIRE")).pad(8);
+//		controlPanel.add(new RiseEventButton(ship, new GetOnSightEvent(), "SIGHT")).pad(8);
 		
 		return controlPanel;
+	}
+	
+	public static RiseEventButton provideButton(Liver<?> liver, Event event, String text, int buttonWidth, int buttonHeight){
+		TextButton.TextButtonStyle textButtonStyle; 
+		if(Skinner.instance().skin().has("fireButton-" + buttonWidth + "-" + buttonHeight, TextButton.TextButtonStyle.class)){
+			textButtonStyle = Skinner.instance().skin().get("fireButton", TextButton.TextButtonStyle.class);
+		}else{
+			Skinner.instance().skin().add("white", Skinner.instance().getFrame(buttonWidth, buttonHeight, 10, new Color(1, 0.78f, 0, 0.5f), Color.RED));
+			Skinner.instance().skin().add("default", new BitmapFont());
+			
+			textButtonStyle = new TextButton.TextButtonStyle();
+			textButtonStyle.up = Skinner.instance().skin().newDrawable("white");
+			textButtonStyle.down = Skinner.instance().skin().newDrawable("white", Color.DARK_GRAY);
+			textButtonStyle.checked = Skinner.instance().skin().newDrawable("white", Color.BLUE);
+			textButtonStyle.over = Skinner.instance().skin().newDrawable("white", Color.LIGHT_GRAY);
+			textButtonStyle.font = Skinner.instance().skin().getFont("default");
+			Skinner.instance().skin().add("fireButton", textButtonStyle);
+		}
+		return new RiseEventButton(liver, event, text, textButtonStyle);
 	}
 	
 	private FlowTouchPad createRollPad(Ship ship){

@@ -39,7 +39,7 @@ public class WaveShaderProvider extends DefaultShaderProvider{
 		final long mask = renderable.material.getMask();
 		final long attributes = renderable.mesh.getVertexAttributes().getMask();
 		if (and(attributes, Usage.Position)) prefix += "#define positionFlag\n";
-		if (or(attributes, Usage.Color | Usage.ColorPacked)) prefix += "#define colorFlag\n";
+		if (or(attributes, Usage.ColorUnpacked | Usage.ColorPacked)) prefix += "#define colorFlag\n";
 		if (and(attributes, Usage.BiNormal)) prefix += "#define binormalFlag\n";
 		if (and(attributes, Usage.Tangent)) prefix += "#define tangentFlag\n";
 		if (and(attributes, Usage.Normal)) prefix += "#define normalFlag\n";

@@ -26,7 +26,7 @@ public class ShipGunVRollSuperProcessor extends RollNodeToWalkerVProcessor<Ship,
 		double rotation = sp.getRotation();
 		buttCentral.x = shipCenter.getFX() - stepBack * (float) Math.cos(rotation);
 		buttCentral.y = shipCenter.getFY() - stepBack * (float) Math.sin(rotation);
-		buttCentral.z = 20f;
+		buttCentral.z = 60f;
 	}
 
 	@Override

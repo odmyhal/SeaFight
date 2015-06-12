@@ -9,6 +9,7 @@ public class EventHandlerRegistrator implements EventHandleRegistrator{
 			EventHandlerManager.registerHandler(com.odmyhal.sf.staff.Ship.class, org.bricks.engine.event.OverlapEvent.class, "ShipAmmunitio@sf.myhal.com", new ShipOverlapEventHandler_1());
 			EventHandlerManager.registerHandler(com.odmyhal.sf.staff.Ammunition.class, com.odmyhal.sf.process.FaceWaterEvent.class, "ShipAmmunitio@sf.myhal.com", new AmmunitionFaceWaterEventHandler());
 			EventHandlerManager.registerHandler(com.odmyhal.sf.staff.Ship.class, com.odmyhal.sf.staff.GetOnSightEvent.class, "UserSourceType@extent.bricks.org", new ShipGetOnSightEventHandler());
+			EventHandlerManager.registerHandler(com.odmyhal.sf.staff.Ship.class, com.odmyhal.sf.staff.Ship.ShipOutOfWorld.class, "ShipSource@sf.odmyhal.com", new ShipShipOutOfWorldHandler());
 			EventHandlerManager.registerHandler(com.odmyhal.sf.staff.Ship.class, org.bricks.engine.event.OverlapEvent.class, "IslandSource@sf.odmyhal.com", new ShipOverlapEventHandler());
 			EventHandlerManager.registerHandler(com.odmyhal.sf.staff.Ship.class, org.bricks.extent.event.FireEvent.class, "UserSourceType@extent.bricks.org", new ShipFireEventHandler());
 		}

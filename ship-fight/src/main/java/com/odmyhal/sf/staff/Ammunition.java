@@ -124,7 +124,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, sourceType = Ship.SHIP_SOURCE_TYPE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
 	public void hitShip(OverlapEvent<?, SSPrint<?, EntityPrint, ?>, Vector3> event){
 		if(event.getSourcePrint().linkEntityPrint().getTarget().equals(myShip)){
-			this.outOfWorld();
+			this.disappear();
 		}else{
 			hitStone(event);
 		}
@@ -143,7 +143,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		tmpOrigin.source.set(event.getTouchPoint());
 		wb.translate(tmpOrigin);
 		wb.applyEngine(this.getEngine());
-		this.outOfWorld();
+		this.disappear();
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import org.bricks.core.help.PointHelper;
 import org.bricks.core.help.VectorHelper;
 import org.bricks.core.help.WalkerHelper;
 import org.bricks.engine.event.BaseEvent;
+import org.bricks.engine.event.EventSource;
 import org.bricks.engine.event.OverlapEvent;
 import org.bricks.engine.event.check.DurableRouteChecker.DurableRoutedWalker;
 import org.bricks.engine.event.check.OverlapChecker;
@@ -32,6 +33,7 @@ import org.bricks.extent.entity.mesh.ModelSubjectOperable;
 import org.bricks.extent.entity.mesh.ModelSubjectPrint;
 import org.bricks.extent.event.ExtentEventGroups;
 import org.bricks.extent.event.FireEvent;
+import org.bricks.extent.rewrite.Matrix4Safe;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
 import org.bricks.extent.space.SSPlanePrint;
@@ -157,7 +159,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		SkeletonWithPlane swp = new SkeletonWithPlane(SkeletonDataStore.getIndexes(dataName), SkeletonDataStore.getVertexes(dataName), 
 				SkeletonDataStore.getPlaneIndexes(dataName), SkeletonDataStore.getPlaneCenterIndex(dataName));
 		mb.applySkeletonWithPlane(swp);
-		Matrix4 nodeMatrix = new Matrix4();
+		Matrix4Safe nodeMatrix = new Matrix4Safe();
 		Node node = ModelHelper.findNode("Dummyship1/ship1", mi.nodes);
 		nodeMatrix.set(node.globalTransform);
 		swp.addTransform(nodeMatrix);
@@ -189,7 +191,8 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	public CameraSatellite initializeCamera(){
 		if(this.cameraSatellite == null){
 			Camera camera = new PerspectiveCamera(37f, 1250f, 750f);
-			camera.far = 50000;
+			camera.far = 40000;
+			camera.near = 10;
 			Point origin = this.origin().source;
 			double rotation = this.getRotation();
 			camera.translate(origin.getFX(), origin.getFY(), 2500f);
@@ -211,8 +214,22 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 
 	@Override
 	public void outOfWorld(){
-		super.outOfWorld();
-		System.out.println(this.getlog());
+//		System.out.println("Adding out of world event");
+		this.addEvent(new ShipOutOfWorld());
+//		this.rollBack(;)
+//		super.outOfWorld();
+//		System.out.println(this.getlog());
+	}
+	
+	@Override
+	public void disappear(){
+		System.out.println("ship is disappearing...");
+	}
+	
+	@EventHandle(eventType = SHIP_SOURCE_TYPE)
+	public void shipOutOfWorld(ShipOutOfWorld event){
+//		System.out.println("Trying to rollBack ship");
+		this.rollBack(event.getEventTime());
 	}
 	
 	private Ship onSight;
@@ -271,7 +288,9 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			Validate.isTrue(replyShipHit(hitVector, touchPoint, myPrint.getOrigin().source, myPrint.getRotation()), "Can't reply to ship hit");
 		}
 		
-		this.adjustCurrentPrint();
+//		this.adjustCurrentPrint();
+//		this.adjustInMotorPrint();
+		this.setUpdate();
 		this.removeHistory(BaseEvent.touchEventCode);
 		gotShipHit = true;
 	}
@@ -385,4 +404,20 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		return false;
 	}
 	
+	public class ShipOutOfWorld extends BaseEvent{
+		
+		public int getEventGroupCode() {
+			return BaseEvent.touchEventCode;
+		}
+
+		@Override
+		public String sourceType() {
+			return Ship.this.sourceType();
+		}
+
+		@Override
+		public EventSource getEventSource() {
+			return Ship.this;
+		}
+	}
 }
