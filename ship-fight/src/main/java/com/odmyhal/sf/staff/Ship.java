@@ -23,6 +23,7 @@ import org.bricks.engine.item.MultiWalkRoller2D;
 import org.bricks.engine.neve.ContainsEntityPrint;
 import org.bricks.engine.neve.PlanePointsPrint;
 import org.bricks.engine.neve.WalkPrint;
+import org.bricks.engine.staff.Walker;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.exception.Validate;
@@ -33,6 +34,7 @@ import org.bricks.extent.entity.mesh.ModelSubjectOperable;
 import org.bricks.extent.entity.mesh.ModelSubjectPrint;
 import org.bricks.extent.event.ExtentEventGroups;
 import org.bricks.extent.event.FireEvent;
+import org.bricks.extent.processor.tbroll.Butt;
 import org.bricks.extent.rewrite.Matrix4Safe;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
@@ -53,6 +55,7 @@ import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
 import org.bricks.engine.tool.Roll;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -74,9 +77,11 @@ import com.odmyhal.sf.process.ShipGunVRollProcessor;
 import com.odmyhal.sf.process.ShipGunVRollSuperProcessor;
 
 public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint<?, Fpoint>> 
-	implements RenderableProvider, SpaceDebug, DurableRoutedWalker<WalkPrint<?, Fpoint>> {
+	implements RenderableProvider, SpaceDebug, DurableRoutedWalker<WalkPrint<?, Fpoint>>, Butt {
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.defaults");
+	
+	private static final float stepBack = 150f;
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
@@ -232,22 +237,33 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		this.rollBack(event.getEventTime());
 	}
 	
-	private Ship onSight;
+/*	private Ship onSight;
 	
 	public void tmpSetOnSight(Ship sight){
 		this.onSight = sight;
 	}
-	
+*/	
 	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
 	public void getOnSight(GetOnSightEvent e){
-		if(onSight != null){
+		Butt butt = e.getButt();
+		if(butt == null){
+			Gdx.app.debug("WARNING", "(Ship) Have got OnSightEvent without butt...");
+		}else if(butt instanceof Walker){
 			ShipGunVRollSuperProcessor sgvrp = new ShipGunVRollSuperProcessor(this);
-			sgvrp.setButt(onSight);
+			sgvrp.setButt(butt);
 			registerEventChecker(sgvrp);
 
 			ShipGunHRollSuperProcessor sgrp = new ShipGunHRollSuperProcessor(this, sgvrp);
-			sgrp.setButt(onSight);
+			sgrp.setButt(butt);
 			registerEventChecker(sgrp);
+		}else{
+			ShipGunHRollProcessor sgrp = new ShipGunHRollProcessor(this);
+			sgrp.setButt(butt);
+			this.registerEventChecker(sgrp);
+			
+			ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(this);
+			sgvrp.setButt(butt);
+			this.registerEventChecker(sgvrp);
 		}
 	}
 	
@@ -419,5 +435,16 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		public EventSource getEventSource() {
 			return Ship.this;
 		}
+	}
+	
+
+	public void fetchOrigin(Vector3 dest){
+		WalkPrint<?, Fpoint> wp = this.getSafePrint();
+		Fpoint shipCenter = wp.getOrigin().source;
+		double rotation = wp.getRotation();
+		dest.x = shipCenter.getFX() - stepBack * (float) Math.cos(rotation);
+		dest.y = shipCenter.getFY() - stepBack * (float) Math.sin(rotation);
+		dest.z = 50f;
+		wp.free();
 	}
 }

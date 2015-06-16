@@ -14,7 +14,7 @@ import org.bricks.enterprise.control.widget.tool.FlowTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowWidgetProvider;
 import org.bricks.enterprise.control.widget.tool.RotationDependAction.RotationProvider;
 import org.bricks.extent.control.AccelerateToSpeedEntityAction;
-import org.bricks.extent.control.RiseEventButton;
+import org.bricks.extent.control.RiseConstEventButton;
 import org.bricks.extent.event.FireEvent;
 
 import com.badlogic.gdx.Gdx;
@@ -80,9 +80,11 @@ public class ShipMovePanel extends AnimationRisePanel{
 
 		int buttonWidth = (int)(Math.min(width, height) * 0.5/* * 0.20*/);
 		int buttonHeight = (int)(Math.min(width, height) * 0.3/* * 0.15*/);
-		buttTable.add(provideButton(ship, new FireEvent(), "FIRE", buttonWidth, buttonHeight)).pad(8);
+//		buttTable.add(provideButton(ship, new FireEvent(), "FIRE", buttonWidth, buttonHeight)).pad(8);
+		buttTable.add(new RiseConstEventButton(ship, new FireEvent(), "FIRE", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		buttTable.row();
-		buttTable.add(provideButton(ship, new GetOnSightEvent(), "SIGHT", buttonWidth, buttonHeight)).pad(8);
+	//	buttTable.add(provideButton(ship, new GetOnSightEvent(), "SIGHT", buttonWidth, buttonHeight)).pad(8);
+		buttTable.add(new RiseOnSignEventButt(ship, "SIGHT", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		
 		controlPanel.add(buttTable).pad(4);
 		
@@ -92,7 +94,7 @@ public class ShipMovePanel extends AnimationRisePanel{
 		return controlPanel;
 	}
 	
-	public static RiseEventButton provideButton(Liver<?> liver, Event event, String text, int buttonWidth, int buttonHeight){
+	public static TextButton.TextButtonStyle provideButtonStyle(int buttonWidth, int buttonHeight){
 		TextButton.TextButtonStyle textButtonStyle; 
 		if(Skinner.instance().skin().has("fireButton-" + buttonWidth + "-" + buttonHeight, TextButton.TextButtonStyle.class)){
 			textButtonStyle = Skinner.instance().skin().get("fireButton", TextButton.TextButtonStyle.class);
@@ -108,7 +110,8 @@ public class ShipMovePanel extends AnimationRisePanel{
 			textButtonStyle.font = Skinner.instance().skin().getFont("default");
 			Skinner.instance().skin().add("fireButton", textButtonStyle);
 		}
-		return new RiseEventButton(liver, event, text, textButtonStyle);
+		return textButtonStyle;
+//		return new RiseConstEventButton(liver, event, text, textButtonStyle);
 	}
 	
 	private FlowTouchPad createRollPad(Ship ship){

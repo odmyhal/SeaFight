@@ -3,13 +3,13 @@ package com.odmyhal.sf.process;
 import org.bricks.core.entity.Fpoint;
 import org.bricks.engine.neve.WalkPrint;
 import org.bricks.exception.Validate;
-import org.bricks.extent.engine.processor.RollNodeToEntityVProcessor;
+import org.bricks.extent.processor.tbroll.RollNodeToEntityVProcessor;
 
 import com.badlogic.gdx.math.Vector3;
 import com.odmyhal.sf.staff.Ammunition;
 import com.odmyhal.sf.staff.Ship;
 
-public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship, Ship>{
+public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship>{
 	
 	private static final float stepBack = 150f;
 
@@ -25,7 +25,7 @@ public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship, Ship
 		Validate.isTrue(calcRotation >= 0 && calcRotation < Math.PI / 2);
 		return (float) (Math.PI - calcRotation);
 	}
-
+/*
 	@Override
 	public void fetchButtPoint(Ship butt, Vector3 buttCentral) {
 		WalkPrint<?, Fpoint> sp = butt.getSafePrint();
@@ -36,7 +36,7 @@ public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship, Ship
 		buttCentral.z = 20f;
 		sp.free();
 	}
-
+*/
 	@Override
 	public Vector3 provideStartPoint(Ship ship, long processTime) {
 		return ship.getGunPoint(2, processTime);

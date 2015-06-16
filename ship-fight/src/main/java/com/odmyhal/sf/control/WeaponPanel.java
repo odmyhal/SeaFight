@@ -7,7 +7,7 @@ import org.bricks.enterprise.control.widget.tool.FlowTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowWidgetProvider;
 import org.bricks.enterprise.control.widget.tool.HalfRTouchPad;
 import org.bricks.extent.control.NodeRollProcessorAction;
-import org.bricks.extent.control.RiseEventButton;
+import org.bricks.extent.control.RiseConstEventButton;
 import org.bricks.extent.event.FireEvent;
 import org.bricks.extent.subject.model.ModelBrickOperable;
 import org.bricks.extent.subject.model.ModelBrickSubject;
@@ -52,7 +52,7 @@ public class WeaponPanel extends AnimationRisePanel{
 
 		int buttonWidth = (int)(Math.min(width, height) * 0.5);
 		int buttonHeight = (int)(Math.min(width, height) * 0.3);
-		controlPanel.add(ShipMovePanel.provideButton(ship, new FireEvent(), "FIRE", buttonWidth, buttonHeight)).pad(8);
+		controlPanel.add(new RiseConstEventButton(ship, new FireEvent(), "FIRE", ShipMovePanel.provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 
 		return controlPanel;
 	}

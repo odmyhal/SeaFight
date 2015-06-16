@@ -3,10 +3,11 @@ package com.odmyhal.sf.staff;
 import org.bricks.engine.event.BaseEvent;
 import org.bricks.engine.event.EventSource;
 import org.bricks.extent.event.ExtentEventGroups;
+import org.bricks.extent.processor.tbroll.Butt;
 
 public class GetOnSightEvent extends BaseEvent{
 	
-	private Ship sight;
+	private Butt butt;
 
 	public int getEventGroupCode() {
 		return ExtentEventGroups.FIRE_EV_GROUP;
@@ -21,11 +22,11 @@ public class GetOnSightEvent extends BaseEvent{
 		return null;
 	}
 	
-	public Ship getSight(){
-		return sight;
+	public Butt getButt(){
+		return butt;
 	}
 	
-	public void setSight(Ship sight){
-		this.sight = sight;
+	public void setButt(Butt butt){
+		this.butt = butt;
 	}
 }

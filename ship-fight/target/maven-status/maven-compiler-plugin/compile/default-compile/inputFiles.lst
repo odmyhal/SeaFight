@@ -26,5 +26,6 @@
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/ShaderWaver.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/WeaponPanel.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/shader/WaveMesh.java
+/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/RiseOnSignEventButt.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/Island.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/staff/GetOnSightEvent.java
