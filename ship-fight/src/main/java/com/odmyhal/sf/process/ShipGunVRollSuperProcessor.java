@@ -19,27 +19,13 @@ public class ShipGunVRollSuperProcessor extends RollNodeToWalkerVProcessor<Ship>
 		this.setBulletAcceleration(Ammunition.prefs.getFloat("ship.ammo1.acceleration.z", 0f));
 		this.setRotationSpeed(Ship.prefs.getFloat("ship.roll.speed.radians", 0.5f));
 	}
-/*	
-	@Override
-	public void fetchButtPoint(WalkPrint<?, Fpoint> sp, Vector3 buttCentral) {
-		Fpoint shipCenter = sp.getOrigin().source;
-		double rotation = sp.getRotation();
-		buttCentral.x = shipCenter.getFX() - stepBack * (float) Math.cos(rotation);
-		buttCentral.y = shipCenter.getFY() - stepBack * (float) Math.sin(rotation);
-		buttCentral.z = 60f;
-	}
-*/
+
 	@Override
 	protected float convertToTargetRotation(double calcRotation) {
 		Validate.isTrue(calcRotation > -Math.PI && calcRotation < Math.PI / 2);
 		return (float) (Math.PI - calcRotation);
 	}
-/*
-	@Override
-	protected void fetchButtPoint(Ship arg0, Vector3 arg1) {
-		throw new RuntimeException("You should use rewrited method with WalkPrint");
-	}
-*/
+
 	@Override
 	protected Vector3 provideStartPoint(Ship ship, long processTime) {
 		return ship.getGunPoint(2, processTime);

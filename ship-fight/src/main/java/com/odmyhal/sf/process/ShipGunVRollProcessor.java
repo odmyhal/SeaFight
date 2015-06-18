@@ -22,7 +22,7 @@ public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship>{
 
 	@Override
 	public float convertToTargetRotation(double calcRotation) {
-		Validate.isTrue(calcRotation >= 0 && calcRotation < Math.PI / 2);
+		Validate.isTrue(calcRotation > -Math.PI / 2 && calcRotation < Math.PI / 2);
 		return (float) (Math.PI - calcRotation);
 	}
 /*

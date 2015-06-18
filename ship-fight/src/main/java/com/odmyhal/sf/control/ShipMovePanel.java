@@ -80,16 +80,11 @@ public class ShipMovePanel extends AnimationRisePanel{
 
 		int buttonWidth = (int)(Math.min(width, height) * 0.5/* * 0.20*/);
 		int buttonHeight = (int)(Math.min(width, height) * 0.3/* * 0.15*/);
-//		buttTable.add(provideButton(ship, new FireEvent(), "FIRE", buttonWidth, buttonHeight)).pad(8);
 		buttTable.add(new RiseConstEventButton(ship, new FireEvent(), "FIRE", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		buttTable.row();
-	//	buttTable.add(provideButton(ship, new GetOnSightEvent(), "SIGHT", buttonWidth, buttonHeight)).pad(8);
-		buttTable.add(new RiseOnSignEventButt(ship, "SIGHT", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
+//		buttTable.add(new RiseOnSignEventButt(ship, "SIGHT", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		
 		controlPanel.add(buttTable).pad(4);
-		
-//		controlPanel.add(new RiseEventButton(ship, new FireEvent(), "FIRE")).pad(8);
-//		controlPanel.add(new RiseEventButton(ship, new GetOnSightEvent(), "SIGHT")).pad(8);
 		
 		return controlPanel;
 	}

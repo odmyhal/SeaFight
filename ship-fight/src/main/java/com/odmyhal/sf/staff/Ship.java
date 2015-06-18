@@ -246,6 +246,8 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
 	public void getOnSight(GetOnSightEvent e){
 		Butt butt = e.getButt();
+	//	System.out.println(Thread.currentThread().getName() + " Ship set sign to " + e.getButt() + ", of type " + e.getButt().getClass().getCanonicalName());
+	//	System.out.println("-----------------------------------------------");
 		if(butt == null){
 			Gdx.app.debug("WARNING", "(Ship) Have got OnSightEvent without butt...");
 		}else if(butt instanceof Walker){
