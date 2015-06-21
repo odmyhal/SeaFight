@@ -5,8 +5,8 @@ com/odmyhal/sf/model/ShaderWaver$WaveDataPrint.class
 com/odmyhal/sf/control/WeaponPanel.class
 org/bricks/engine/event/handler/ShipFireEventHandler.class
 com/odmyhal/sf/process/FaceWaterEventChecker.class
-org/bricks/engine/event/handler/ShipShipOutOfWorldHandler.class
 org/bricks/engine/event/handler/ShipOverlapEventHandler_2.class
+org/bricks/engine/event/handler/ShipShipOutOfWorldHandler.class
 com/odmyhal/sf/process/ShipGunVRollProcessor.class
 com/odmyhal/sf/staff/Ammunition$1.class
 com/odmyhal/sf/model/bubble/BlabKeeper.class
@@ -28,6 +28,7 @@ com/odmyhal/sf/process/FaceWaterEvent.class
 com/odmyhal/sf/model/ShaderWaver$WaveData.class
 com/odmyhal/sf/model/shader/WaveNativeShader$1.class
 com/odmyhal/sf/process/ShipGunHRollProcessor.class
+com/odmyhal/sf/process/ShipSinkProcessor.class
 com/odmyhal/sf/staff/Ship$ShipOutOfWorld.class
 org/bricks/engine/event/handler/AmmunitionOverlapEventHandler_1.class
 org/bricks/engine/event/handler/AmmunitionFaceWaterEventHandler.class
@@ -39,6 +40,7 @@ com/odmyhal/sf/model/construct/ShaderWaveConstructor.class
 com/odmyhal/sf/model/Ball.class
 com/odmyhal/sf/model/Island.class
 org/bricks/engine/event/handler/EventHandlerRegistrator.class
+com/odmyhal/sf/process/ShipSinkProcessor$FirstProcessor.class
 org/bricks/engine/event/handler/ShipGetOnSightEventHandler.class
 com/odmyhal/sf/process/ShipGunVRollSuperProcessor.class
 com/odmyhal/sf/model/bubble/BlabKeeper$Blab.class
@@ -47,6 +49,7 @@ com/odmyhal/sf/process/ShipGunHRollSuperProcessor.class
 com/odmyhal/sf/control/RiseOnSignEventButt.class
 com/odmyhal/sf/bot/ShipFightProcessor.class
 com/odmyhal/sf/control/ShipRollAction.class
+com/odmyhal/sf/process/ShipSinkProcessor$1.class
 com/odmyhal/sf/model/construct/AmmunitionConstructor.class
 com/odmyhal/sf/model/ShaderWaver$1.class
 com/odmyhal/sf/model/shader/WaveShaderProvider.class

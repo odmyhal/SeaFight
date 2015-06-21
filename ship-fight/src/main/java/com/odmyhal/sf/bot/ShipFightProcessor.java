@@ -9,7 +9,7 @@ import com.odmyhal.sf.staff.Ship;
 
 public class ShipFightProcessor extends ApproveProcessor<Ship> {
 	
-	private static final CheckerType CHECKER_TYPE = CheckerType.registerCheckerType();
+	public static final CheckerType CHECKER_TYPE = CheckerType.registerCheckerType();
 	private TimerApprover<Ship> timer;
 
 	public ShipFightProcessor(TimerApprover<Ship> timer, Approver<Ship>... approvers) {

@@ -148,7 +148,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 
 	@Override
 	protected Walk<Vector3> provideInitialLegs() {
-		return new Walk3D(this);
+		return new Walk3D(/*this*/);
 	}
 
 	@Override

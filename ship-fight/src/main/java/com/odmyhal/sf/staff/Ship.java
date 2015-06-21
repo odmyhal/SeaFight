@@ -75,6 +75,7 @@ import com.odmyhal.sf.process.ShipGunHRollProcessor;
 import com.odmyhal.sf.process.ShipGunHRollSuperProcessor;
 import com.odmyhal.sf.process.ShipGunVRollProcessor;
 import com.odmyhal.sf.process.ShipGunVRollSuperProcessor;
+import com.odmyhal.sf.process.ShipSinkProcessor;
 
 public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint<?, Fpoint>> 
 	implements RenderableProvider, SpaceDebug, DurableRoutedWalker<WalkPrint<?, Fpoint>>, Butt {
@@ -95,7 +96,8 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	private Quaternion helpQ = new Quaternion();
 	private long gunMarkTime = 0;
 	private NodeOperator pushkaOperator, stvolOperator;
-	
+	private int healthPoint = Integer.MAX_VALUE;
+	private boolean isLiveing = true;
 
 	private boolean fireQue = true, gotShipHit = false;
 
@@ -140,7 +142,6 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		gunMark.addTransform(stvolOperator.getNodeData().linkTransform());
 		
 		registerEventChecker(OverlapChecker.instance());
-//		System.out.println("Before ship adjustCurrentPrint");
 		this.adjustCurrentPrint();
 		SSPlanePrint sspp = subject.getSafePrint();
 		ConvexityApproveHelper.applyConvexity(sspp);
@@ -155,6 +156,10 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			gunMarkTime = procTime;
 		}
 		return gunMark.getMark(num);
+	}
+	
+	public void setHealth(int hp){
+		this.healthPoint = hp;
 	}
 	
 	private void enrichSkeleton(ModelBrickSubject mbs){
@@ -219,35 +224,22 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 
 	@Override
 	public void outOfWorld(){
-//		System.out.println("Adding out of world event");
 		this.addEvent(new ShipOutOfWorld());
-//		this.rollBack(;)
-//		super.outOfWorld();
-//		System.out.println(this.getlog());
 	}
-	
+/*	
 	@Override
 	public void disappear(){
 		System.out.println("ship is disappearing...");
 	}
-	
+*/	
 	@EventHandle(eventType = SHIP_SOURCE_TYPE)
 	public void shipOutOfWorld(ShipOutOfWorld event){
-//		System.out.println("Trying to rollBack ship");
 		this.rollBack(event.getEventTime());
 	}
-	
-/*	private Ship onSight;
-	
-	public void tmpSetOnSight(Ship sight){
-		this.onSight = sight;
-	}
-*/	
+
 	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
 	public void getOnSight(GetOnSightEvent e){
 		Butt butt = e.getButt();
-	//	System.out.println(Thread.currentThread().getName() + " Ship set sign to " + e.getButt() + ", of type " + e.getButt().getClass().getCanonicalName());
-	//	System.out.println("-----------------------------------------------");
 		if(butt == null){
 			Gdx.app.debug("WARNING", "(Ship) Have got OnSightEvent without butt...");
 		}else if(butt instanceof Walker){
@@ -277,6 +269,12 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	@EventHandle(eventType = Ammunition.SHIP_AMMUNITION_TYPE)
 	public void ammoHurt(OverlapEvent<?, ?, Vector3> event){
 //		System.out.println("Ship got ammo hurt: " + event.getTouchPoint());
+		if(isLiveing && --healthPoint <= 0){
+//			System.out.println("Ship " + this + " are going to die");
+//			Gdx.app.debug("MESSAGE", "Ship " + this + " are going to die");
+			this.registerEventChecker(new ShipSinkProcessor());
+			isLiveing = false;
+		}
 	}
 	
 	
@@ -306,8 +304,6 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			Validate.isTrue(replyShipHit(hitVector, touchPoint, myPrint.getOrigin().source, myPrint.getRotation()), "Can't reply to ship hit");
 		}
 		
-//		this.adjustCurrentPrint();
-//		this.adjustInMotorPrint();
 		this.setUpdate();
 		this.removeHistory(BaseEvent.touchEventCode);
 		gotShipHit = true;
