@@ -10,8 +10,8 @@ public class ShipGunHRollSuperProcessor extends ShipGunHRollProcessor {
 	
 	private final ShipGunVRollSuperProcessor verticalProcessor;
 
-	public ShipGunHRollSuperProcessor(Ship target, ShipGunVRollSuperProcessor verticalProcessor) {
-		super(target);
+	public ShipGunHRollSuperProcessor(Ship target, String hRollNodeName, ShipGunVRollSuperProcessor verticalProcessor) {
+		super(target, hRollNodeName);
 		this.verticalProcessor = verticalProcessor;
 	}
 

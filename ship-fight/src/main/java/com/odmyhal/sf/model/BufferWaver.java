@@ -20,7 +20,7 @@ public class BufferWaver implements RenderableProvider, Motorable{
 	private ModelInstance waveInstance = ModelStorage.instance().getModelInstance("water");
 	private float x = 0, y = 0, z = 0;
 	private long updateWaveTime;
-	private long lastCheckTime = System.currentTimeMillis();
+	private long lastCheckTime;
 	float[] tmpBuffer1 = new float[36], tmpBuffer2 = new float[36];
 	private int waveLen;
 	float stepX, stepY;
@@ -115,6 +115,16 @@ public class BufferWaver implements RenderableProvider, Motorable{
 		Node node = waveInstance.nodes.get(0);
 		NodePart nodePart = node.parts.get(0);
 		return waveInstance.getRenderable(result, node, nodePart);
+	}
+
+	@Override
+	public void timerSet(long time) {
+		lastCheckTime = time;
+	}
+
+	@Override
+	public void timerAdd(long time) {
+		lastCheckTime += time;
 	}
 	
 

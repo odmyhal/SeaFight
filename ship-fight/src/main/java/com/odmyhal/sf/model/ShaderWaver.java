@@ -25,7 +25,7 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	private float x = 0, y = 0, z = 0;
 	private WaveData waveData;
 	private float radSpeed, add;
-	private long lastCheckTime = System.currentTimeMillis();
+	private long lastCheckTime;
 	
 	private float translateX, translateY;
 	private int rowsCount, colsCount;
@@ -159,5 +159,15 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 			}
 		}
 
+	}
+
+	@Override
+	public void timerSet(long time) {
+		lastCheckTime = time;
+	}
+
+	@Override
+	public void timerAdd(long time) {
+		lastCheckTime += time;
 	}
 }

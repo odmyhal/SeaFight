@@ -19,8 +19,8 @@ public class ShipGunHRollProcessor extends RollNodeToEntityHProcessor<Ship>{
 	private final Vector3 rollPoint = new Vector3();
 	private Matrix4 transform;
 
-	public ShipGunHRollProcessor(Ship target) {
-		super(target, "pushka");
+	public ShipGunHRollProcessor(Ship target, String hRollNodeName) {
+		super(target, hRollNodeName/*"pushka"*/);
 		SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable> sso = target.getStaff().get(0);
 		transform = sso.modelBrick.linkTransform();
 		this.setRotationSpeed(Ship.prefs.getFloat("ship.roll.speed.radians", 0.5f));

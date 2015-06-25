@@ -14,15 +14,16 @@ import org.bricks.engine.event.BaseEvent;
 import org.bricks.engine.event.EventSource;
 import org.bricks.engine.event.OverlapEvent;
 import org.bricks.engine.event.check.DurableRouteChecker.DurableRoutedWalker;
+import org.bricks.engine.event.check.EventChecker;
 import org.bricks.engine.event.check.OverlapChecker;
 import org.bricks.engine.event.overlap.BrickOverlapAlgorithm;
 import org.bricks.engine.event.overlap.OverlapStrategy;
 import org.bricks.engine.event.overlap.SmallEventStrategy;
-import org.bricks.engine.item.MultiWalkRoller;
 import org.bricks.engine.item.MultiWalkRoller2D;
 import org.bricks.engine.neve.ContainsEntityPrint;
 import org.bricks.engine.neve.PlanePointsPrint;
 import org.bricks.engine.neve.WalkPrint;
+import org.bricks.engine.processor.Processor;
 import org.bricks.engine.staff.Walker;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Origin2D;
@@ -30,8 +31,6 @@ import org.bricks.exception.Validate;
 import org.bricks.extent.debug.SkeletonDebug;
 import org.bricks.extent.debug.SpaceDebug;
 import org.bricks.extent.entity.CameraSatellite;
-import org.bricks.extent.entity.mesh.ModelSubjectOperable;
-import org.bricks.extent.entity.mesh.ModelSubjectPrint;
 import org.bricks.extent.event.ExtentEventGroups;
 import org.bricks.extent.event.FireEvent;
 import org.bricks.extent.processor.tbroll.Butt;
@@ -42,7 +41,6 @@ import org.bricks.extent.space.SSPlanePrint;
 import org.bricks.extent.space.SpaceSubject;
 import org.bricks.extent.space.SpaceSubjectOperable;
 import org.bricks.extent.space.overlap.MarkPoint;
-import org.bricks.extent.space.overlap.Skeleton;
 import org.bricks.extent.space.overlap.SkeletonWithPlane;
 import org.bricks.extent.subject.model.ModelBrick;
 import org.bricks.extent.subject.model.ModelBrickOperable;
@@ -54,6 +52,7 @@ import org.bricks.extent.tool.SkeletonHelper;
 import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
 import org.bricks.engine.tool.Roll;
+import org.bricks.utils.Cache;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
@@ -95,11 +94,12 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	private Vector3 h2V = new Vector3();
 	private Quaternion helpQ = new Quaternion();
 	private long gunMarkTime = 0;
-	private NodeOperator pushkaOperator, stvolOperator;
+	private NodeOperator pushkaOperator, stvolOperator, backPushkaOperator, backStvolOperator;
 	private int healthPoint = Integer.MAX_VALUE;
 	private boolean isLiveing = true;
 
 	private boolean fireQue = true, gotShipHit = false;
+	private Processor<Ship>[] beforeGetOut;
 
 	public Ship(AssetManager assets) {
 //		System.out.println("---Creating ship");
@@ -115,9 +115,11 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		q.toMatrix(rMatrix.val);
 		for(Node node : modelInstance.nodes){
 			if(node.id.equals("Dummypushka1")){
-				node.translation.add(/*-125f*/-135f, -98f, 0f);
+//				continue;
+				node.translation.add(-135f, -98f, 0f);
 			}
 			if(node.id.equals("Dummypushka2")){
+//				continue;
 				node.translation.add(145f, -100f, 135f);
 			}
 			node.translation.add(0f, 30f, -68f);
@@ -137,16 +139,30 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		);
 		pushkaOperator = subject.modelBrick.getNodeOperator("pushka");
 		stvolOperator = subject.modelBrick.getNodeOperator("stvol");
+		
+		
 		gunMark.addTransform(subject.modelBrick.linkTransform());
 		gunMark.addTransform(pushkaOperator.getNodeData().linkTransform());
 		gunMark.addTransform(stvolOperator.getNodeData().linkTransform());
 		
+		backPushkaOperator = subject.modelBrick.getNodeOperator("backPushka");
+		Validate.isFalse(backPushkaOperator == null);
+		backStvolOperator = subject.modelBrick.getNodeOperator("backStvol");
+		Validate.isFalse(backStvolOperator == null);
+		Vector3 tmpOrig = new Vector3(-480f, 0f, 120f);
+/*		Matrix4 A = new Matrix4(subject.modelBrick.linkTransform());
+		Matrix4 B = new Matrix4(backPushkaOperator.getNodeData().linkTransform());
+		Matrix4 C = new Matrix4(backStvolOperator.getNodeData().linkTransform());
+		A.mul(B).inv();
+		tmpOrig.mul( A );
+		System.out.println("Calculated backPushkaOrigin: " + tmpOrig);
+*/		
 		registerEventChecker(OverlapChecker.instance());
 		this.adjustCurrentPrint();
 		SSPlanePrint sspp = subject.getSafePrint();
 		ConvexityApproveHelper.applyConvexity(sspp);
 		sspp.free();
-		System.out.println("Created ship " + this);
+//		System.out.println("Created ship " + this);
 	}
 	
 	//use in motor thread
@@ -160,6 +176,10 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	
 	public void setHealth(int hp){
 		this.healthPoint = hp;
+	}
+	
+	public void setBeforeGetOut(Processor<Ship>... processors){
+		this.beforeGetOut = processors;
 	}
 	
 	private void enrichSkeleton(ModelBrickSubject mbs){
@@ -243,21 +263,37 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		if(butt == null){
 			Gdx.app.debug("WARNING", "(Ship) Have got OnSightEvent without butt...");
 		}else if(butt instanceof Walker){
-			ShipGunVRollSuperProcessor sgvrp = new ShipGunVRollSuperProcessor(this);
+			ShipGunVRollSuperProcessor sgvrp = new ShipGunVRollSuperProcessor(this, "stvol");
 			sgvrp.setButt(butt);
 			registerEventChecker(sgvrp);
 
-			ShipGunHRollSuperProcessor sgrp = new ShipGunHRollSuperProcessor(this, sgvrp);
+			ShipGunHRollSuperProcessor sgrp = new ShipGunHRollSuperProcessor(this, "pushka", sgvrp);
 			sgrp.setButt(butt);
 			registerEventChecker(sgrp);
+			
+			ShipGunVRollSuperProcessor sgvrp_back = new ShipGunVRollSuperProcessor(this, "backStvol");
+			sgvrp_back.setButt(butt);
+			registerEventChecker(sgvrp_back);
+
+			ShipGunHRollSuperProcessor sgrp_back = new ShipGunHRollSuperProcessor(this, "backPushka", sgvrp);
+			sgrp_back.setButt(butt);
+			registerEventChecker(sgrp_back);
 		}else{
-			ShipGunHRollProcessor sgrp = new ShipGunHRollProcessor(this);
+			ShipGunHRollProcessor sgrp = new ShipGunHRollProcessor(this, "pushka");
 			sgrp.setButt(butt);
 			this.registerEventChecker(sgrp);
 			
-			ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(this);
+			ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(this, "stvol");
 			sgvrp.setButt(butt);
 			this.registerEventChecker(sgvrp);
+			
+			ShipGunHRollProcessor sgrp_back = new ShipGunHRollProcessor(this, "backPushka");
+			sgrp_back.setButt(butt);
+			this.registerEventChecker(sgrp_back);
+			
+			ShipGunVRollProcessor sgvrp_back = new ShipGunVRollProcessor(this, "backStvol");
+			sgvrp_back.setButt(butt);
+			this.registerEventChecker(sgvrp_back);
 		}
 	}
 	
@@ -268,11 +304,14 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	
 	@EventHandle(eventType = Ammunition.SHIP_AMMUNITION_TYPE)
 	public void ammoHurt(OverlapEvent<?, ?, Vector3> event){
-//		System.out.println("Ship got ammo hurt: " + event.getTouchPoint());
 		if(isLiveing && --healthPoint <= 0){
-//			System.out.println("Ship " + this + " are going to die");
-//			Gdx.app.debug("MESSAGE", "Ship " + this + " are going to die");
-			this.registerEventChecker(new ShipSinkProcessor());
+			EventChecker<Ship> sinkProcessor = null;
+			if(beforeGetOut == null){
+				sinkProcessor = new ShipSinkProcessor();
+			}else{
+				sinkProcessor = new ShipSinkProcessor(beforeGetOut);
+			}
+			this.registerEventChecker(sinkProcessor);
 			isLiveing = false;
 		}
 	}
@@ -311,12 +350,15 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	
 	private boolean replyShipHit(Fpoint hitVector, Point touchPoint, Fpoint myOrigin, double myRotation){
 		
-		Fpoint moveVector = new Fpoint(myOrigin.x - touchPoint.getFX(), myOrigin.y - touchPoint.getFY());
+		Fpoint moveVector = Cache.get(Fpoint.class);
+		moveVector.set(myOrigin.x - touchPoint.getFX(), myOrigin.y - touchPoint.getFY());
 		double len = VectorHelper.vectorLen(moveVector);
 		
-		Fpoint helpVector = new Fpoint(-moveVector.x, -moveVector.y);
+		Fpoint helpVector = Cache.get(Fpoint.class);
+		helpVector.set(-moveVector.x, -moveVector.y);
 		double rad = Math.PI / 2 - myRotation;
-		Fpoint rollVector = PointHelper.rotatePointByZero(helpVector, Math.sin(rad), Math.cos(rad), new Fpoint());
+		Fpoint rollVector = Cache.get(Fpoint.class);
+		PointHelper.rotatePointByZero(helpVector, Math.sin(rad), Math.cos(rad), rollVector);
 		
 		int rollK = 1;
 		if(rollVector.x * rollVector.y < 0){
@@ -341,6 +383,9 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			this.setToRotation(this.getRotation() + rotation / 500);
 			reply = true;
 		}
+		Cache.put(moveVector);
+		Cache.put(helpVector);
+		Cache.put(rollVector);
 		return reply;
 	}
 
@@ -353,7 +398,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	}
 	
 	private void fire(int base, long fireTime){
-		Ammunition ammo = new Ammunition();
+		Ammunition ammo = Ammunition.get();
 		ammo.setMyShip(this);
 		this.gunMark.calculateTransforms();
 		Vector3 baseVector = this.getGunPoint(base, fireTime);

@@ -1,5 +1,6 @@
 package com.odmyhal.sf.staff;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.prefs.Preferences;
 
 import org.bircks.entierprise.model.ModelStorage;
@@ -42,6 +43,7 @@ import org.bricks.extent.space.SSPrint;
 import org.bricks.extent.space.overlap.LineCrossMBAlgorithm;
 import org.bricks.extent.subject.model.MBSVehicle;
 import org.bricks.extent.subject.model.ModelBrick;
+import org.bricks.utils.Cache;
 
 
 public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, ?>, OriginMovePrint<?, Vector3>, Vector3, Roll3D> implements RenderableProvider{
@@ -53,6 +55,18 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 				prefs.getInt("ship.ammo1.world.max", 10000));
 	public static final float accelerationZ = prefs.getFloat("ship.ammo1.acceleration.z", 0f);
 	
+	public static final AtomicInteger counter = new AtomicInteger();
+	static{
+		Cache.registerCache(Ammunition.class, new Cache.DataProvider<Ammunition>() {
+
+			@Override
+			public Ammunition provideNew() {
+				// TODO Auto-generated method stub
+				return new Ammunition();
+			}
+		});
+	}
+	
 	private SpaceSubject<SpaceWalker, SSPrint, Vector3, Roll3D, ModelBrick> subject;
 	private Origin<Vector3> tmpOrigin = new Origin3D();
 	private Ship myShip;
@@ -62,7 +76,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	//
 //	public Vector3 previousOrigin = new Vector3();
 	
-	public Ammunition(){
+	private Ammunition(){
 		Vector3 one = new Vector3(-24f, 0f, 0f);
 		Vector3 two = new Vector3(36f, 0f, 0f);
 		subject = new SpaceSubject(new MBSVehicle.Space(), ModelStorage.instance().getModelInstance("ship_ammunition"), new Vector3(), one, two);
@@ -70,6 +84,22 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		this.registerEventChecker(inWorldProcessor);
 		this.registerEventChecker(new FaceWaterEventChecker());
 		this.registerEventChecker(OverlapChecker.instance());
+		counter.incrementAndGet();
+	}
+	
+	public static Ammunition get(){
+		return Cache.get(Ammunition.class);
+	}
+	
+	public void disappear(){
+		super.disappear();
+		tmpOrigin.set(this.origin());
+		tmpOrigin.mult(-1);
+		this.translate(tmpOrigin);
+		this.setToRotation(0f);
+		this.subject.linkModelBrick().resetMatrix();
+		this.adjustCurrentPrint();
+		Cache.put(this);
 	}
 /*	
 	public Vector3 maxPoint = new Vector3();

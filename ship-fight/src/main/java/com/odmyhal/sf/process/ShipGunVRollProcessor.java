@@ -13,8 +13,8 @@ public class ShipGunVRollProcessor extends RollNodeToEntityVProcessor<Ship>{
 	
 	private static final float stepBack = 150f;
 
-	public ShipGunVRollProcessor(Ship target) {
-		super(target, "stvol");
+	public ShipGunVRollProcessor(Ship target, String vRollNodelName) {
+		super(target, vRollNodelName/*"stvol"*/);
 		this.setBulletSpeed(Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f));
 		this.setBulletAcceleration(Ammunition.prefs.getFloat("ship.ammo1.acceleration.z", 0f));
 		this.setRotationSpeed(Ship.prefs.getFloat("ship.roll.speed.radians", 0.5f));
