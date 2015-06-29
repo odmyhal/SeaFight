@@ -47,8 +47,8 @@ public class DropBubbleProcessor extends Processor<Ship> {
 			
 			float maxRadius = minBubbleRadius + (maxBubbleRadius - minBubbleRadius) * vectorLen / maxSpeed;
 			float amplitude = minBubbleAmplitude + (maxBubbleAmplitude - minBubbleAmplitude) * vectorLen / maxSpeed;
-			BlabKeeper.Blab bubble = blabKeeper.new Blab(tmpVector.x, tmpVector.y,
-					amplitude, timeToLive, startBubbleRadius, maxRadius);
+			BlabKeeper.Blab bubble = blabKeeper.emptyBlub();
+			bubble.init(tmpVector.x, tmpVector.y, amplitude, timeToLive, startBubbleRadius, maxRadius);
 			
 			blabKeeper.pushBlab(bubble);
 			

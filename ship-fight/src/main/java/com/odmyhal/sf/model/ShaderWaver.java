@@ -1,12 +1,14 @@
 package com.odmyhal.sf.model;
 
 import org.bircks.entierprise.model.ModelStorage;
+import org.bricks.core.entity.Point;
 import org.bricks.engine.Engine;
 import org.bricks.engine.item.Motorable;
 import org.bricks.engine.neve.BasePrint;
 import org.bricks.engine.neve.Imprint;
 import org.bricks.engine.neve.PrintStore;
 import org.bricks.engine.neve.PrintableBase;
+import org.bricks.engine.pool.District;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -28,8 +30,9 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	private long lastCheckTime;
 	
 	private float translateX, translateY;
-	private int rowsCount, colsCount;
+//	private int rowsCount, colsCount;
 	private int waverPerSectorX, waverPerSectorY;
+	private Iterable<District> renderDistricts;
 	
 	public final BlabKeeper blabKeeper = new BlabKeeper();
 	
@@ -45,12 +48,16 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 		translateX = length * Engine.preferences.getFloat("waver.net.step.x", 4);
 		translateY = length * Engine.preferences.getFloat("waver.net.step.y", 4);
 		
-		rowsCount = Engine.preferences.getInt("world.rows.count", 1);
-		colsCount = Engine.preferences.getInt("world.cols.count", 1);
+//		rowsCount = Engine.preferences.getInt("world.rows.count", 1);
+//		colsCount = Engine.preferences.getInt("world.cols.count", 1);
 		
 		float sectorLength = Engine.preferences.getFloat("sector.length", 5000f);
 		waverPerSectorX = (int) (sectorLength / translateX);
 		waverPerSectorY = (int) (sectorLength / translateY);
+	}
+	
+	public void setRenderDistricts(Iterable<District> districts){
+		this.renderDistricts = districts;
 	}
 
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
@@ -58,6 +65,17 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 //		waveInstance.getRenderables(renderables, pool);
 		waveInstance.transform.setToTranslation(x, y, z);
 		synchronized(this){
+			for(District d : renderDistricts){
+				Point corner = d.getCorner();
+				for(int ix = 0; ix < waverPerSectorX; ix++){
+					for(int jy = 0; jy < waverPerSectorY; jy++){
+						waveInstance.transform.setToTranslation(corner.getFX() + translateX * ix, corner.getFY() + translateY * jy, z);
+						waveInstance.getRenderables(renderables, pool);
+					}
+				}
+			}
+		}
+/*		synchronized(this){
 			for(int i = 0; i < colsCount; i++){
 				for(int ix = 0; ix < waverPerSectorX; ix++){
 					for(int j = 0; j < rowsCount; j++){
@@ -69,7 +87,7 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 					}
 				}
 			}
-		}
+		}*/
 		
 	}
 
@@ -146,7 +164,7 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 		public WaveDataPrint(PrintStore ps) {
 			super(ps);
 			for(int i = 0; i < bubbles.length; i++){
-				bubbles[i] = blabKeeper.new Blab();
+				bubbles[i] = blabKeeper.emptyBlub();
 			}
 		}
 

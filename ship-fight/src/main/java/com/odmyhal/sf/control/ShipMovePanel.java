@@ -4,8 +4,6 @@ import java.util.prefs.Preferences;
 
 import org.bircks.enterprise.control.panel.AnimationRisePanel;
 import org.bircks.enterprise.control.panel.Skinner;
-import org.bricks.engine.event.Event;
-import org.bricks.engine.staff.Liver;
 import org.bricks.enterprise.control.widget.draw.DrawableRoll;
 import org.bricks.enterprise.control.widget.tool.FlowMutableAction;
 import org.bricks.enterprise.control.widget.tool.FlowSlider;
@@ -16,20 +14,21 @@ import org.bricks.enterprise.control.widget.tool.RotationDependAction.RotationPr
 import org.bricks.extent.control.AccelerateToSpeedEntityAction;
 import org.bricks.extent.control.RiseConstEventButton;
 import org.bricks.extent.event.FireEvent;
-
+import com.odmyhal.sf.control.ShipRollAction;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.odmyhal.sf.staff.GetOnSightEvent;
 import com.odmyhal.sf.staff.Ship;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Slider.SliderStyle;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class ShipMovePanel extends AnimationRisePanel{
 	
@@ -68,8 +67,10 @@ public class ShipMovePanel extends AnimationRisePanel{
 		Cell cell = controlPanel.add(ftp);
 		cell.pad(3).width((float)(Math.min(width, height) * 0.7)).height((float)(Math.min(width, height) * 0.7));
 
+		float acceleration = shipPreferences.getFloat("ship.acceleration.directional", 50f);
+		final AccelerateToSpeedEntityAction speedAction = new AccelerateToSpeedEntityAction(ship, acceleration);
 		int panelHeight = (int)(Math.min(width, height) * 0.7);
-		FlowSlider speedSlider = createSpeedSlider(ship, panelHeight);
+		FlowSlider speedSlider = createSpeedSlider(ship, speedAction, panelHeight);
 		controlPanel.add(speedSlider).height(panelHeight).padLeft(20f);
 		//		controlPanel.setDebug(true);
 		
@@ -82,6 +83,15 @@ public class ShipMovePanel extends AnimationRisePanel{
 		int buttonHeight = (int)(Math.min(width, height) * 0.3/* * 0.15*/);
 		buttTable.add(new RiseConstEventButton(ship, new FireEvent(), "FIRE", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		buttTable.row();
+		
+		TextButton stopButton = new TextButton("STOP", provideButtonStyle(buttonWidth, buttonHeight));
+		stopButton.addListener(new ClickListener(){
+			public void clicked (InputEvent e, float x, float y) {
+				speedAction.init(0f);
+				speedAction.act(0f);
+			}
+		});
+		buttTable.add(stopButton).pad(8);
 //		buttTable.add(new RiseOnSignEventButt(ship, "SIGHT", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		
 		controlPanel.add(buttTable).pad(4);
@@ -125,7 +135,7 @@ public class ShipMovePanel extends AnimationRisePanel{
 		return FlowWidgetProvider.produceFlowTouchPad(shipRollAction, base, nord, direction);
 	}
 	
-	private FlowSlider createSpeedSlider(Ship ship, int height){
+	private FlowSlider createSpeedSlider(Ship ship, FlowMutableAction speedAction, int height){
 		String padName = "shipSpeedBackgorund-" + height;
 		if(!Skinner.instance().hasFrame(padName)){
 			Color background = Color.BLUE;
@@ -140,8 +150,8 @@ public class ShipMovePanel extends AnimationRisePanel{
 		}
 		SliderStyle tps = new SliderStyle(Skinner.instance().skin().getDrawable(padName), Skinner.instance().skin().getDrawable(knobName));
 		
-		float acceleration = shipPreferences.getFloat("ship.acceleration.directional", 50f);
-		FlowMutableAction speedAction = new AccelerateToSpeedEntityAction(ship, acceleration);
+//		float acceleration = shipPreferences.getFloat("ship.acceleration.directional", 50f);
+//		FlowMutableAction speedAction = new AccelerateToSpeedEntityAction(ship, acceleration);
 		FlowTouchListener<FlowSlider> listener = new FlowTouchListener(speedAction);
 		
 		float maxSpeed = shipPreferences.getFloat("ship.speed.directional.max", 30f);

@@ -50,9 +50,10 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.ammunition");
 	public static final String SHIP_AMMUNITION_TYPE = "ShipAmmunitio@sf.myhal.com";
+	
 	private static final CheckInWorldProcessor<Ammunition> inWorldProcessor
-		= new CheckInWorldProcessor<Ammunition>(prefs.getInt("ship.ammo1.world.min", -100), 
-				prefs.getInt("ship.ammo1.world.max", 10000));
+		= new CheckInWorldProcessor<Ammunition>(Preferences.userRoot().node("engine.settings").getInt("world.altitude.min", -100), 
+				Preferences.userRoot().node("engine.settings").getInt("world.altitude.max", 10000));
 	public static final float accelerationZ = prefs.getFloat("ship.ammo1.acceleration.z", 0f);
 	
 	public static final AtomicInteger counter = new AtomicInteger();
@@ -61,7 +62,6 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 
 			@Override
 			public Ammunition provideNew() {
-				// TODO Auto-generated method stub
 				return new Ammunition();
 			}
 		});
@@ -71,8 +71,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	private Origin<Vector3> tmpOrigin = new Origin3D();
 	private Ship myShip;
 	
-	private static BlabKeeper blabKeeper;
-	private static final DBProcessor dropBubbleProcessor = new DBProcessor(CheckerType.registerCheckerType());
+//	private static final DBProcessor dropBubbleProcessor = new DBProcessor(CheckerType.registerCheckerType());
 	//
 //	public Vector3 previousOrigin = new Vector3();
 	
@@ -97,7 +96,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		tmpOrigin.mult(-1);
 		this.translate(tmpOrigin);
 		this.setToRotation(0f);
-		this.subject.linkModelBrick().resetMatrix();
+		this.subject.linkModelBrick().reset();
 		this.adjustCurrentPrint();
 		Cache.put(this);
 	}
@@ -115,15 +114,19 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	}
 */
 	
-	public static void setBlabKeeper(BlabKeeper bk){
+/*	public static void setBlabKeeper(BlabKeeper bk){
 		blabKeeper = bk;
-	}
+	}*/
 	public String sourceType() {
 		return SHIP_AMMUNITION_TYPE;
 	}
 	
 	public void setMyShip(Ship ship){
 		this.myShip = ship;
+	}
+	
+	public Ship owner(){
+		return myShip;
 	}
 	
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
@@ -134,8 +137,8 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 
 	@EventHandle(eventType = SHIP_AMMUNITION_TYPE)
 	public void faceWater(FaceWaterEvent event){
-		Ball wb = new Ball(Ball.modelWaterName);
-
+		Ball wb = Ball.WaterBall.get();
+/*
 		NodeScaleProcessor NSProcessor1 = new NodeScaleProcessor(wb, Ball.modelWaterName);
 		NSProcessor1.init(13f, 13f, 50f, 500L);
 		NodeScaleProcessor NSProcessor2 = new NodeScaleProcessor(wb, Ball.modelWaterName);
@@ -143,8 +146,8 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		
 		ChunkEventChecker<Ball> chck = new ChunkEventChecker<Ball>(Ball.WATER_BALL_CH_TYPE, 
 				NSProcessor1, dropBubbleProcessor, NSProcessor2, GetOutProcessor.instance());
-		wb.registerEventChecker(chck);
-		
+		wb.registerEventChecker(chck);*/
+//		System.out.println(" Thread " + Thread.currentThread().getName() + " ammo face vater " + event.touchPoint() + ", origin: " + wb.origin().source);
 		tmpOrigin.source.set(event.touchPoint());
 		wb.translate(tmpOrigin);
 		wb.applyEngine(this.getEngine());
@@ -163,12 +166,12 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
 	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, sourceType = Island.ISLAND_SF_SOURCE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
 	public void hitStone(OverlapEvent<?, ?, Vector3> event){
-		Ball wb = new Ball(Ball.modelStoneExploit);
-		
+		Ball wb = Ball.DustBall.get();
+/*		
 		NodeScaleProcessor NSProcessor1 = new NodeScaleProcessor(wb, Ball.modelStoneExploit);
 		NSProcessor1.init(65f, 65f, 65f, 1500L);
 		ChunkEventChecker<Ball> chck = new ChunkEventChecker<Ball>(Ball.WATER_BALL_CH_TYPE, NSProcessor1, GetOutProcessor.instance());
-		wb.registerEventChecker(chck);
+		wb.registerEventChecker(chck);*/
 		
 		tmpOrigin.source.set(event.getTouchPoint());
 		wb.translate(tmpOrigin);
@@ -193,24 +196,5 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 
 	
 //	private static final CheckerType chType = CheckerType.registerCheckerType(); 
-	
-	private static class DBProcessor extends SingleActProcessor<Ball>{
 
-		private DBProcessor(CheckerType chType) {
-			super(chType);
-		}
-
-		@Override
-		protected void processSingle(Ball ball, long curTime) {
-			BlabKeeper.Blab bubble = blabKeeper.new Blab(ball.origin().source.x, ball.origin().source.y,
-					0.3f, 2500l, 65f, 250f);
-			blabKeeper.pushBlab(bubble);
-		}
-
-		@Override
-		protected boolean ready(Ball arg0, long arg1) {
-			return true;
-		}
-		
-	}
 }

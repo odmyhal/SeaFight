@@ -85,20 +85,17 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
 	private CameraSatellite cameraSatellite;
-	private MarkPoint gunMark;
+	
 	
 	private SkeletonDebug skeletonDebug;
 	
-	private Origin<Vector3> fireOrigin = new Origin3D();
-	private Vector3 helpVector = new Vector3();
-	private Vector3 h2V = new Vector3();
-	private Quaternion helpQ = new Quaternion();
-	private long gunMarkTime = 0;
-	private NodeOperator pushkaOperator, stvolOperator, backPushkaOperator, backStvolOperator;
+	
+//	private NodeOperator pushkaOperator, stvolOperator, backPushkaOperator, backStvolOperator;
 	private int healthPoint = Integer.MAX_VALUE;
 	private boolean isLiveing = true;
+	public final Gun mainGun, backGun;
 
-	private boolean fireQue = true, gotShipHit = false;
+	private boolean gotShipHit = false;
 	private Processor<Ship>[] beforeGetOut;
 
 	public Ship(AssetManager assets) {
@@ -132,46 +129,49 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		
 		this.addSubject(subject);
 		enrichSkeleton(subject);
-		gunMark = new MarkPoint(
+		
+		NodeOperator pushkaOperator = subject.modelBrick.getNodeOperator("pushka");
+		NodeOperator stvolOperator = subject.modelBrick.getNodeOperator("stvol");
+
+		mainGun = new Gun(this, pushkaOperator, stvolOperator,
 			new Vector3(33.8f,  152.7f,  3.8f),
 			new Vector3(33.8f,  154.729126f,  5.85f),
 			new Vector3(33.8f, (152.7f + 154.729126f) / 2, (3.8f + 5.85f) / 2)
 		);
-		pushkaOperator = subject.modelBrick.getNodeOperator("pushka");
-		stvolOperator = subject.modelBrick.getNodeOperator("stvol");
 		
-		
-		gunMark.addTransform(subject.modelBrick.linkTransform());
-		gunMark.addTransform(pushkaOperator.getNodeData().linkTransform());
-		gunMark.addTransform(stvolOperator.getNodeData().linkTransform());
-		
-		backPushkaOperator = subject.modelBrick.getNodeOperator("backPushka");
+		NodeOperator backPushkaOperator = subject.modelBrick.getNodeOperator("backPushka");
 		Validate.isFalse(backPushkaOperator == null);
-		backStvolOperator = subject.modelBrick.getNodeOperator("backStvol");
+		NodeOperator backStvolOperator = subject.modelBrick.getNodeOperator("backStvol");
 		Validate.isFalse(backStvolOperator == null);
-		Vector3 tmpOrig = new Vector3(-480f, 0f, 120f);
-/*		Matrix4 A = new Matrix4(subject.modelBrick.linkTransform());
+/*		Vector3 tmpOrig = new Vector3(-490f, 0f, 118f);
+		Vector3 tmp1 = new Vector3(-490f, -14.5f, 118f);
+		Vector3 tmp2 = new Vector3(-490f, 11.5f, 118f);
+		Matrix4 A = new Matrix4(subject.modelBrick.linkTransform());
 		Matrix4 B = new Matrix4(backPushkaOperator.getNodeData().linkTransform());
 		Matrix4 C = new Matrix4(backStvolOperator.getNodeData().linkTransform());
-		A.mul(B).inv();
+		A.mul(B).mul(C).inv();
 		tmpOrig.mul( A );
+		tmp1.mul(A);
+		tmp2.mul(A);
 		System.out.println("Calculated backPushkaOrigin: " + tmpOrig);
-*/		
+		System.out.println("Calculated gun 1 : " + tmp1);
+		System.out.println("Calculated gun 2 : " + tmp2);*/
+		backGun = new Gun(this, backPushkaOperator, backStvolOperator, 
+				new Vector3(21.184765f, 152.92584f, 3.8840432f),
+				new Vector3(21.184765f, 152.92584f, 5.807572f),
+				new Vector3(21.184765f, 152.92584f, 4.9567804f));
+		
 		registerEventChecker(OverlapChecker.instance());
 		this.adjustCurrentPrint();
 		SSPlanePrint sspp = subject.getSafePrint();
 		ConvexityApproveHelper.applyConvexity(sspp);
 		sspp.free();
-//		System.out.println("Created ship " + this);
 	}
 	
 	//use in motor thread
-	public Vector3 getGunPoint(int num, long procTime){
-		if(gunMarkTime < procTime){
-			gunMark.calculateTransforms();
-			gunMarkTime = procTime;
-		}
-		return gunMark.getMark(num);
+	public void fire(long fireTime){
+		this.mainGun.fire(fireTime);
+		this.backGun.fire(fireTime);
 	}
 	
 	public void setHealth(int hp){
@@ -263,7 +263,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		if(butt == null){
 			Gdx.app.debug("WARNING", "(Ship) Have got OnSightEvent without butt...");
 		}else if(butt instanceof Walker){
-			ShipGunVRollSuperProcessor sgvrp = new ShipGunVRollSuperProcessor(this, "stvol");
+			ShipGunVRollSuperProcessor sgvrp = new ShipGunVRollSuperProcessor(this, mainGun, "stvol");
 			sgvrp.setButt(butt);
 			registerEventChecker(sgvrp);
 
@@ -271,7 +271,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			sgrp.setButt(butt);
 			registerEventChecker(sgrp);
 			
-			ShipGunVRollSuperProcessor sgvrp_back = new ShipGunVRollSuperProcessor(this, "backStvol");
+			ShipGunVRollSuperProcessor sgvrp_back = new ShipGunVRollSuperProcessor(this, backGun, "backStvol");
 			sgvrp_back.setButt(butt);
 			registerEventChecker(sgvrp_back);
 
@@ -283,7 +283,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			sgrp.setButt(butt);
 			this.registerEventChecker(sgrp);
 			
-			ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(this, "stvol");
+			ShipGunVRollProcessor sgvrp = new ShipGunVRollProcessor(this, mainGun, "stvol");
 			sgvrp.setButt(butt);
 			this.registerEventChecker(sgvrp);
 			
@@ -291,7 +291,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			sgrp_back.setButt(butt);
 			this.registerEventChecker(sgrp_back);
 			
-			ShipGunVRollProcessor sgvrp_back = new ShipGunVRollProcessor(this, "backStvol");
+			ShipGunVRollProcessor sgvrp_back = new ShipGunVRollProcessor(this, backGun, "backStvol");
 			sgvrp_back.setButt(butt);
 			this.registerEventChecker(sgvrp_back);
 		}
@@ -299,11 +299,14 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	
 	@EventHandle(eventType = ExtentEventGroups.USER_SOURCE_TYPE)
 	public void shoot(FireEvent e){
-		fire(e.getEventTime());
+		this.fire(e.getEventTime());
 	}
 	
 	@EventHandle(eventType = Ammunition.SHIP_AMMUNITION_TYPE)
 	public void ammoHurt(OverlapEvent<?, ?, Vector3> event){
+		if( this.equals(((Ammunition)event.getEventSource() ).owner()) ){
+			return;
+		}
 		if(isLiveing && --healthPoint <= 0){
 			EventChecker<Ship> sinkProcessor = null;
 			if(beforeGetOut == null){
@@ -368,8 +371,8 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			rollVector = PointHelper.rotatePointByZero(helpVector, 1d, 0d, rollVector);
 		}
 		
-		Fpoint moveProjection = VectorHelper.vectorProjection(hitVector, moveVector, new Fpoint());
-		Fpoint rollProjection = VectorHelper.vectorProjection(hitVector, rollVector, new Fpoint());
+		Fpoint moveProjection = VectorHelper.vectorProjection(hitVector, moveVector, Cache.get(Fpoint.class));
+		Fpoint rollProjection = VectorHelper.vectorProjection(hitVector, rollVector, Cache.get(Fpoint.class));
 		
 		boolean reply = false;
 		if(VectorHelper.hasSameDirection(moveProjection, moveVector)){
@@ -386,9 +389,11 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		Cache.put(moveVector);
 		Cache.put(helpVector);
 		Cache.put(rollVector);
+		Cache.put(moveProjection);
+		Cache.put(rollProjection);
 		return reply;
 	}
-
+/*
 	public void fire(long fireTime){
 		if(fireQue = !fireQue){
 			this.fire(0, fireTime);
@@ -450,7 +455,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		//Set previous origin to current
 		ammo.applyEngine(this.getEngine());
 	}
-
+*/
 	public RenderableProvider debugModel() {
 		return skeletonDebug;
 	}

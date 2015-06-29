@@ -43,6 +43,7 @@ public class ShaderWaveConstructor implements ModelConstructor{
 
 		modelBuilder.node(name[0]);
 		Color colorWater = new Color(0.357f, 0.765f, 0.863f, 0.3f);
+//		Color colorWater = Color.BLUE;
 		
 		BlendingAttribute ba = new BlendingAttribute();
 		ba.opacity = 0.99f;

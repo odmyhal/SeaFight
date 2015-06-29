@@ -22,11 +22,9 @@ public class StoneTouchHandler implements Interactive<Stone>, DefaultHandler {
 
 	@Override
 	public void handleTap(Stone entity, Vector3 touchPoint) {
-//		System.out.println(this.getClass().getCanonicalName() + " handle stone touch");
 		GetOnSightEvent event = new GetOnSightEvent();
 		Vector3Butt v3b = new Vector3Butt(touchPoint);
 		event.setButt(v3b);
-//		System.out.println(this.getClass().getCanonicalName() + " before adding event to ship");
 		ship.addEvent(event);
 	}
 

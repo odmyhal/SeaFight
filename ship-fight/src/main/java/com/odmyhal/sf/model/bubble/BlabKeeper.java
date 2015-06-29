@@ -7,13 +7,26 @@ import java.util.prefs.Preferences;
 
 import org.bricks.engine.tool.Quarantine;
 import org.bricks.exception.Validate;
+import org.bricks.utils.Cache;
 import org.bricks.utils.LinkLoop;
 import org.bricks.utils.Loop;
+import org.bricks.utils.Cache.DataProvider;
 
 public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.bubble");
 	public static final int BLAB_COUNT_TOTAL = prefs.getInt("ship.bubble.amount.total", 100);
+	
+	static{
+		Cache.registerCache(Blab.class, new DataProvider<Blab>(){
+
+			@Override
+			public Blab provideNew() {
+				return new Blab();
+			}
+			
+		});
+	}
 	
 	private Quarantine<Blab> quarantine = new Quarantine<Blab>(prefs.getInt("blab.keeper.quarantine.size", 10));
 	private Loop<Blab> bubbles = new LinkLoop<Blab>();
@@ -22,6 +35,10 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 	
 	public void pushBlab(Blab blab){
 		quarantine.push(blab);
+	}
+
+	public Blab emptyBlub(){
+		return Cache.get(Blab.class);
 	}
 	
 	public void processBubbles(long currentTime){
@@ -37,6 +54,7 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 				Blab blab = iterator.next();
 				if( !blab.live(diffTime) ){
 					iterator.remove();
+					Cache.put(blab);
 					--size;
 				}
 			}
@@ -52,21 +70,21 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 		this.checkTime = checkTime;
 	}
 
-	public class Blab{
+	public static class Blab{
 
 		private long timeToLive;
 		private long timeLeft;
 		private float maxAmplitude, minRadius, maxRadius;
 		public float amplitude, radius, x, y;
 		
-		public Blab(){
+		private Blab(){
 			//do nothing
 		}
-		
-		public Blab(float x, float y, float amplitude, long timeToLive, float minRadius, float maxRadius){
+/*		
+		private Blab(float x, float y, float amplitude, long timeToLive, float minRadius, float maxRadius){
 			init(x, y, amplitude, timeToLive, minRadius, maxRadius);
 		}
-		
+*/		
 		public void setShaderData(float x, float y, float amplitude, float radius){
 			this.amplitude = amplitude;
 			this.radius = radius;
