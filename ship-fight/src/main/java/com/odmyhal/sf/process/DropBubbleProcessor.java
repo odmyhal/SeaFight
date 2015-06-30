@@ -60,7 +60,7 @@ public class DropBubbleProcessor extends Processor<Ship> {
 	public void activate(Ship target, long curTime){
 		super.activate(target, curTime);
 		bubbleTime = curTime;
-		System.out.println("Sets checkTime to blabKeeper " + curTime);
-		this.blabKeeper.setCheckTime(curTime);
+/*		System.out.println("Sets checkTime to blabKeeper " + curTime);
+		this.blabKeeper.setCheckTime(curTime);*/
 	}
 }

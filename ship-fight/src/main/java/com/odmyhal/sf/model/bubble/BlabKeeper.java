@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import org.bricks.engine.item.Motorable;
 import org.bricks.engine.tool.Quarantine;
 import org.bricks.exception.Validate;
 import org.bricks.utils.Cache;
@@ -12,10 +13,11 @@ import org.bricks.utils.LinkLoop;
 import org.bricks.utils.Loop;
 import org.bricks.utils.Cache.DataProvider;
 
-public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
+public class BlabKeeper implements Iterable<BlabKeeper.Blab>, Motorable{
 	
-	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.bubble");
+	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.bubble");//shader.bubble.amount.total
 	public static final int BLAB_COUNT_TOTAL = prefs.getInt("ship.bubble.amount.total", 100);
+	public static final int SHADER_BLAB_COUNT_TOTAL = prefs.getInt("shader.bubble.amount.total", 100);
 	
 	static{
 		Cache.registerCache(Blab.class, new DataProvider<Blab>(){
@@ -65,11 +67,11 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 	public int size(){
 		return size;
 	}
-	
+/*	
 	public void setCheckTime(long checkTime){
 		this.checkTime = checkTime;
 	}
-
+*/
 	public static class Blab{
 
 		private long timeToLive;
@@ -120,5 +122,25 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>{
 
 	public Iterator<Blab> iterator() {
 		return bubbles.iterator();
+	}
+
+	@Override
+	public void timerSet(long time) {
+		this.checkTime = time;
+	}
+
+	@Override
+	public void timerAdd(long time) {
+		this.checkTime += time;
+	}
+
+	@Override
+	public void motorProcess(long currentTime) {
+		processBubbles(currentTime);
+	}
+
+	@Override
+	public boolean alive() {
+		return true;
 	}
 }

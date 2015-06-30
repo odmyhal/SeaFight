@@ -58,7 +58,7 @@ public class WaveNativeShader extends DefaultShader{
 		float waveCount = Engine.preferences.getFloat("waver.net.wave.count", 1f);
 		float amplitude = Engine.preferences.getFloat("waver.net.amplitude", 4);
 //		System.out.println("Amplitude is : " + amplitude);
-		vert = String.format(vert, BlabKeeper.BLAB_COUNT_TOTAL, lenX, lenY, amplitude, waveCount);
+		vert = String.format(vert, BlabKeeper.SHADER_BLAB_COUNT_TOTAL, lenX, lenY, amplitude, waveCount);
         String frag = Gdx.files.internal("shaders/native.fragment.glsl").readString();
         native_config = new DefaultShader.Config(vert, frag);
 	}

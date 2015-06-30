@@ -10,6 +10,8 @@ import org.bricks.engine.neve.PrintStore;
 import org.bricks.engine.neve.PrintableBase;
 import org.bricks.engine.pool.District;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
@@ -34,6 +36,7 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	private int waverPerSectorX, waverPerSectorY;
 	private Iterable<District> renderDistricts;
 	
+	private Camera camera;
 	public final BlabKeeper blabKeeper = new BlabKeeper();
 	
 	public ShaderWaver(){
@@ -54,6 +57,10 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 		float sectorLength = Engine.preferences.getFloat("sector.length", 5000f);
 		waverPerSectorX = (int) (sectorLength / translateX);
 		waverPerSectorY = (int) (sectorLength / translateY);
+	}
+	
+	public void setCamera(Camera camera){
+		this.camera = camera;
 	}
 	
 	public void setRenderDistricts(Iterable<District> districts){
@@ -158,7 +165,7 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	public class WaveDataPrint extends BasePrint<WaveData>{
 		
 		public float start;
-		public BlabKeeper.Blab[] bubbles = new BlabKeeper.Blab[BlabKeeper.BLAB_COUNT_TOTAL];
+		public BlabKeeper.Blab[] bubbles = new BlabKeeper.Blab[BlabKeeper.SHADER_BLAB_COUNT_TOTAL];
 		public int size;
 
 		public WaveDataPrint(PrintStore ps) {
@@ -171,10 +178,16 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 		public void init() {
 			this.start = this.getTarget().start;
 			int i = -1;
-			size = blabKeeper.size();
 			for(BlabKeeper.Blab source : blabKeeper){
-				bubbles[++i].setShaderData(source.x, source.y, source.amplitude, source.radius);
+				if(camera.frustum.pointInFrustum(source.x, source.y, 0f)){
+					if(++i == BlabKeeper.SHADER_BLAB_COUNT_TOTAL){
+						Gdx.app.debug("WARNING", "Exceeded shade buffer (" + BlabKeeper.SHADER_BLAB_COUNT_TOTAL + ") of bubbles");
+						break;
+					}
+					bubbles[i].setShaderData(source.x, source.y, source.amplitude, source.radius);
+				}
 			}
+			size = i + 1;
 		}
 
 	}
@@ -182,10 +195,12 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	@Override
 	public void timerSet(long time) {
 		lastCheckTime = time;
+		blabKeeper.timerSet(time);
 	}
 
 	@Override
 	public void timerAdd(long time) {
 		lastCheckTime += time;
+		blabKeeper.timerSet(time);
 	}
 }

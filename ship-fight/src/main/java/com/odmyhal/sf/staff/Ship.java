@@ -80,6 +80,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	implements RenderableProvider, SpaceDebug, DurableRoutedWalker<WalkPrint<?, Fpoint>>, Butt {
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.defaults");
+	public static final Preferences cameraPrefs = Preferences.userRoot().node("sf.camera.defaults");
 	
 	private static final float stepBack = 150f;
 	
@@ -221,7 +222,8 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	public CameraSatellite initializeCamera(){
 		if(this.cameraSatellite == null){
 			Camera camera = new PerspectiveCamera(37f, 1250f, 750f);
-			camera.far = 40000;
+			camera.far = cameraPrefs.getFloat("camera.far", 40000f);
+			System.out.println("Set camera far to " + camera.far);
 			camera.near = 10;
 			Point origin = this.origin().source;
 			double rotation = this.getRotation();
