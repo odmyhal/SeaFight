@@ -19,6 +19,7 @@ import org.bricks.engine.neve.EntityPrint;
 import org.bricks.engine.neve.OriginMovePrint;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Walk;
+import org.bricks.extent.effects.EffectSystem;
 import org.bricks.extent.processor.CheckInWorldProcessor;
 import org.bricks.extent.processor.NodeScaleProcessor;
 import org.bricks.extent.space.Origin3D;
@@ -32,6 +33,7 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
+import com.odmyhal.sf.effects.DustEffect;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.Ball;
 import com.odmyhal.sf.model.bubble.BlabKeeper;
@@ -44,6 +46,7 @@ import org.bricks.extent.space.overlap.LineCrossMBAlgorithm;
 import org.bricks.extent.subject.model.MBSVehicle;
 import org.bricks.extent.subject.model.ModelBrick;
 import org.bricks.utils.Cache;
+import org.bricks.utils.Cache.DataProvider;
 
 
 public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, ?>, OriginMovePrint<?, Vector3>, Vector3, Roll3D> implements RenderableProvider{
@@ -57,6 +60,9 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	public static final float accelerationZ = prefs.getFloat("ship.ammo1.acceleration.z", 0f);
 	
 	public static final AtomicInteger counter = new AtomicInteger();
+
+	public static final AtomicInteger dustInstances = new AtomicInteger();
+
 	static{
 		Cache.registerCache(Ammunition.class, new Cache.DataProvider<Ammunition>() {
 
@@ -65,7 +71,18 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 				return new Ammunition();
 			}
 		});
+
+		Cache.registerCache(DustEffect.class, new DataProvider<DustEffect>(){
+
+			@Override
+			public DustEffect provideNew() {
+				dustInstances.incrementAndGet();
+				return new DustEffect(EffectSystem.particleSystem());
+			}
+			
+		});
 	}
+	
 	
 	private SpaceSubject<SpaceWalker, SSPrint, Vector3, Roll3D, ModelBrick> subject;
 	private Origin<Vector3> tmpOrigin = new Origin3D();
@@ -138,16 +155,6 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	@EventHandle(eventType = SHIP_AMMUNITION_TYPE)
 	public void faceWater(FaceWaterEvent event){
 		Ball wb = Ball.WaterBall.get();
-/*
-		NodeScaleProcessor NSProcessor1 = new NodeScaleProcessor(wb, Ball.modelWaterName);
-		NSProcessor1.init(13f, 13f, 50f, 500L);
-		NodeScaleProcessor NSProcessor2 = new NodeScaleProcessor(wb, Ball.modelWaterName);
-		NSProcessor2.init(13f, 13f, 0.1f, 1200L);
-		
-		ChunkEventChecker<Ball> chck = new ChunkEventChecker<Ball>(Ball.WATER_BALL_CH_TYPE, 
-				NSProcessor1, dropBubbleProcessor, NSProcessor2, GetOutProcessor.instance());
-		wb.registerEventChecker(chck);*/
-//		System.out.println(" Thread " + Thread.currentThread().getName() + " ammo face vater " + event.touchPoint() + ", origin: " + wb.origin().source);
 		tmpOrigin.source.set(event.touchPoint());
 		wb.translate(tmpOrigin);
 		wb.applyEngine(this.getEngine());
@@ -166,16 +173,13 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
 	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, sourceType = Island.ISLAND_SF_SOURCE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
 	public void hitStone(OverlapEvent<?, ?, Vector3> event){
-		Ball wb = Ball.DustBall.get();
-/*		
-		NodeScaleProcessor NSProcessor1 = new NodeScaleProcessor(wb, Ball.modelStoneExploit);
-		NSProcessor1.init(65f, 65f, 65f, 1500L);
-		ChunkEventChecker<Ball> chck = new ChunkEventChecker<Ball>(Ball.WATER_BALL_CH_TYPE, NSProcessor1, GetOutProcessor.instance());
-		wb.registerEventChecker(chck);*/
-		
+/*		Ball wb = Ball.DustBall.get();
 		tmpOrigin.source.set(event.getTouchPoint());
 		wb.translate(tmpOrigin);
-		wb.applyEngine(this.getEngine());
+		wb.applyEngine(this.getEngine());*/
+//		EffectSystem.addDustEffect(event.getTouchPoint());
+		Vector3 touchPoint = event.getTouchPoint();
+		EffectSystem.addEffect(DustEffect.class, touchPoint.x, touchPoint.y, touchPoint.z);
 		this.disappear();
 	}
 

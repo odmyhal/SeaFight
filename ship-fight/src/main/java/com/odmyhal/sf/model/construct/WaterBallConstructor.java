@@ -3,6 +3,7 @@ package com.odmyhal.sf.model.construct;
 import org.bircks.entierprise.model.ModelConstructTool;
 import org.bircks.entierprise.model.ModelConstructor;
 import org.bricks.annotation.ConstructModel;
+import org.bricks.extent.effects.EffectSystem;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -14,7 +15,7 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.odmyhal.sf.model.Ball;
 
-@ConstructModel({Ball.modelWaterName, Ball.modelStoneExploit})
+@ConstructModel({Ball.modelWaterName, Ball.modelStoneExploit/*, EffectSystem.dustModelName*/})
 public class WaterBallConstructor implements ModelConstructor{
 	
 	private static WaterBallConstructor instance = new WaterBallConstructor();
@@ -30,8 +31,9 @@ public class WaterBallConstructor implements ModelConstructor{
 			modelBuilder.node(pName);
 			if(pName.equals(Ball.modelWaterName)){
 				produceWaterBall(modelBuilder, pName);
-			}
-			if(pName.equals(Ball.modelStoneExploit)){
+			}else if(pName.equals(Ball.modelStoneExploit)){
+				produceExploitBall(modelBuilder, pName);
+			}else{
 				produceExploitBall(modelBuilder, pName);
 			}
 		}

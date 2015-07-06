@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 import org.bricks.engine.item.Motorable;
-import org.bricks.engine.tool.Quarantine;
 import org.bricks.exception.Validate;
 import org.bricks.utils.Cache;
 import org.bricks.utils.LinkLoop;
 import org.bricks.utils.Loop;
+import org.bricks.utils.Quarantine;
 import org.bricks.utils.Cache.DataProvider;
 
 public class BlabKeeper implements Iterable<BlabKeeper.Blab>, Motorable{
