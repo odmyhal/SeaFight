@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.exception.Validate;
 import org.bricks.extent.effects.EffectSystem;
+import org.bricks.extent.effects.TemporaryEffect;
 import org.bricks.utils.Cache;
 import org.bricks.utils.Cache.DataProvider;
 
@@ -15,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParallelArray.FloatChannel;
 import com.badlogic.gdx.graphics.g3d.particles.ParallelArray.ObjectChannel;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
+import com.badlogic.gdx.graphics.g3d.particles.emitters.Emitter;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.ColorInfluencer;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsInfluencer;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier;
@@ -22,25 +24,32 @@ import com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.ScaleInfluencer;
 import com.badlogic.gdx.graphics.g3d.particles.renderers.ModelInstanceRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.odmyhal.sf.model.Ball;
 
 
-public class DustEffect extends EffectSystem.TemporaryEffect{
-	
+public class DustEffect extends TemporaryEffect{
 	
 	public DustEffect(ParticleSystem system){
-		this.emitter = new EffectSystem.NonContiniousEmitter();
-		this.emitter.maxParticleCount = 10;
-		this.emitter.emissionValue.setLow(5f, 6f);
-		this.emitter.emissionValue.setHigh(18f, 19f);
+		super(system);
+	}
+	
+	protected EffectSystem.NonContiniousEmitter provideEmitter(){
+		EffectSystem.NonContiniousEmitter emitter = new EffectSystem.NonContiniousEmitter();
+		emitter.maxParticleCount = 10;
+		emitter.emissionValue.setLow(5f, 6f);
+		emitter.emissionValue.setHigh(18f, 19f);
 		
-		this.emitter.durationValue.setLow(800f, 1200f);
-		this.emitter.lifeValue.setLow(1000f, 1500f);
-		this.emitter.lifeValue.setHigh(2000f, 3000f);
-		
+		emitter.durationValue.setLow(800f, 1200f);
+		emitter.lifeValue.setLow(1000f, 1500f);
+		emitter.lifeValue.setHigh(2000f, 3000f);
+		return emitter;
+	}
+	
+	protected ParticleController provideController(ParticleSystem particleSystem, EffectSystem.NonContiniousEmitter emitter){
 		ModelInstanceRenderer renderer = new ModelInstanceRenderer();
 		boolean foundBatch = false;
-		for(ParticleBatch batch : system.getBatches()){
+		for(ParticleBatch batch : particleSystem.getBatches()){
 			if(renderer.isCompatible(batch)){
 				renderer.setBatch(batch);
 				foundBatch = true;
@@ -67,21 +76,23 @@ public class DustEffect extends EffectSystem.TemporaryEffect{
 		moveModifier.strengthValue.setHigh(200f, 250f);
 		DynamicsInfluencer moveInfluencer = new DynamicsInfluencer(moveModifier);
 		
-		
-		this.controller = new ParticleController("dust", emitter, renderer, modelInfluencer, scaleInfluencer, colorInfluencer, moveInfluencer);
-		getControllers().add(controller);
+		return new ParticleController("dust", emitter, renderer, modelInfluencer, scaleInfluencer, colorInfluencer, moveInfluencer);
 	}
 
 	protected void setToTranslation(Vector3 translation){
 		Vector3 dustTranslation = Cache.get(Vector3.class);
 		dustTranslation.set(translation.x, translation.y, translation.z - 30f);
-		controller.transform.idt();
-		translate(dustTranslation);
-		FloatChannel positionChannel = controller.particles.getChannel(ParticleChannels.Position);
-		for(int 	i=0, offset = 0; i < emitter.maxParticleCount; ++i, offset +=positionChannel.strideSize){
-			positionChannel.data[offset + ParticleChannels.XOffset] = dustTranslation.x + (float) Math.random() * 10 - 5f;
-			positionChannel.data[offset + ParticleChannels.YOffset] = dustTranslation.y + (float) Math.random() * 10 - 5f;
-			positionChannel.data[offset + ParticleChannels.ZOffset] = dustTranslation.z + 30;
+		Array<ParticleController> controllers = getControllers();
+		for (int k = 0, n = controllers.size; k < n; k++){
+			ParticleController controller = controllers.get(k);
+			controller.transform.idt();
+			translate(dustTranslation);
+			FloatChannel positionChannel = controller.particles.getChannel(ParticleChannels.Position);
+			for(int i=0, offset = 0; i < controller.emitter.maxParticleCount; ++i, offset +=positionChannel.strideSize){
+				positionChannel.data[offset + ParticleChannels.XOffset] = dustTranslation.x + (float) Math.random() * 10 - 5f;
+				positionChannel.data[offset + ParticleChannels.YOffset] = dustTranslation.y + (float) Math.random() * 10 - 5f;
+				positionChannel.data[offset + ParticleChannels.ZOffset] = dustTranslation.z + 30;
+			}
 		}
 		Cache.put(dustTranslation);
 	}
