@@ -12,7 +12,7 @@ import org.bricks.core.help.VectorHelper;
 import org.bricks.core.help.WalkerHelper;
 import org.bricks.engine.event.BaseEvent;
 import org.bricks.engine.event.EventSource;
-import org.bricks.engine.event.OverlapEvent;
+import org.bricks.engine.event.PrintOverlapEvent;
 import org.bricks.engine.event.check.DurableRouteChecker.DurableRoutedWalker;
 import org.bricks.engine.event.check.EventChecker;
 import org.bricks.engine.event.check.OverlapChecker;
@@ -24,6 +24,7 @@ import org.bricks.engine.neve.ContainsEntityPrint;
 import org.bricks.engine.neve.PlanePointsPrint;
 import org.bricks.engine.neve.WalkPrint;
 import org.bricks.engine.processor.Processor;
+import org.bricks.engine.staff.Subject;
 import org.bricks.engine.staff.Walker;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Origin2D;
@@ -238,10 +239,14 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	}
 
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
-	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, sourceType = Island.ISLAND_SF_SOURCE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
-	public void hitCannon(OverlapEvent e){
+	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, 
+		sourceType = Island.ISLAND_SF_SOURCE, 
+		strategyClass = OverlapStrategy.TrueOverlapStrategy.class, 
+		extractor = Subject.SubjectPrintExtractor.class, 
+		producer = PrintOverlapEvent.PrintOverlapEventExtractor.class)
+	public void hitCannon(PrintOverlapEvent e){
 		this.rollBack(e.getEventTime());
-		this.removeHistory(BaseEvent.touchEventCode);
+//		this.removeHistory(BaseEvent.touchEventCode);
 	}
 
 	@Override
@@ -305,7 +310,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	}
 	
 	@EventHandle(eventType = Ammunition.SHIP_AMMUNITION_TYPE)
-	public void ammoHurt(OverlapEvent<?, ?, Vector3> event){
+	public void ammoHurt(PrintOverlapEvent<?, ?, Vector3, ?> event){
 		if( this.equals(((Ammunition)event.getEventSource() ).owner()) ){
 			return;
 		}
@@ -325,8 +330,12 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	private Origin<Fpoint> templateOrigin = new Origin2D();
 	
 	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)
-	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, sourceType = Ship.SHIP_SOURCE_TYPE, strategyClass = /*OverlapStrategy.TrueOverlapStrategy.class*/SmallEventStrategy.class)
-	public void hitAnotherShip(OverlapEvent<PlanePointsPrint<? extends SpaceSubject>, PlanePointsPrint<? extends SpaceSubject>, Fpoint> event){
+	@OverlapCheck(algorithm = BrickOverlapAlgorithm.class, 
+		sourceType = Ship.SHIP_SOURCE_TYPE, 
+		strategyClass = SmallEventStrategy.class, 
+		extractor = Subject.SubjectPrintExtractor.class, 
+		producer = PrintOverlapEvent.PrintOverlapEventExtractor.class)
+	public void hitAnotherShip(PrintOverlapEvent<PlanePointsPrint<? extends SpaceSubject>, PlanePointsPrint<? extends SpaceSubject<?, ?, ?, ?, ?>>, Fpoint, ?> event){
 
 		ContainsEntityPrint<?, WalkPrint<?, Fpoint>> ssPrint = 
 				(ContainsEntityPrint<?, WalkPrint<?, Fpoint>>) event.getSourcePrint();
@@ -349,7 +358,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		}
 		
 		this.setUpdate();
-		this.removeHistory(BaseEvent.touchEventCode);
+//		this.removeHistory(BaseEvent.touchEventCode);
 		gotShipHit = true;
 	}
 	
@@ -395,69 +404,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		Cache.put(rollProjection);
 		return reply;
 	}
-/*
-	public void fire(long fireTime){
-		if(fireQue = !fireQue){
-			this.fire(0, fireTime);
-		}else{
-			this.fire(1, fireTime);
-		}
-	}
-	
-	private void fire(int base, long fireTime){
-		Ammunition ammo = Ammunition.get();
-		ammo.setMyShip(this);
-		this.gunMark.calculateTransforms();
-		Vector3 baseVector = this.getGunPoint(base, fireTime);
-		
-		fireOrigin.source.set(baseVector);
-		ammo.translate(fireOrigin);
 
-		double hRad = this.getRotation() + pushkaOperator.rotatedRadians() - Math.PI / 2;
-		double vRad = Math.PI - stvolOperator.rotatedRadians();
-		helpVector.set(1000f * (float) Math.cos(hRad), 1000f * (float) Math.sin(hRad), 1000f * (float) Math.tan(vRad));
-		
-		//Little randomazation of direction
-		h2V.set(helpVector.y, helpVector.z, helpVector.x);
-		helpQ.setFromAxisRad(helpVector, (float) (Math.random() * Math.PI * 2));
-		h2V.mul(helpQ);
-		helpQ.setFromAxis(h2V, (float) (0.5 - Math.random()));
-		helpVector.mul(helpQ);
-		//end randomization
-		
-		float h = 9f;
-		h2V.set(h, 0f, 0f);
-		h2V.crs(helpVector);
-		//Rotates ammo to proper direction
-		float scalar_mult = h * helpVector.x;
-		double cos = scalar_mult / (helpVector.len() * h);
-		double rad = Math.acos(cos);
-		Roll3D roll = ammo.linkRoll();
-		roll.setSpin(h2V, fireTime);
-		roll.setRotation((float) rad);
-		ammo.applyRotation();
-		
-		//Sets ammo acceleration
-		float ammoSpeed = Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f);
-		helpVector.nor();
-
-		
-		helpVector.scl(ammoSpeed);
-		ammo.getVector().source.set(helpVector);
-		fireOrigin.source.set(0f, 0f, Ammunition.accelerationZ);
-		ammo.setAcceleration(fireOrigin, fireTime);
-		
-		//Sets ammo ratation
-		h2V.set(helpVector.x, helpVector.y, helpVector.z + Ammunition.accelerationZ);
-		scalar_mult = helpVector.x * h2V.x + helpVector.y * h2V.y + helpVector.z * h2V.z;
-		cos = scalar_mult / (h2V.len() * helpVector.len());
-		ammo.setRotationSpeed((float) Math.acos(cos));
-		helpVector.crs(h2V);
-		roll.setSpin(helpVector, fireTime);
-		//Set previous origin to current
-		ammo.applyEngine(this.getEngine());
-	}
-*/
 	public RenderableProvider debugModel() {
 		return skeletonDebug;
 	}

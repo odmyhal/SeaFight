@@ -6,7 +6,7 @@ import java.util.prefs.Preferences;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
-import org.bricks.engine.event.OverlapEvent;
+import org.bricks.engine.event.PrintOverlapEvent;
 import org.bricks.engine.event.check.CheckerType;
 import org.bricks.engine.event.check.ChunkEventChecker;
 import org.bricks.engine.event.check.OverlapChecker;
@@ -17,6 +17,7 @@ import org.bricks.engine.processor.SingleActProcessor;
 import org.bricks.engine.item.OriginMover;
 import org.bricks.engine.neve.EntityPrint;
 import org.bricks.engine.neve.OriginMovePrint;
+import org.bricks.engine.staff.Subject;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Walk;
 import org.bricks.extent.effects.EffectSystem;
@@ -161,8 +162,12 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	}
 	
 	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)
-	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, sourceType = Ship.SHIP_SOURCE_TYPE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
-	public void hitShip(OverlapEvent<?, SSPrint<?, EntityPrint, ?>, Vector3> event){
+	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, 
+		sourceType = Ship.SHIP_SOURCE_TYPE, 
+		strategyClass = OverlapStrategy.TrueOverlapStrategy.class, 
+		extractor = Subject.SubjectPrintExtractor.class, 
+		producer = PrintOverlapEvent.PrintOverlapEventExtractor.class)
+	public void hitShip(PrintOverlapEvent<?, SSPrint<?, EntityPrint, ?>, Vector3, ?> event){
 		if(event.getSourcePrint().linkEntityPrint().getTarget().equals(myShip)){
 			this.disappear();
 		}else{
@@ -171,8 +176,12 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	}
 	
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)
-	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, sourceType = Island.ISLAND_SF_SOURCE, strategyClass = OverlapStrategy.TrueOverlapStrategy.class)
-	public void hitStone(OverlapEvent<?, ?, Vector3> event){
+	@OverlapCheck(algorithm = LineCrossMBAlgorithm.class, 
+		sourceType = Island.ISLAND_SF_SOURCE, 
+		strategyClass = OverlapStrategy.TrueOverlapStrategy.class, 
+		extractor = Subject.SubjectPrintExtractor.class, 
+		producer = PrintOverlapEvent.PrintOverlapEventExtractor.class)
+	public void hitStone(PrintOverlapEvent<?, ?, Vector3, ?> event){
 /*		Ball wb = Ball.DustBall.get();
 		tmpOrigin.source.set(event.getTouchPoint());
 		wb.translate(tmpOrigin);
