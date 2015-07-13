@@ -2,29 +2,22 @@ package com.odmyhal.sf.model.construct;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-
 import org.bircks.entierprise.model.ModelConstructTool;
 import org.bircks.entierprise.model.ModelConstructor;
-import org.bricks.annotation.ConstructModel;
 import org.bricks.core.entity.Ipoint;
 import org.bricks.core.entity.Point;
 import org.bricks.core.entity.Tuple;
 import org.bricks.exception.Validate;
-import org.bricks.extent.space.overlap.Skeleton;
 import org.bricks.extent.tool.ModelHelper;
 import org.bricks.extent.tool.SkeletonConstructor;
 import org.bricks.extent.tool.SkeletonDataStore;
 import org.bricks.extent.tool.SkeletonHelper;
-
+import org.bricks.annotation.ConstructModel;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 
 @ConstructModel({"models/ship11.g3db"})
 public class ShipConstructor extends SkeletonConstructor {

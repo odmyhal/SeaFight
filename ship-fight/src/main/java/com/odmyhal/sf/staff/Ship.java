@@ -50,10 +50,10 @@ import org.bricks.extent.subject.model.NodeOperator;
 import org.bricks.extent.tool.ModelHelper;
 import org.bricks.extent.tool.SkeletonDataStore;
 import org.bricks.extent.tool.SkeletonHelper;
-import org.bricks.annotation.EventHandle;
-import org.bricks.annotation.OverlapCheck;
 import org.bricks.engine.tool.Roll;
 import org.bricks.utils.Cache;
+import org.bricks.annotation.EventHandle;
+import org.bricks.annotation.OverlapCheck;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;

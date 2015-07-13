@@ -37,7 +37,6 @@ com/odmyhal/sf/effects/DustEffect.class
 com/odmyhal/sf/process/ShipGunHRollProcessor.class
 com/odmyhal/sf/staff/Ship$ShipOutOfWorld.class
 com/odmyhal/sf/process/ShipSinkProcessor.class
-com/odmyhal/sf/effects/DustEffect$1.class
 org/bricks/engine/event/handler/AmmunitionFaceWaterEventHandler.class
 com/odmyhal/sf/model/Ball$WaterBall.class
 com/odmyhal/sf/control/ShipMovePanel.class

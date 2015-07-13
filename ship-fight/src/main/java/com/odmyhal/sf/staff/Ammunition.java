@@ -7,22 +7,18 @@ import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
 import org.bricks.engine.event.PrintOverlapEvent;
-import org.bricks.engine.event.check.CheckerType;
-import org.bricks.engine.event.check.ChunkEventChecker;
 import org.bricks.engine.event.check.OverlapChecker;
-import org.bricks.engine.event.overlap.BrickOverlapAlgorithm;
 import org.bricks.engine.event.overlap.OverlapStrategy;
-import org.bricks.engine.processor.GetOutProcessor;
-import org.bricks.engine.processor.SingleActProcessor;
 import org.bricks.engine.item.OriginMover;
 import org.bricks.engine.neve.EntityPrint;
 import org.bricks.engine.neve.OriginMovePrint;
 import org.bricks.engine.staff.Subject;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Walk;
-import org.bricks.extent.effects.EffectSystem;
+import org.bricks.extent.effects.BricksParticleSystem;
+import org.bricks.extent.effects.EffectSubject;
+import org.bricks.extent.effects.TemporaryEffect;
 import org.bricks.extent.processor.CheckInWorldProcessor;
-import org.bricks.extent.processor.NodeScaleProcessor;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
 import org.bricks.extent.space.SpaceSubject;
@@ -54,6 +50,7 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.ammunition");
 	public static final String SHIP_AMMUNITION_TYPE = "ShipAmmunitio@sf.myhal.com";
+	public static final String DUST_CACHE_NAME = "dust-cache";
 	
 	private static final CheckInWorldProcessor<Ammunition> inWorldProcessor
 		= new CheckInWorldProcessor<Ammunition>(Preferences.userRoot().node("engine.settings").getInt("world.altitude.min", -100), 
@@ -73,12 +70,14 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 			}
 		});
 
-		Cache.registerCache(DustEffect.class, new DataProvider<DustEffect>(){
+		Cache.registerTransferCache(EffectSubject.Transfered.class, DUST_CACHE_NAME, new DataProvider<EffectSubject.Transfered>(){
 
 			@Override
-			public DustEffect provideNew() {
+			public EffectSubject.Transfered provideNew() {
 				dustInstances.incrementAndGet();
-				return new DustEffect(EffectSystem.particleSystem());
+				TemporaryEffect effect = new DustEffect(BricksParticleSystem.particleSystem());
+				effect.init();
+				return new EffectSubject.Transfered(effect, DUST_CACHE_NAME);
 			}
 			
 		});
@@ -187,8 +186,11 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		wb.translate(tmpOrigin);
 		wb.applyEngine(this.getEngine());*/
 //		EffectSystem.addDustEffect(event.getTouchPoint());
-		Vector3 touchPoint = event.getTouchPoint();
-		EffectSystem.addEffect(DustEffect.class, touchPoint.x, touchPoint.y, touchPoint.z);
+//		Vector3 touchPoint = event.getTouchPoint();
+		EffectSubject.Transfered effect = Cache.get(EffectSubject.Transfered.class, DUST_CACHE_NAME);
+		effect.setToTranslation(event.getTouchPoint());
+		effect.applyEngine(this.getEngine());
+//		EffectSystem.addEffect(DustEffect.class, touchPoint.x, touchPoint.y, touchPoint.z);
 		this.disappear();
 	}
 
