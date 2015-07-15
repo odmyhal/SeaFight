@@ -14,6 +14,7 @@
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/IslandConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/staff/Gun.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/ShipConstructor.java
+/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/effects/WaterBallEffect.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/process/ShipGunVRollProcessor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/staff/Ammunition.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/ShipMovePanel.java

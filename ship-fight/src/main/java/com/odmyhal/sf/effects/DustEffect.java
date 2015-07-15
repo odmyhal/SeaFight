@@ -5,10 +5,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.exception.Validate;
 import org.bricks.extent.effects.BricksParticleSystem.NonContiniousEmitter;
+import org.bricks.extent.effects.ModelStorageInfluencer;
 import org.bricks.extent.effects.SubChannelRenderer;
 import org.bricks.extent.effects.TemporaryEffect;
 import org.bricks.utils.Cache;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleChannels;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleController;
@@ -20,7 +24,9 @@ import com.badlogic.gdx.graphics.g3d.particles.influencers.ColorInfluencer;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsInfluencer;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer;
+import com.badlogic.gdx.graphics.g3d.particles.influencers.RegionInfluencer;
 import com.badlogic.gdx.graphics.g3d.particles.influencers.ScaleInfluencer;
+import com.badlogic.gdx.graphics.g3d.particles.influencers.RegionInfluencer.Single;
 import com.badlogic.gdx.graphics.g3d.particles.renderers.ModelInstanceRenderer;
 import com.badlogic.gdx.graphics.g3d.particles.renderers.ParticleControllerRenderer;
 import com.badlogic.gdx.math.Vector3;
@@ -30,22 +36,33 @@ import com.odmyhal.sf.model.Ball;
 
 public class DustEffect extends TemporaryEffect{
 	
+	public static final Texture dustTexture = new Texture("pictures/test3.png");
+//	public static final Texture dustTexture = new Texture("pictures/dust.png");
+//	public static final Texture dustTexture = new Texture("pictures/panel/base.png");
+	
 	public DustEffect(ParticleSystem system){
 		super(system);
 	}
+/*	
+	public void update(){
+		System.out.println("Dust effect updateing " + this.getControllers().get(0).particles.size);
+		super.update();
+	}
 	
+	public void draw(){
+		System.out.println("Dust effect drawing " + this.getControllers().get(0).particles.size);
+		super.draw();
+	}
+*/	
 	protected NonContiniousEmitter provideEmitter(){
 		NonContiniousEmitter emitter = new NonContiniousEmitter();
 		emitter.maxParticleCount = 10;
-//		emitter.maxParticleCount = 1;
 		emitter.emissionValue.setLow(5f, 6f);
 		emitter.emissionValue.setHigh(11f, 13f);
 		
 		emitter.durationValue.setLow(1600f, 2300f);
 		emitter.lifeValue.setLow(2500f, 3000f);
 		emitter.lifeValue.setHigh(3500f, 4000f);
-//		emitter.lifeValue.setLow(6000f, 7000f);
-//		emitter.lifeValue.setHigh(8000f, 9000f);
 		return emitter;
 	}
 	
@@ -63,36 +80,41 @@ public class DustEffect extends TemporaryEffect{
 		}
 		Validate.isTrue(foundBatch, "Could not find batch for renderer " + renderer.getClass().getCanonicalName());
 		
-		ModelInfluencer modelInfluencer = new DustModelInfluencer();
+//		ModelInfluencer modelInfluencer = new ModelStorageInfluencer(Ball.modelStoneExploit);
+		RegionInfluencer.AspectTextureRegion atr = new RegionInfluencer.AspectTextureRegion();
+		atr.u = 0f;
+		atr.v = 0f;
+		atr.u2 = 1f;
+		atr.v2 = 1f;
+		atr.halfInvAspectRatio = 0.5f;
+		RegionInfluencer.Single dustInfluencer = new RegionInfluencer.Single(dustTexture);
+		
 		ScaleInfluencer scaleInfluencer = new ScaleInfluencer();
-		scaleInfluencer.value.setLow(1f);
-		scaleInfluencer.value.setHigh(60f, 70f);
+		scaleInfluencer.value.setLow(100f);
+		scaleInfluencer.value.setHigh(550f, 600f);
 		scaleInfluencer.value.setTimeline(new float[]{0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f});
 		scaleInfluencer.value.setScaling(new float[]{0f, 0.1f, 0.2f, 0.4f, 0.35f, 0.7f, 0.5f, 0.85f, 0.8f,  1f, 0.9f});
-		
-//		scaleInfluencer.value.setLow(1f);
-//		scaleInfluencer.value.setHigh(70f);
-//		scaleInfluencer.value.setTimeline(new float[]{0f, 1f});
-//		scaleInfluencer.value.setScaling(new float[]{0f, 1f});
-		
+	
 		ColorInfluencer.Single colorInfluencer = new ColorInfluencer.Single();
+//		colorInfluencer.alphaValue.setTimeline(new float[]{0f, 1f});
+//		colorInfluencer.alphaValue.setScaling(new float[]{1f, 1f});
+//		colorInfluencer.colorValue.setTimeline(new float[]{0f, 1f});
+//		colorInfluencer.colorValue.setColors(new float[]{0.25f, 0.25f, 0.25f, 0f, 0f, 0f});
+		
 		colorInfluencer.alphaValue.setTimeline(new float[]{0f, 0.15f, 0.4f, 0.9f, 1f});
-		colorInfluencer.alphaValue.setScaling(new float[]{0.9f, 0.8f, 0.6f, 0.6f, 0f});
+		colorInfluencer.alphaValue.setScaling(new float[]{0.7f, 0.8f, 0.6f, 0.6f, 0f});
 		colorInfluencer.colorValue.setTimeline(new float[]{0f, 0.2f, 0.9f, 1f});
 		colorInfluencer.colorValue.setColors(new float[]{1, 0, 0, 0.20f, 0.20f, 0.20f, 0.25f, 0.25f, 0.25f, 0.22f, 0.22f, 0.22f});
-		
-//		colorInfluencer.alphaValue.setTimeline(new float[]{0f, 1f});
-//		colorInfluencer.alphaValue.setScaling(new float[]{0.9f, 0f});
-		
+
 		DynamicsModifier.CentripetalAcceleration moveModifier = new DynamicsModifier.CentripetalAcceleration();
-		moveModifier.strengthValue.setLow(30f, 35f);
-		moveModifier.strengthValue.setHigh(50f, 60f);
+		moveModifier.strengthValue.setLow(90f, 110f);
+		moveModifier.strengthValue.setHigh(150f, 190f);
 		DynamicsInfluencer moveInfluencer = new DynamicsInfluencer(moveModifier);
 		
-		return new ParticleController("dust", emitter, renderer, modelInfluencer, scaleInfluencer, colorInfluencer, moveInfluencer);
+		return new ParticleController("dust", emitter, renderer, dustInfluencer, scaleInfluencer, colorInfluencer, moveInfluencer);
 	}
 
-	protected void setToTranslation(Vector3 translation){
+	public void setToTranslation(Vector3 translation){
 		Vector3 dustTranslation = Cache.get(Vector3.class);
 		dustTranslation.set(translation.x, translation.y, translation.z - 30f);
 		Array<ParticleController> controllers = getControllers();
@@ -111,34 +133,11 @@ public class DustEffect extends TemporaryEffect{
 		Cache.put(dustTranslation);
 	}
 	
-	private class DustModelInfluencer extends ModelInfluencer.Single{
-		
-		public DustModelInfluencer(){}
-		
-		private DustModelInfluencer(DustModelInfluencer origin){
-			super(origin);
-		}
-		
-		@Override
-		public void init () {
-			ObjectChannel<ModelInstance> modelChannel = controller.particles.getChannel(ParticleChannels.ModelInstance);
-			Validate.isFalse(modelChannel == null, "ModelChanner is not set.");
-			for(int i=0, c = controller.emitter.maxParticleCount; i < c; ++i){
-				ModelInstance dustInstance = ModelStorage.instance().getModelInstance(Ball.modelStoneExploit);
-				Validate.isFalse(dustInstance == null);
-				modelChannel.data[i] = dustInstance;
-			}
-		}
-		
-		@Override
-		public DustModelInfluencer copy () {
-			return new DustModelInfluencer(this);
-		}
-	}
+	
 
 	@Override
 	protected SubChannelRenderer provideRenderer() {
-		return new SubChannelRenderer.SubChannelModelInstanceRenderer();
+		return new SubChannelRenderer.SubChannelTextureRenderer();//.SubChannelModelInstanceRenderer();
 	}
 }
 

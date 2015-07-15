@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bircks.entierprise.model.ModelConstructTool;
 import org.bircks.entierprise.model.ModelConstructor;
-import org.bricks.annotation.ConstructModel;
 import org.bricks.core.entity.Ipoint;
 import org.bricks.extent.tool.SkeletonConstructor;
 import org.bricks.extent.tool.SkeletonDataStore;
+import org.bricks.annotation.ConstructModel;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;

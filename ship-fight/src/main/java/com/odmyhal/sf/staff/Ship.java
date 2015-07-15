@@ -4,6 +4,8 @@ package com.odmyhal.sf.staff;
 import java.util.prefs.Preferences;
 
 import org.bircks.entierprise.model.ModelStorage;
+import org.bricks.annotation.EventHandle;
+import org.bricks.annotation.OverlapCheck;
 import org.bricks.core.entity.Fpoint;
 import org.bricks.core.entity.Point;
 import org.bricks.core.help.ConvexityApproveHelper;
@@ -52,8 +54,6 @@ import org.bricks.extent.tool.SkeletonDataStore;
 import org.bricks.extent.tool.SkeletonHelper;
 import org.bricks.engine.tool.Roll;
 import org.bricks.utils.Cache;
-import org.bricks.annotation.EventHandle;
-import org.bricks.annotation.OverlapCheck;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
@@ -230,6 +230,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			double rotation = this.getRotation();
 			camera.translate(origin.getFX(), origin.getFY(), 2500f);
 			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
+			camera.lookAt(new Vector3(11500f, 6000f, 250f));
 			camera.update();
 			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, getRotation());
 			addSatellite(cameraSatelliteK);

@@ -31,6 +31,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.effects.DustEffect;
+import com.odmyhal.sf.effects.WaterBallEffect;
 import com.odmyhal.sf.model.Island;
 import com.odmyhal.sf.model.Ball;
 import com.odmyhal.sf.model.bubble.BlabKeeper;
@@ -51,11 +52,14 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.ammunition");
 	public static final String SHIP_AMMUNITION_TYPE = "ShipAmmunitio@sf.myhal.com";
 	public static final String DUST_CACHE_NAME = "dust-cache";
+	public static final String WATER_BALL_CACHE_NAME = "water-ball-cache";
 	
 	private static final CheckInWorldProcessor<Ammunition> inWorldProcessor
 		= new CheckInWorldProcessor<Ammunition>(Preferences.userRoot().node("engine.settings").getInt("world.altitude.min", -100), 
 				Preferences.userRoot().node("engine.settings").getInt("world.altitude.max", 10000));
 	public static final float accelerationZ = prefs.getFloat("ship.ammo1.acceleration.z", 0f);
+	
+	public static BlabKeeper blabKeeper;
 	
 	public static final AtomicInteger counter = new AtomicInteger();
 
@@ -78,6 +82,18 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 				TemporaryEffect effect = new DustEffect(BricksParticleSystem.particleSystem());
 				effect.init();
 				return new EffectSubject.Transfered(effect, DUST_CACHE_NAME);
+			}
+			
+		});
+		
+		Cache.registerTransferCache(EffectSubject.Transfered.class, WATER_BALL_CACHE_NAME, new DataProvider<EffectSubject.Transfered>(){
+
+			@Override
+			public EffectSubject.Transfered provideNew() {
+				dustInstances.incrementAndGet();
+				TemporaryEffect effect = new WaterBallEffect(BricksParticleSystem.particleSystem());
+				effect.init();
+				return new EffectSubject.Transfered(effect, WATER_BALL_CACHE_NAME);
 			}
 			
 		});
@@ -154,10 +170,13 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 
 	@EventHandle(eventType = SHIP_AMMUNITION_TYPE)
 	public void faceWater(FaceWaterEvent event){
-		Ball wb = Ball.WaterBall.get();
-		tmpOrigin.source.set(event.touchPoint());
-		wb.translate(tmpOrigin);
-		wb.applyEngine(this.getEngine());
+		EffectSubject.Transfered effect = Cache.get(EffectSubject.Transfered.class, WATER_BALL_CACHE_NAME);
+		effect.setToTranslation(event.touchPoint());
+		effect.applyEngine(this.getEngine());
+//		Ball wb = Ball.WaterBall.get();
+//		tmpOrigin.source.set(event.touchPoint());
+//		wb.translate(tmpOrigin);
+//		wb.applyEngine(this.getEngine());
 	}
 	
 	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)

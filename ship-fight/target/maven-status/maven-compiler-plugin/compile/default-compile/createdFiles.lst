@@ -4,7 +4,6 @@ com/odmyhal/sf/model/ShipSubject.class
 org/bricks/enterprise/gen/GenModelConstructTool.class
 com/odmyhal/sf/model/ShaderWaver$WaveDataPrint.class
 org/bricks/engine/event/handler/AmmunitionPrintOverlapEventHandler_1.class
-com/odmyhal/sf/effects/DustEffect$DustModelInfluencer.class
 com/odmyhal/sf/model/Ball$1.class
 com/odmyhal/sf/model/Ball$DustBall.class
 com/odmyhal/sf/control/WeaponPanel.class
@@ -24,6 +23,7 @@ com/odmyhal/sf/staff/Gun.class
 com/odmyhal/sf/model/construct/WaterBallConstructor.class
 org/bricks/engine/event/handler/ShipPrintOverlapEventHandler_2.class
 com/odmyhal/sf/model/construct/BufferWaverConstructor.class
+com/odmyhal/sf/staff/Ammunition$3.class
 com/odmyhal/sf/model/shader/WaveNativeShader.class
 com/odmyhal/sf/staff/GetOnSightEvent.class
 com/odmyhal/sf/model/ShaderWaver.class
@@ -39,6 +39,7 @@ com/odmyhal/sf/staff/Ship$ShipOutOfWorld.class
 com/odmyhal/sf/process/ShipSinkProcessor.class
 org/bricks/engine/event/handler/AmmunitionFaceWaterEventHandler.class
 com/odmyhal/sf/model/Ball$WaterBall.class
+com/odmyhal/sf/effects/WaterBallEffect.class
 com/odmyhal/sf/control/ShipMovePanel.class
 org/bricks/engine/overlap/OSRegistrator.class
 org/bricks/engine/event/handler/ShipPrintOverlapEventHandler_1.class

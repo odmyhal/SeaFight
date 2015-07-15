@@ -37,6 +37,7 @@ public class ShipMovePanel extends AnimationRisePanel{
 	
 	static{
 		Texture base = new Texture(Gdx.files.internal("pictures/panel/base.png"));
+//		Texture base = new Texture(Gdx.files.internal("pictures/dust.png"));
 		Texture nord = new Texture(Gdx.files.internal("pictures/panel/nord.png"));
 		Texture direction = new Texture(Gdx.files.internal("pictures/panel/direction.png"));
 		Skinner.instance().skin().add("movePanelBase", new TextureRegion(base));
