@@ -228,7 +228,8 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 			camera.near = 10;
 			Point origin = this.origin().source;
 			double rotation = this.getRotation();
-			camera.translate(origin.getFX(), origin.getFY(), 2500f);
+//			camera.translate(origin.getFX(), origin.getFY(), 2500f);
+			camera.translate(origin.getFX(), origin.getFY(), 2000f);
 			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
 			camera.lookAt(new Vector3(11500f, 6000f, 250f));
 			camera.update();

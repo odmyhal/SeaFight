@@ -4,7 +4,12 @@ import java.util.prefs.Preferences;
 
 import org.bircks.enterprise.control.panel.AnimationRisePanel;
 import org.bircks.enterprise.control.panel.Skinner;
+import org.bircks.enterprise.control.panel.camera.CameraDrawableRollAction;
+import org.bircks.enterprise.control.panel.camera.CameraMoveAction;
+import org.bircks.enterprise.control.panel.camera.CameraPanel;
+import org.bircks.enterprise.control.panel.camera.CameraRollAction;
 import org.bricks.enterprise.control.widget.draw.DrawableRoll;
+import org.bricks.enterprise.control.widget.tool.DrugMoveTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowMutableAction;
 import org.bricks.enterprise.control.widget.tool.FlowSlider;
 import org.bricks.enterprise.control.widget.tool.FlowTouchListener;
@@ -30,38 +35,46 @@ import com.odmyhal.sf.staff.Ship;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider.SliderStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-public class ShipMovePanel extends AnimationRisePanel{
+public class ShipMovePanel extends CameraPanel{
 	
 	private Ship ship;
 	private final Preferences shipPreferences;
-	
 	static{
 		Texture base = new Texture(Gdx.files.internal("pictures/panel/base.png"));
 //		Texture base = new Texture(Gdx.files.internal("pictures/dust.png"));
 		Texture nord = new Texture(Gdx.files.internal("pictures/panel/nord.png"));
 		Texture direction = new Texture(Gdx.files.internal("pictures/panel/direction.png"));
+		Texture cameraKnob = new Texture(Gdx.files.internal("pictures/camera_1.png"));
 		Skinner.instance().skin().add("movePanelBase", new TextureRegion(base));
 		Skinner.instance().skin().add("movePanelNord", new TextureRegion(nord));
 		Skinner.instance().skin().add("movePanelDirection", new TextureRegion(direction));
+		Skinner.instance().skin().add("cameraKnob", new TextureRegion(cameraKnob));
 	}
 
 	public ShipMovePanel(Ship ship){
+		this(ship, "panel.defaults", "sf.camera.defaults");
+	}
+	
+	public ShipMovePanel(Ship ship, String panelDefaults, String cameraDefaults){
+		super(ship.initializeCamera().camera, ship.initializeCamera(), panelDefaults, cameraDefaults);
 		this.ship = ship;
 		shipPreferences =  Preferences.userRoot().node("sf.ship.defaults");
 	}
 	
+/*	
 	@Override
 	protected void initStage(){
 		super.initStage();
 		stack.add(controlPanel());
 	}
-
-	private Table controlPanel(){
+*/
+	protected Table controlPanel(){
 		Table controlPanel = new Table();
 		controlPanel.left().top();
 		controlPanel.pad(10f);
 		Label l = new Label("Moveing control panel", Skinner.instance().skin(), "default");
 		controlPanel.add(l).pad(5).top().left();
+//		controlPanel.c
 		controlPanel.row();
 		
 		FlowTouchPad ftp = createRollPad(ship);
@@ -96,6 +109,18 @@ public class ShipMovePanel extends AnimationRisePanel{
 //		buttTable.add(new RiseOnSignEventButt(ship, "SIGHT", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		
 		controlPanel.add(buttTable).pad(4);
+		
+		controlPanel.padRight(20f);
+		DrawableRoll cameraKnob = new DrawableRoll(Skinner.instance().skin().getRegion("cameraKnob"));
+		CameraDrawableRollAction cameraRollAction = new CameraDrawableRollAction(camera, cameraKnob, cameraDefaults);
+		CameraMoveAction cameraMoveAction = new CameraMoveAction(camera, rotationProvider, cameraDefaults);
+		DrawableRoll base = new DrawableRoll(Skinner.instance().skin().getRegion("movePanelBase"));
+		DrugMoveTouchPad cmp = FlowWidgetProvider.produceDrugMoveTouchPad(cameraRollAction, cameraMoveAction, cameraKnob, base);
+		cameraRollAction.setListener(cmp.getListener());
+		//		FlowTouchPad cmp = FlowWidgetProvider.produceDrugMoveTouchPad(cameraRollAction, cameraMoveAction, "CameraMovePad", (int)(Math.min(width, height) * 0.7), widgetDefaults);
+		cell = controlPanel.add(cmp);
+		cell.pad(4).width((float)(Math.min(width, height) * 0.7)).height((float)(Math.min(width, height) * 0.7));
+		cmp.setKnobPosition(cell.getMaxWidth() / 2, cell.getMaxHeight() / 2);
 		
 		return controlPanel;
 	}
@@ -133,7 +158,7 @@ public class ShipMovePanel extends AnimationRisePanel{
 		shipRollAction.nord = nord;
 		shipRollAction.direction = direction;
 		
-		return FlowWidgetProvider.produceFlowTouchPad(shipRollAction, base, nord, direction);
+		return FlowWidgetProvider.produceFlowTouchPad(shipRollAction, null, base, nord, direction);
 	}
 	
 	private FlowSlider createSpeedSlider(Ship ship, FlowMutableAction speedAction, int height){

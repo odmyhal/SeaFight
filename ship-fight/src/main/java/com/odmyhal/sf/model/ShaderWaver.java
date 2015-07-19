@@ -182,6 +182,7 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 				if(camera.frustum.pointInFrustum(source.x, source.y, 0f)){
 					if(++i == BlabKeeper.SHADER_BLAB_COUNT_TOTAL){
 						Gdx.app.debug("WARNING", "Exceeded shade buffer (" + BlabKeeper.SHADER_BLAB_COUNT_TOTAL + ") of bubbles");
+						--i;
 						break;
 					}
 					bubbles[i].setShaderData(source.x, source.y, source.amplitude, source.radius);

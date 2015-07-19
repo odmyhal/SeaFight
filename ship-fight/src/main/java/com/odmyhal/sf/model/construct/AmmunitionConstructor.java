@@ -29,14 +29,14 @@ public class AmmunitionConstructor implements ModelConstructor{
 		Matrix4 tmGls = new Matrix4();
 		tmGls.setToRotation(0f, 0f, 10f, -90f);
 		meshBuilder.setVertexTransform(tmGls);
-		meshBuilder.cylinder(7f, 48f, 7f, 100);
+		meshBuilder.cylinder(7f, 48f, 7f, 10);
 		
 		meshBuilder = modelBuilder.part("cone", GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(Color.ORANGE)));
 	    Matrix4 tmCone = new Matrix4();
 	    tmCone.setToRotation(0f, 0f, 10f, -90f);
 		tmCone.trn(30f, 0f, 0f);;
 		meshBuilder.setVertexTransform(tmCone);
-		meshBuilder.cone(7, 12, 7, 100);
+		meshBuilder.cone(7, 12, 7, 10);
 	}
 
 }
