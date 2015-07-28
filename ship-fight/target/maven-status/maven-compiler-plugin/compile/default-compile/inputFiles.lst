@@ -13,6 +13,7 @@
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/process/ShipGunHRollProcessor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/IslandConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/staff/Gun.java
+/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/Wave.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/ShipConstructor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/effects/WaterBallEffect.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/process/ShipGunVRollProcessor.java
@@ -20,8 +21,8 @@
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/ShipMovePanel.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/process/ShipGunVRollSuperProcessor.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/Ball.java
-/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/shader/WaveShaderProvider.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/process/ShipSinkProcessor.java
+/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/shader/WaveShaderProvider.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/process/FaceWaterEvent.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/interact/ShipTouchHandler.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/construct/WaterBallConstructor.java
@@ -32,5 +33,6 @@
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/WeaponPanel.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/shader/WaveMesh.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/control/RiseOnSignEventButt.java
+/home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/WaveSystem.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/model/Island.java
 /home/oleh/git/SeaFight/ship-fight/src/main/java/com/odmyhal/sf/staff/GetOnSightEvent.java

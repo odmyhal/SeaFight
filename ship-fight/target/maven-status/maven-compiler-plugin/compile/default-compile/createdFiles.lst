@@ -10,6 +10,7 @@ com/odmyhal/sf/control/WeaponPanel.class
 org/bricks/engine/event/handler/ShipFireEventHandler.class
 com/odmyhal/sf/process/FaceWaterEventChecker.class
 org/bricks/engine/event/handler/ShipShipOutOfWorldHandler.class
+com/odmyhal/sf/model/Wave.class
 org/bricks/engine/event/handler/ShipPrintOverlapEventHandler.class
 com/odmyhal/sf/process/ShipGunVRollProcessor.class
 com/odmyhal/sf/staff/Ammunition$1.class
@@ -27,6 +28,7 @@ com/odmyhal/sf/staff/Ammunition$3.class
 com/odmyhal/sf/model/shader/WaveNativeShader.class
 com/odmyhal/sf/staff/GetOnSightEvent.class
 com/odmyhal/sf/model/ShaderWaver.class
+com/odmyhal/sf/model/WaveSystem.class
 org/bricks/engine/event/handler/AmmunitionPrintOverlapEventHandler.class
 com/odmyhal/sf/control/ShipMovePanel$1.class
 com/odmyhal/sf/interact/StoneTouchHandler.class
@@ -35,6 +37,7 @@ com/odmyhal/sf/model/ShaderWaver$WaveData.class
 com/odmyhal/sf/process/FaceWaterEvent.class
 com/odmyhal/sf/effects/DustEffect.class
 com/odmyhal/sf/process/ShipGunHRollProcessor.class
+com/odmyhal/sf/model/WaveSystem$1.class
 com/odmyhal/sf/staff/Ship$ShipOutOfWorld.class
 com/odmyhal/sf/process/ShipSinkProcessor.class
 org/bricks/engine/event/handler/AmmunitionFaceWaterEventHandler.class

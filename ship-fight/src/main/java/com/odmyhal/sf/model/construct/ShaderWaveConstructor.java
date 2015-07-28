@@ -6,6 +6,7 @@ import java.util.List;
 import org.bircks.entierprise.model.ModelConstructTool;
 import org.bircks.entierprise.model.ModelConstructor;
 import org.bricks.annotation.ConstructModel;
+import org.bricks.core.entity.Tuple;
 import org.bricks.engine.Engine;
 import org.bricks.enterprise.d3.help.ModelConstructHelper;
 
@@ -34,10 +35,10 @@ public class ShaderWaveConstructor implements ModelConstructor{
 		float stepX = Engine.preferences.getFloat("waver.net.step.x", 4);
 		float stepY = Engine.preferences.getFloat("waver.net.step.y", 4);
 		
-		List<Vector3> vertexes = new ArrayList<Vector3>();
+		List<Tuple<Vector3, Short>> vertexes = new ArrayList<Tuple<Vector3, Short>>();
 		for(int y=0; y<=length; y++){
 			for( int x=0; x<=length; x++){
-				vertexes.add(new Vector3(x * stepX, y * stepY, 0));
+				vertexes.add(new Tuple(new Vector3(x * stepX, y * stepY, 0), null));
 			}
 		}
 
@@ -51,10 +52,10 @@ public class ShaderWaveConstructor implements ModelConstructor{
 		
 		for(int y=0; y<length; y++){
 			for(int x=0; x<length; x++){
-				Vector3 v1 = vertexes.get(y * (length + 1) + x);
-				Vector3 v2 = vertexes.get((y + 1) * (length + 1) + x);
-				Vector3 v3 = vertexes.get(y * (length + 1) + x + 1);
-				Vector3 v4 = vertexes.get((y + 1) * (length + 1) + x + 1);
+				Tuple<Vector3, Short> v1 = vertexes.get(y * (length + 1) + x);
+				Tuple<Vector3, Short> v2 = vertexes.get((y + 1) * (length + 1) + x);
+				Tuple<Vector3, Short> v3 = vertexes.get(y * (length + 1) + x + 1);
+				Tuple<Vector3, Short> v4 = vertexes.get((y + 1) * (length + 1) + x + 1);
 				ModelConstructHelper.apply2Triangles(v1, v2, v3, v4, meshBuilder);
 			}
 		}

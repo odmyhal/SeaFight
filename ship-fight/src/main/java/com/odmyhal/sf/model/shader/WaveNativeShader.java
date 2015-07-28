@@ -1,6 +1,7 @@
 package com.odmyhal.sf.model.shader;
 
 import org.bricks.engine.Engine;
+import org.bricks.exception.Validate;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.shaders.BaseShader.Setter;
 import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.odmyhal.sf.model.ShaderWaver;
+import com.odmyhal.sf.model.WaveSystem;
 import com.odmyhal.sf.model.bubble.BlabKeeper;
 
 public class WaveNativeShader extends DefaultShader{
@@ -21,25 +23,29 @@ public class WaveNativeShader extends DefaultShader{
 	private int bubblesLoc, bubblesCountLoc, bubbleSize;
 	private int bubble0ind, bubble1ind, bubblesCountInd;
 	
-	private final Setter startPoint = new BaseShader.Setter() {
+	private int wavesLoc, waveSize;
+	private int wave0ind, wave1ind;
+	
+	private ShaderWaver.WaveData waveData;
+	
+	private final Setter waveUniformSetter = new BaseShader.Setter() {
 		
 		public boolean isGlobal (BaseShader shader, int inputID) {
-			return false;
+//			System.out.println("shader setter check if global...");
+			return true;
 		}
 
 		public void set (BaseShader shader, int inputID, Renderable renderable, Attributes combinedAttributes) {
-			if(renderable == null){
-				System.out.println("OLEH: REnderable is null");
-			}
-			ShaderWaver.WaveData waveData = (ShaderWaver.WaveData) renderable.userData;
+
 			ShaderWaver.WaveDataPrint waveDataPrint = waveData.getSafePrint();
 			
-			shader.set(inputID, waveDataPrint.start);
-			shader.program.setUniformi(bubblesCountLoc, waveDataPrint.size);
-/*			if(waveDataPrint.size > 0){
-				System.out.println(waveDataPrint.bubbles[0]);
-			}*/
-			for(int i=0; i<waveDataPrint.size; i++){
+			shader.set(inputID, waveDataPrint.wavesCount);
+			for(int i=0; i<waveDataPrint.wavesCount; i++){
+				shader.program.setUniformf(wavesLoc + waveSize * i, waveDataPrint.waves[i]);
+			}
+			
+			shader.program.setUniformi(bubblesCountLoc, waveDataPrint.blabSize);
+			for(int i=0; i<waveDataPrint.blabSize; i++){
 				shader.program.setUniformf(bubblesLoc + bubbleSize * i,
 //						i * 5000f + 2500f, 2500f, 
 						waveDataPrint.bubbles[i].x, waveDataPrint.bubbles[i].y,
@@ -51,14 +57,16 @@ public class WaveNativeShader extends DefaultShader{
 	
 	private static DefaultShader.Config native_config;
 	static {
-		String vert = Gdx.files.internal("shaders/snw.vertex.glsl").readString();
+		String vert = Gdx.files.internal("shaders/wave.vertex.glsl").readString();
 		int length = Engine.preferences.getInt("waver.net.length", 50);
 		float lenX = Engine.preferences.getFloat("waver.net.step.x", 4f) * length;
 		float lenY = Engine.preferences.getFloat("waver.net.step.y", 4f) * length;
 		float waveCount = Engine.preferences.getFloat("waver.net.wave.count", 1f);
 		float amplitude = Engine.preferences.getFloat("waver.net.amplitude", 4);
 //		System.out.println("Amplitude is : " + amplitude);
-		vert = String.format(vert, BlabKeeper.SHADER_BLAB_COUNT_TOTAL, lenX, lenY, amplitude, waveCount);
+		int maxWaveCount = WaveSystem.prefs.getInt("wave.count.max", 10);
+		System.out.println("WaveNativeshader set maxX = " + lenX + ", maxY = " + lenY );
+		vert = String.format(vert, BlabKeeper.SHADER_BLAB_COUNT_TOTAL, maxWaveCount, lenX, lenY);
         String frag = Gdx.files.internal("shaders/native.fragment.glsl").readString();
         native_config = new DefaultShader.Config(vert, frag);
 	}
@@ -71,11 +79,19 @@ public class WaveNativeShader extends DefaultShader{
 //		System.out.println(vert);
 //		System.out.println("--------------------------------------------------------");
 		
-		register(new Uniform("u_start"), startPoint);
+		this.waveData = (ShaderWaver.WaveData) renderable.userData;
+		Validate.isFalse(waveData == null);
+		System.out.println("Created new WaveNativeshadder");
+		register(new Uniform("u_count_waves"), waveUniformSetter);
+		register(new Uniform("u_waves"));
+		wave0ind = register(new Uniform("u_waves[0]"));
+		wave1ind = register(new Uniform("u_waves[1]"));
+		
 		register(new Uniform("u_bubbles"));
 		bubble0ind = register(new Uniform("u_bubbles[0]"));
 		bubble1ind = register(new Uniform("u_bubbles[1]"));
 		bubblesCountInd = register(new Uniform("u_count_bubbles"));
+		System.out.println("Wave naticel shader created...");
 	}
 	
 	@Override
@@ -84,6 +100,10 @@ public class WaveNativeShader extends DefaultShader{
 		bubblesLoc = loc(bubble0ind);
 		bubbleSize = loc(bubble1ind) - bubblesLoc;
 		bubblesCountLoc = loc(bubblesCountInd);
+		
+		wavesLoc = loc(wave0ind);
+		waveSize = loc(wave1ind) - wavesLoc;
+//		wavesCountLoc = loc(wavesCountInd);
 	}
 
 	public boolean canRender(Renderable instance) {

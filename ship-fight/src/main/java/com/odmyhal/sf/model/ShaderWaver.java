@@ -15,8 +15,8 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
-import com.badlogic.gdx.graphics.g3d.model.Node;
-import com.badlogic.gdx.graphics.g3d.model.NodePart;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 import com.odmyhal.sf.model.bubble.BlabKeeper;
@@ -28,35 +28,33 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	private ModelInstance waveInstance;
 	private float x = 0, y = 0, z = 0;
 	private WaveData waveData;
-	private float radSpeed, add;
+//	private float radSpeed, add;
 	private long lastCheckTime;
 	
 	private float translateX, translateY;
-//	private int rowsCount, colsCount;
-	private int waverPerSectorX, waverPerSectorY;
+	private int modelPerSectorX, modelPerSectorY;
 	private Iterable<District> renderDistricts;
 	
 	private Camera camera;
+	
 	public final BlabKeeper blabKeeper = new BlabKeeper();
+	private final WaveSystem waveSystem = new WaveSystem();
 	
 	public ShaderWaver(){
 		waveData = new WaveData();
 		waveInstance = ModelStorage.instance().getModelInstance("shader-wave");
 		waveInstance.userData = waveData;
-		float waveCycle = Engine.preferences.getFloat("waver.animate.cycle.sectime", 20f) * 1000;
+/*		float waveCycle = Engine.preferences.getFloat("waver.animate.cycle.sectime", 20f) * 1000;
 		float waveCount = Engine.preferences.getFloat("waver.net.wave.count", 1f);
 		radSpeed = PI2 * waveCount / waveCycle;
-		
+*/	
 		int length = Engine.preferences.getInt("waver.net.length", 50);
 		translateX = length * Engine.preferences.getFloat("waver.net.step.x", 4);
 		translateY = length * Engine.preferences.getFloat("waver.net.step.y", 4);
 		
-//		rowsCount = Engine.preferences.getInt("world.rows.count", 1);
-//		colsCount = Engine.preferences.getInt("world.cols.count", 1);
-		
 		float sectorLength = Engine.preferences.getFloat("sector.length", 5000f);
-		waverPerSectorX = (int) (sectorLength / translateX);
-		waverPerSectorY = (int) (sectorLength / translateY);
+		modelPerSectorX = (int) (sectorLength / translateX);
+		modelPerSectorY = (int) (sectorLength / translateY);
 	}
 	
 	public void setCamera(Camera camera){
@@ -68,34 +66,19 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	}
 
 	public void getRenderables(Array<Renderable> renderables, Pool<Renderable> pool) {
-		
-//		waveInstance.getRenderables(renderables, pool);
+
 		waveInstance.transform.setToTranslation(x, y, z);
 		synchronized(this){
 			for(District d : renderDistricts){
 				Point corner = d.getCorner();
-				for(int ix = 0; ix < waverPerSectorX; ix++){
-					for(int jy = 0; jy < waverPerSectorY; jy++){
+				for(int ix = 0; ix < modelPerSectorX; ix++){
+					for(int jy = 0; jy < modelPerSectorY; jy++){
 						waveInstance.transform.setToTranslation(corner.getFX() + translateX * ix, corner.getFY() + translateY * jy, z);
 						waveInstance.getRenderables(renderables, pool);
 					}
 				}
 			}
 		}
-/*		synchronized(this){
-			for(int i = 0; i < colsCount; i++){
-				for(int ix = 0; ix < waverPerSectorX; ix++){
-					for(int j = 0; j < rowsCount; j++){
-						for(int jy = 0; jy < waverPerSectorY; jy++){
-							waveInstance.transform.setToTranslation( (i * waverPerSectorX + ix) * translateX, 
-									(j * waverPerSectorY + jy) * translateY, z);
-							waveInstance.getRenderables(renderables, pool);
-						}
-					}
-				}
-			}
-		}*/
-		
 	}
 
 	public void translate(float x, float y, float z){
@@ -111,51 +94,40 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 	public void motorProcess(long curTime) {
 		long diffTime = curTime - lastCheckTime;
 		if(diffTime > 20){
-			waveData.start += radSpeed * diffTime;
+/*			waveData.start += radSpeed * diffTime;
 			if(waveData.start > PI2){
 				waveData.start -= PI2;
-			}
+			}*/
+//			System.out.println("ShaderWaver process at " + curTime + " , thread: " + Thread.currentThread().getName());
 			blabKeeper.processBubbles(curTime);
+			waveSystem.procesWaves(curTime);
 			waveData.adjustCurrentPrint();
 			lastCheckTime = curTime;
 		}
+	}
+
+	@Override
+	public void timerSet(long time) {
+		lastCheckTime = time;
+		blabKeeper.timerSet(time);
+		waveSystem.timerSet(time);
+	}
+
+	@Override
+	public void timerAdd(long time) {
+		lastCheckTime += time;
+		blabKeeper.timerAdd(time);
+		waveSystem.timerAdd(time);
 	}
 	
 	
 	
 	public class WaveData extends PrintableBase<WaveDataPrint>{
-		
-		private float amplitude;
-		private float lenX, lenY;
-		private float start;
-//		private Color color;
-		
-		private WaveData(){
-			int length = Engine.preferences.getInt("waver.net.length", 50);
-			this.lenX = Engine.preferences.getFloat("waver.net.step.x", 4) * length;
-			this.lenY = Engine.preferences.getFloat("waver.net.step.y", 4) * length;
-			this.amplitude = Engine.preferences.getInt("waver.net.amplitude", 3);
-			this.start = 0f;//(float) Math.PI / 2;
-			this.initPrintStore();
-//			this.color = new Color(0.357f, 0.765f, 0.863f, 1f);
-		}
-		
-		public float amplitude(){
-			return this.amplitude;
-		}
-		
-		public float lenX(){
-			return this.lenX;
-		}
-		
-		public float lenY(){
-			return this.lenY;
-		}
-		
-		public float start(){
-			return this.start;
-		}
 
+		private WaveData(){
+			this.initPrintStore();
+		}
+		
 		public WaveDataPrint print() {
 			return new WaveDataPrint(this.printStore);
 		}
@@ -164,19 +136,24 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 
 	public class WaveDataPrint extends BasePrint<WaveData>{
 		
-		public float start;
+//		public float start;
 		public BlabKeeper.Blab[] bubbles = new BlabKeeper.Blab[BlabKeeper.SHADER_BLAB_COUNT_TOTAL];
-		public int size;
+		private final int maxWaveSize = waveSystem.getMaxWaveCount();
+		public final Vector3[] waves = new Vector3[maxWaveSize];
+		public int blabSize, wavesCount;
 
 		public WaveDataPrint(PrintStore ps) {
 			super(ps);
 			for(int i = 0; i < bubbles.length; i++){
 				bubbles[i] = blabKeeper.emptyBlub();
 			}
+			for(int j = 0; j < waves.length; j++){
+				waves[j] = new Vector3();
+			}
 		}
 
 		public void init() {
-			this.start = this.getTarget().start;
+//			System.out.println("Shader waver started initialization");
 			int i = -1;
 			for(BlabKeeper.Blab source : blabKeeper){
 				if(camera.frustum.pointInFrustum(source.x, source.y, 0f)){
@@ -188,20 +165,22 @@ public class ShaderWaver implements RenderableProvider, Motorable{
 					bubbles[i].setShaderData(source.x, source.y, source.amplitude, source.radius);
 				}
 			}
-			size = i + 1;
+			blabSize = i + 1;
+			i = -1;
+			for(Wave wave : waveSystem){
+				if(++i == maxWaveSize){
+					Gdx.app.debug("WARNING", "Exceeded shade buffer (" + maxWaveSize + ") of waves");
+					--i;
+					break;
+				}
+				Vector2 wavePosition = wave.getPositon();
+				waves[i].x = wavePosition.x;
+				waves[i].y = wavePosition.y;
+				waves[i].z = wave.getAmplitude();
+			}
+			wavesCount = i + 1;
+//			System.out.println("Shader initialized print with " + wavesCount + " waves");
 		}
 
-	}
-
-	@Override
-	public void timerSet(long time) {
-		lastCheckTime = time;
-		blabKeeper.timerSet(time);
-	}
-
-	@Override
-	public void timerAdd(long time) {
-		lastCheckTime += time;
-		blabKeeper.timerSet(time);
 	}
 }

@@ -36,6 +36,7 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>, Motorable{
 	private int size;
 	
 	public void pushBlab(Blab blab){
+//		System.out.println("Pushing blab to quarantine...");
 		quarantine.push(blab);
 	}
 
@@ -47,6 +48,7 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>, Motorable{
 		for(Blab b : quarantine){
 			bubbles.add(b);
 			++size;
+//			System.out.println("BlabKeeper added bubble " + size);
 			Validate.isFalse(size > BLAB_COUNT_TOTAL, "BlabKeeper exceeded maximum amound of bubbles..." );
 		}
 		long diffTime = currentTime - checkTime;
@@ -58,6 +60,7 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>, Motorable{
 					iterator.remove();
 					Cache.put(blab);
 					--size;
+//					System.out.println("BlabKeeper removed bubble " + size);
 				}
 			}
 			checkTime = currentTime;
