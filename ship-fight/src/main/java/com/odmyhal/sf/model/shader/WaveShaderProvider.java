@@ -1,5 +1,6 @@
 package com.odmyhal.sf.model.shader;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Renderable;
@@ -16,12 +17,19 @@ import com.odmyhal.sf.model.ShaderWaver;
 
 public class WaveShaderProvider extends DefaultShaderProvider{
 	
+	private Camera camera;
+	
+	public WaveShaderProvider(Camera camera){
+		this.camera = camera;
+	}
+	
 	@Override
 	protected Shader createShader (final Renderable renderable) {
 		if(renderable.userData != null && renderable.userData instanceof ShaderWaver.WaveData){
-			return new WaveNativeShader(renderable);
+			return new WaveNativeShader(renderable, camera);
 		}
-		return super.createShader(renderable);
+		return new FogShader(renderable, camera);
+//		return super.createShader(renderable);
 //		return new DefaultShader(renderable, config, createPrefixWithoutTextures(renderable, config));
 	}
 

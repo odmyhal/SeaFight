@@ -106,7 +106,7 @@ public class DustEffect extends TemporaryEffect{
 		colorInfluencer.colorValue.setTimeline(new float[]{0f, 0.2f, 0.9f, 1f});
 		colorInfluencer.colorValue.setColors(new float[]{1, 0, 0, 0.20f, 0.20f, 0.20f, 0.25f, 0.25f, 0.25f, 0.22f, 0.22f, 0.22f});
 
-		DynamicsModifier.CentripetalAcceleration moveModifier = new DynamicsModifier.CentripetalAcceleration();
+		DynamicsModifier.CentripetalAcceleration moveModifier = new CentrapetialSafeDynamicAcceleration();
 		moveModifier.strengthValue.setLow(90f, 110f);
 		moveModifier.strengthValue.setHigh(150f, 190f);
 		DynamicsInfluencer moveInfluencer = new DynamicsInfluencer(moveModifier);

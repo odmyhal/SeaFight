@@ -6,6 +6,7 @@ import java.util.prefs.Preferences;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
+import org.bricks.engine.Motor;
 import org.bricks.engine.event.PrintOverlapEvent;
 import org.bricks.engine.event.check.OverlapChecker;
 import org.bricks.engine.event.overlap.OverlapStrategy;
@@ -82,6 +83,8 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 				TemporaryEffect effect = new DustEffect(BricksParticleSystem.particleSystem());
 				effect.init();
 				return new EffectSubject.Transfered(effect, DUST_CACHE_NAME);
+//				System.out.println(System.currentTimeMillis() + " " + Thread.currentThread().getName() + " -- new Dust instance created : " + r + ", with effect : " + effect);
+//				return r;
 			}
 			
 		});
@@ -173,10 +176,6 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		EffectSubject.Transfered effect = Cache.get(EffectSubject.Transfered.class, WATER_BALL_CACHE_NAME);
 		effect.setToTranslation(event.touchPoint());
 		effect.applyEngine(this.getEngine());
-//		Ball wb = Ball.WaterBall.get();
-//		tmpOrigin.source.set(event.touchPoint());
-//		wb.translate(tmpOrigin);
-//		wb.applyEngine(this.getEngine());
 	}
 	
 	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)
@@ -208,7 +207,8 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 //		Vector3 touchPoint = event.getTouchPoint();
 		EffectSubject.Transfered effect = Cache.get(EffectSubject.Transfered.class, DUST_CACHE_NAME);
 		effect.setToTranslation(event.getTouchPoint());
-		effect.applyEngine(this.getEngine());
+//		System.out.println(System.currentTimeMillis() + " " + Thread.currentThread().getName() + " -- new Dust instance " + effect + ", translated to " + event.getTouchPoint());
+		effect.applyEngine(this.getEngine(), Motor.getCurrentMotor());
 //		EffectSystem.addEffect(DustEffect.class, touchPoint.x, touchPoint.y, touchPoint.z);
 		this.disappear();
 	}

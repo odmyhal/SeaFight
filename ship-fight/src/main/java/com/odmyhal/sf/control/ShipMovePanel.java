@@ -30,6 +30,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.odmyhal.sf.staff.CameraShip;
 import com.odmyhal.sf.staff.Ship;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Slider.SliderStyle;
@@ -37,7 +38,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 public class ShipMovePanel extends CameraPanel{
 	
-	private Ship ship;
+	private Runnable r;
+	private CameraShip ship;
 	private final Preferences shipPreferences;
 	static{
 		Texture base = new Texture(Gdx.files.internal("pictures/panel/base.png"));
@@ -51,11 +53,11 @@ public class ShipMovePanel extends CameraPanel{
 		Skinner.instance().skin().add("cameraKnob", new TextureRegion(cameraKnob));
 	}
 
-	public ShipMovePanel(Ship ship){
-		this(ship, "panel.defaults", "sf.camera.defaults");
+	public ShipMovePanel(CameraShip ship){
+		this(ship, "sf.panel.defaults.portrate", "sf.camera.defaults");
 	}
 	
-	public ShipMovePanel(Ship ship, String panelDefaults, String cameraDefaults){
+	public ShipMovePanel(CameraShip ship, String panelDefaults, String cameraDefaults){
 		super(ship.initializeCamera().camera, ship.initializeCamera(), panelDefaults, cameraDefaults);
 		this.ship = ship;
 		shipPreferences =  Preferences.userRoot().node("sf.ship.defaults");
@@ -71,30 +73,30 @@ public class ShipMovePanel extends CameraPanel{
 	protected Table controlPanel(){
 		Table controlPanel = new Table();
 		controlPanel.left().top();
-		controlPanel.pad(10f);
-		Label l = new Label("Moveing control panel", Skinner.instance().skin(), "default");
-		controlPanel.add(l).pad(5).top().left();
+		controlPanel.pad(5f);
+//		Label l = new Label("Moveing control panel", Skinner.instance().skin(), "default");
+//		controlPanel.add(l).pad(3).top().left();
 //		controlPanel.c
-		controlPanel.row();
+//		controlPanel.row();
 		
 		FlowTouchPad ftp = createRollPad(ship);
 		Cell cell = controlPanel.add(ftp);
-		cell.pad(3).width((float)(Math.min(width, height) * 0.7)).height((float)(Math.min(width, height) * 0.7));
+		cell.pad(3).width((float)(Math.min(width, height) * 0.9)).height((float)(Math.min(width, height) * 0.9));
 
 		float acceleration = shipPreferences.getFloat("ship.acceleration.directional", 50f);
 		final AccelerateToSpeedEntityAction speedAction = new AccelerateToSpeedEntityAction(ship, acceleration);
-		int panelHeight = (int)(Math.min(width, height) * 0.7);
+		int panelHeight = (int)(Math.min(width, height) * 0.9);
 		FlowSlider speedSlider = createSpeedSlider(ship, speedAction, panelHeight);
 		controlPanel.add(speedSlider).height(panelHeight).padLeft(20f);
 		//		controlPanel.setDebug(true);
 		
 		Table buttTable = new Table();
 		buttTable.left().center();
-		buttTable.pad(15);
+		buttTable.pad(3);
 		
 
-		int buttonWidth = (int)(Math.min(width, height) * 0.5/* * 0.20*/);
-		int buttonHeight = (int)(Math.min(width, height) * 0.3/* * 0.15*/);
+		int buttonWidth = (int)(Math.min(width, height) * 0.55/* * 0.20*/);
+		int buttonHeight = (int)(Math.min(width, height) * 0.35/* * 0.15*/);
 		buttTable.add(new RiseConstEventButton(ship, new FireEvent(), "FIRE", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
 		buttTable.row();
 		
@@ -105,24 +107,74 @@ public class ShipMovePanel extends CameraPanel{
 				speedAction.act(0f);
 			}
 		});
-		buttTable.add(stopButton).pad(8);
-//		buttTable.add(new RiseOnSignEventButt(ship, "SIGHT", provideButtonStyle(buttonWidth, buttonHeight))).pad(8);
+		buttTable.add(stopButton).pad(3);
 		
-		controlPanel.add(buttTable).pad(4);
+		controlPanel.add(buttTable).pad(3);
 		
-		controlPanel.padRight(20f);
+/*		controlPanel.padRight(20f);
 		DrawableRoll cameraKnob = new DrawableRoll(Skinner.instance().skin().getRegion("cameraKnob"));
 		CameraDrawableRollAction cameraRollAction = new CameraDrawableRollAction(camera, cameraKnob, cameraDefaults);
 		CameraMoveAction cameraMoveAction = new CameraMoveAction(camera, rotationProvider, cameraDefaults);
 		DrawableRoll base = new DrawableRoll(Skinner.instance().skin().getRegion("movePanelBase"));
-		DrugMoveTouchPad cmp = FlowWidgetProvider.produceDrugMoveTouchPad(cameraRollAction, cameraMoveAction, cameraKnob, base);
-		cameraRollAction.setListener(cmp.getListener());
-		//		FlowTouchPad cmp = FlowWidgetProvider.produceDrugMoveTouchPad(cameraRollAction, cameraMoveAction, "CameraMovePad", (int)(Math.min(width, height) * 0.7), widgetDefaults);
-		cell = controlPanel.add(cmp);
-		cell.pad(4).width((float)(Math.min(width, height) * 0.7)).height((float)(Math.min(width, height) * 0.7));
-		cmp.setKnobPosition(cell.getMaxWidth() / 2, cell.getMaxHeight() / 2);
+		final DrugMoveTouchPad cmp = FlowWidgetProvider.produceDrugMoveTouchPad(cameraRollAction, cameraMoveAction, cameraKnob, base);
+		cameraRollAction.setListener(cmp.getListener());*/
+		
+		if(cameraPad == null){
+			cameraPad = createCameraPad();
+			cell = controlPanel.add(cameraPad);
+			cameraPad.setKnobPosition(cell.getMaxWidth() / 2, cell.getMaxHeight() / 2);
+		}else{
+			cameraPad.rememberKnobPersent();
+			cell = controlPanel.add(cameraPad);
+		}
+		final float padWidth = (float)(Math.min(width, height) * 0.9);
+		final float padHeight = (float)(Math.min(width, height) * 0.9);
+		
+		
+		cell.pad(4).width(padWidth).height(padHeight);
+//		cmp.setKnobPosition(cell.getMaxWidth() / 2, cell.getMaxHeight() / 2);
+		r = new Runnable(){
+
+			@Override
+			public void run() {
+				cameraPad.getListener().simulateDrug(padWidth / 2,  padHeight / 6);
+			}
+			
+		};
 		
 		return controlPanel;
+	}
+	
+	private DrugMoveTouchPad cameraPad;
+	private DrugMoveTouchPad createCameraPad(){
+		DrawableRoll cameraKnob = new DrawableRoll(Skinner.instance().skin().getRegion("cameraKnob"));
+		CameraDrawableRollAction cameraRollAction = new CameraDrawableRollAction(camera, cameraKnob, cameraDefaults);
+		CameraMoveAction cameraMoveAction = new CameraMoveAction(camera, rotationProvider, cameraDefaults);
+		DrawableRoll base = new DrawableRoll(Skinner.instance().skin().getRegion("movePanelBase"));
+		final DrugMoveTouchPad cmp = FlowWidgetProvider.produceDrugMoveTouchPad(cameraRollAction, cameraMoveAction, cameraKnob, base);
+		cameraRollAction.setListener(cmp.getListener());
+		return cmp;
+	}
+	
+	private void start(){
+		r.run();
+	}
+	
+	boolean needStart = true;
+	public void draw(float deltaTime){
+		super.draw(deltaTime);
+		if(needStart){
+			start();
+			needStart = false;
+		}
+	}
+	public void resizeViewport(int width, int height){
+		if(width > height){
+			this.initRatio(Preferences.userRoot().node("sf.panel.defaults.landscape"));
+		}else{
+			this.initRatio(Preferences.userRoot().node("sf.panel.defaults.portrate"));
+		}
+		super.resizeViewport(width, height);
 	}
 	
 	public static TextButton.TextButtonStyle provideButtonStyle(int buttonWidth, int buttonHeight){
@@ -145,7 +197,7 @@ public class ShipMovePanel extends CameraPanel{
 //		return new RiseConstEventButton(liver, event, text, textButtonStyle);
 	}
 	
-	private FlowTouchPad createRollPad(Ship ship){
+	private FlowTouchPad createRollPad(CameraShip ship){
 		RotationProvider rotationProvider = ship.initializeCamera();
 		float rotationSpeed = shipPreferences.getFloat("ship.roll.speed.radians", 0.1f);
 		ShipRollAction shipRollAction = new ShipRollAction(ship, rotationProvider, rotationSpeed);

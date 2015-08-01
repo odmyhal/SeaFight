@@ -17,8 +17,9 @@ import com.badlogic.gdx.graphics.g3d.utils.RenderContext;
 import com.odmyhal.sf.model.ShaderWaver;
 import com.odmyhal.sf.model.WaveSystem;
 import com.odmyhal.sf.model.bubble.BlabKeeper;
+import com.odmyhal.sf.staff.Ship;
 
-public class WaveNativeShader extends DefaultShader{
+public class WaveNativeShader extends FogShader{
 	
 	private int bubblesLoc, bubblesCountLoc, bubbleSize;
 	private int bubble0ind, bubble1ind, bubblesCountInd;
@@ -31,7 +32,6 @@ public class WaveNativeShader extends DefaultShader{
 	private final Setter waveUniformSetter = new BaseShader.Setter() {
 		
 		public boolean isGlobal (BaseShader shader, int inputID) {
-//			System.out.println("shader setter check if global...");
 			return true;
 		}
 
@@ -63,17 +63,17 @@ public class WaveNativeShader extends DefaultShader{
 		float lenY = Engine.preferences.getFloat("waver.net.step.y", 4f) * length;
 		float waveCount = Engine.preferences.getFloat("waver.net.wave.count", 1f);
 		float amplitude = Engine.preferences.getFloat("waver.net.amplitude", 4);
-//		System.out.println("Amplitude is : " + amplitude);
 		int maxWaveCount = WaveSystem.prefs.getInt("wave.count.max", 10);
+		float cameraFar = Ship.cameraPrefs.getFloat("camera.far", 40000f);
 		System.out.println("WaveNativeshader set maxX = " + lenX + ", maxY = " + lenY );
-		vert = String.format(vert, BlabKeeper.SHADER_BLAB_COUNT_TOTAL, maxWaveCount, lenX, lenY);
-        String frag = Gdx.files.internal("shaders/native.fragment.glsl").readString();
+		vert = String.format(vert, BlabKeeper.SHADER_BLAB_COUNT_TOTAL, maxWaveCount, lenX, lenY, cameraFar);
+        String frag = Gdx.files.internal("shaders/fog.fragment.glsl").readString();
         native_config = new DefaultShader.Config(vert, frag);
 	}
 	
 
-	public WaveNativeShader(Renderable renderable) {
-		super(renderable, native_config, /*"#version 330\n" + */DefaultShader.createPrefix(renderable, native_config));
+	public WaveNativeShader(Renderable renderable, Camera camera) {
+		super(renderable, native_config, /*"#version 330\n" + */DefaultShader.createPrefix(renderable, native_config), camera);
 //		String vert = super.program.getVertexShaderSource();
 //		System.out.println("--------------Vertex fragment---------------------------");
 //		System.out.println(vert);
@@ -103,7 +103,6 @@ public class WaveNativeShader extends DefaultShader{
 		
 		wavesLoc = loc(wave0ind);
 		waveSize = loc(wave1ind) - wavesLoc;
-//		wavesCountLoc = loc(wavesCountInd);
 	}
 
 	public boolean canRender(Renderable instance) {

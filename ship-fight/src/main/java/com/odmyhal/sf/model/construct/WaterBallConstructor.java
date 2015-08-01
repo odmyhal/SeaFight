@@ -59,7 +59,7 @@ public class WaterBallConstructor implements ModelConstructor{
 		Color ballColor = Color.DARK_GRAY;
 		ballColor.a = 0.5f;
 		BlendingAttribute ba = new BlendingAttribute();
-		ba.opacity = 0.99f;
+		ba.opacity = 0.7f;
 		MeshPartBuilder meshBuilder = modelBuilder.part(pName[0], GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(ballColor), ba));
 		float d = Float.parseFloat(pName[1]);
 		meshBuilder.sphere(d, d, d, 20, 20/*, 0, 180, 0, 180*/);

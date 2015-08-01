@@ -86,7 +86,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	private static final float stepBack = 150f;
 	
 	public static final String SHIP_SOURCE_TYPE = "ShipSource@sf.odmyhal.com";
-	private CameraSatellite cameraSatellite;
+//	private CameraSatellite cameraSatellite;
 	
 	
 	private SkeletonDebug skeletonDebug;
@@ -218,26 +218,6 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 
 	public String sourceType() {
 		return SHIP_SOURCE_TYPE;
-	}
-	
-	public CameraSatellite initializeCamera(){
-		if(this.cameraSatellite == null){
-			Camera camera = new PerspectiveCamera(37f, 1250f, 750f);
-			camera.far = cameraPrefs.getFloat("camera.far", 40000f);
-			System.out.println("Set camera far to " + camera.far);
-			camera.near = 10;
-			Point origin = this.origin().source;
-			double rotation = this.getRotation();
-//			camera.translate(origin.getFX(), origin.getFY(), 2500f);
-			camera.translate(origin.getFX(), origin.getFY(), 2000f);
-			camera.up.rotateRad((float)(rotation - Math.PI / 2), 0f, 0f, 100f);
-			camera.lookAt(new Vector3(11500f, 6000f, 250f));
-			camera.update();
-			CameraSatellite cameraSatelliteK = new CameraSatellite(camera, getRotation());
-			addSatellite(cameraSatelliteK);
-			this.cameraSatellite = cameraSatelliteK;
-		}
-		return cameraSatellite;
 	}
 
 	@EventHandle(eventType = Island.ISLAND_SF_SOURCE)

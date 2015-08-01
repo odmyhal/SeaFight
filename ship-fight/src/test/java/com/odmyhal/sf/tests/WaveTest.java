@@ -55,5 +55,8 @@ public class WaveTest {
 		System.out.println("------------sides----------------");
 		testPoint(wave, amplitude, side1);
 		testPoint(wave, amplitude, side2);
+		
+		String s = "Formatted value is %.2f";
+		System.out.println(String.format(s, 26544f));
 	}
 }
