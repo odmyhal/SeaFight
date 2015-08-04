@@ -40,7 +40,7 @@ public class WaterBallEffect extends TemporaryEffect{
 	
 	protected void setToTranslation(Vector3 translation){
 		Vector3 dustTranslation = Cache.get(Vector3.class);
-		dustTranslation.set(translation.x, translation.y, translation.z - 30f);
+		dustTranslation.set(translation.x, translation.y, translation.z - 40f);
 		Array<ParticleController> controllers = getControllers();
 		for (int k = 0, n = controllers.size; k < n; k++){
 			ParticleController controller = controllers.get(k);
@@ -71,8 +71,8 @@ public class WaterBallEffect extends TemporaryEffect{
 		
 		emitter.durationValue.setLow(300f, 400f);
 		
-		emitter.lifeValue.setLow(700f, 1000f);
-		emitter.lifeValue.setHigh(1100f, 1200f);
+		emitter.lifeValue.setLow(600f, 700f);
+		emitter.lifeValue.setHigh(700f, 800f);
 		return emitter;
 	}
 
@@ -104,13 +104,14 @@ public class WaterBallEffect extends TemporaryEffect{
 	
 		ColorInfluencer.Single colorInfluencer = new ColorInfluencer.Single();
 		colorInfluencer.alphaValue.setTimeline(new float[]{0f, 1f});
-		colorInfluencer.alphaValue.setScaling(new float[]{0.6f, 0f});
+		colorInfluencer.alphaValue.setScaling(new float[]{0.2f, 0f});
+		
 		colorInfluencer.colorValue.setTimeline(new float[]{0f, 1f});
 		colorInfluencer.colorValue.setColors(new float[]{0.357f, 0.765f, 0.863f, 0.357f, 0.765f, 0.863f});
 		
 		DynamicsModifier.CentripetalAcceleration moveModifier = new CentrapetialSafeDynamicAcceleration();
-		moveModifier.strengthValue.setLow(-190f, -195f);
-		moveModifier.strengthValue.setHigh(-200f, -220f);
+		moveModifier.strengthValue.setLow(-470f, -495f);
+		moveModifier.strengthValue.setHigh(-520f, -560f);
 		moveModifier.strengthValue.setTimeline(new float[]{0f, 0.1f, 0.2f, 1f});
 		moveModifier.strengthValue.setScaling(new float[]{0f, 1f, 0f, 0f});
 		DynamicsInfluencer moveInfluencer = new DynamicsInfluencer(moveModifier);

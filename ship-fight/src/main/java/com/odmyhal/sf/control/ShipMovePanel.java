@@ -8,6 +8,7 @@ import org.bircks.enterprise.control.panel.camera.CameraDrawableRollAction;
 import org.bircks.enterprise.control.panel.camera.CameraMoveAction;
 import org.bircks.enterprise.control.panel.camera.CameraPanel;
 import org.bircks.enterprise.control.panel.camera.CameraRollAction;
+import org.bricks.core.help.VectorHelper;
 import org.bricks.enterprise.control.widget.draw.DrawableRoll;
 import org.bricks.enterprise.control.widget.tool.DrugMoveTouchPad;
 import org.bricks.enterprise.control.widget.tool.FlowMutableAction;
@@ -28,6 +29,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.odmyhal.sf.staff.CameraShip;
@@ -79,15 +81,41 @@ public class ShipMovePanel extends CameraPanel{
 //		controlPanel.c
 //		controlPanel.row();
 		
-		FlowTouchPad ftp = createRollPad(ship);
-		Cell cell = controlPanel.add(ftp);
+		Stack stack = new Stack();
+//		FlowTouchPad ftp = createRollPad(ship);
+		Table lableTable = new Table();
+		lableTable.bottom().left().pad(1f).padLeft(6f);
+		lableTable.add(new Label("direction", Skinner.instance().skin(), "default"));
+		stack.add(lableTable);
+		stack.add(createRollPad(ship));
+		
+//		Cell cell = controlPanel.add(ftp);
+		Cell cell = controlPanel.add(stack);
 		cell.pad(3).width((float)(Math.min(width, height) * 0.9)).height((float)(Math.min(width, height) * 0.9));
 
 		float acceleration = shipPreferences.getFloat("ship.acceleration.directional", 50f);
 		final AccelerateToSpeedEntityAction speedAction = new AccelerateToSpeedEntityAction(ship, acceleration);
 		int panelHeight = (int)(Math.min(width, height) * 0.9);
 		FlowSlider speedSlider = createSpeedSlider(ship, speedAction, panelHeight);
-		controlPanel.add(speedSlider).height(panelHeight).padLeft(20f);
+/*		
+		Stack speedStack = new Stack();
+		speedStack.rotateBy(90f);
+		Table speedTable = new Table();
+		speedTable.bottom().left().pad(1f).padLeft(6f);
+		speedTable.setRotation(90f);
+		Label speedLabel = new Label("speed", Skinner.instance().skin(), "default");
+		speedLabel.setRotation(90f);
+		speedTable.add(speedLabel);
+		speedStack.add(speedSlider);
+		speedStack.add(speedTable);
+		controlPanel.add(speedStack).height(panelHeight).padLeft(15f);*/
+		
+		Table speedTable = new Table();
+		speedTable.add(new Label("speed", Skinner.instance().skin(), "default"));
+		speedTable.row().expand();
+		speedTable.add(speedSlider);
+		controlPanel.add(speedTable).height(panelHeight).padLeft(15f);
+//		controlPanel.add(speedSlider).height(panelHeight).padLeft(15f);
 		//		controlPanel.setDebug(true);
 		
 		Table buttTable = new Table();
@@ -119,14 +147,23 @@ public class ShipMovePanel extends CameraPanel{
 		final DrugMoveTouchPad cmp = FlowWidgetProvider.produceDrugMoveTouchPad(cameraRollAction, cameraMoveAction, cameraKnob, base);
 		cameraRollAction.setListener(cmp.getListener());*/
 		
+		Stack cstack = new Stack();
+//		FlowTouchPad ftp = createRollPad(ship);
+		Table clableTable = new Table();
+		clableTable.bottom().left().pad(1f).padLeft(6f);
+		clableTable.add(new Label("camera", Skinner.instance().skin(), "default"));
+		cstack.add(clableTable);
 		if(cameraPad == null){
 			cameraPad = createCameraPad();
-			cell = controlPanel.add(cameraPad);
+			cstack.add(cameraPad);
+			cell = controlPanel.add(cstack);
 			cameraPad.setKnobPosition(cell.getMaxWidth() / 2, cell.getMaxHeight() / 2);
 		}else{
 			cameraPad.rememberKnobPersent();
-			cell = controlPanel.add(cameraPad);
+			cstack.add(cameraPad);
+			cell = controlPanel.add(cstack);
 		}
+		
 		final float padWidth = (float)(Math.min(width, height) * 0.9);
 		final float padHeight = (float)(Math.min(width, height) * 0.9);
 		
@@ -235,7 +272,8 @@ public class ShipMovePanel extends CameraPanel{
 		float maxSpeed = shipPreferences.getFloat("ship.speed.directional.max", 30f);
 		float minSpeed = shipPreferences.getFloat("ship.speed.directional.min", -10f);
 		FlowSlider slider = new FlowSlider(minSpeed, maxSpeed, true, tps, listener);
-		slider.setValue(0f);
+		float curSpeed = (float) VectorHelper.vectorLen(ship.getVector().source);
+		slider.setValue(curSpeed);
 		return slider;
 	}
 }

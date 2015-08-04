@@ -1,9 +1,9 @@
 package com.odmyhal.sf.model;
 
-import org.apache.commons.lang.Validate;
 import org.bricks.core.entity.Fpoint;
 import org.bricks.engine.staff.AvareTimer;
 import org.bricks.engine.tool.Walk2D;
+import org.bricks.exception.Validate;
 
 import com.badlogic.gdx.math.Vector2;
 

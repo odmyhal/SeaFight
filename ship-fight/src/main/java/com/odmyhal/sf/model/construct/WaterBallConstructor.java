@@ -40,9 +40,10 @@ public class WaterBallConstructor implements ModelConstructor{
 	
 	private void produceWaterBall(ModelBuilder modelBuilder, String name){
 		String[] pName = name.split("_");
-		Color ballColor = new Color(0.357f, 0.765f, 0.863f, 0.3f);
-		ballColor.mul(1.13f);
-		ballColor.a = 0.2f;
+//		Color ballColor = new Color(0.357f, 0.765f, 0.863f, 0.00003f);
+//		ballColor.mul(1.13f);
+		Color ballColor = Color.GRAY;
+		ballColor.a = 0.099f;
 //		Color ballColor = Color.WHITE;
 		BlendingAttribute ba = new BlendingAttribute();
 		ba.opacity = 0.99f;
@@ -56,10 +57,9 @@ public class WaterBallConstructor implements ModelConstructor{
 
 	private void produceExploitBall(ModelBuilder modelBuilder, String name){
 		String[] pName = name.split("_");
-		Color ballColor = Color.DARK_GRAY;
-		ballColor.a = 0.5f;
+		Color ballColor = new Color(0.357f, 0.765f, 0.863f, 0.3f);
 		BlendingAttribute ba = new BlendingAttribute();
-		ba.opacity = 0.7f;
+		ba.opacity = 0.99f;
 		MeshPartBuilder meshBuilder = modelBuilder.part(pName[0], GL20.GL_TRIANGLES, Usage.Position | Usage.Normal, new Material(ColorAttribute.createDiffuse(ballColor), ba));
 		float d = Float.parseFloat(pName[1]);
 		meshBuilder.sphere(d, d, d, 20, 20/*, 0, 180, 0, 180*/);

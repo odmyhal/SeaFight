@@ -26,6 +26,7 @@ import org.bricks.engine.neve.ContainsEntityPrint;
 import org.bricks.engine.neve.PlanePointsPrint;
 import org.bricks.engine.neve.WalkPrint;
 import org.bricks.engine.processor.Processor;
+import org.bricks.engine.staff.Entity;
 import org.bricks.engine.staff.Subject;
 import org.bricks.engine.staff.Walker;
 import org.bricks.engine.tool.Origin;
@@ -228,6 +229,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		producer = PrintOverlapEvent.PrintOverlapEventExtractor.class)
 	public void hitCannon(PrintOverlapEvent e){
 		this.rollBack(e.getEventTime());
+//		System.out.println("Ship hit stone : " + ((Entity)((Subject)e.getSourcePrint().getTarget()).getEntity()).origin().source);
 //		this.removeHistory(BaseEvent.touchEventCode);
 	}
 
