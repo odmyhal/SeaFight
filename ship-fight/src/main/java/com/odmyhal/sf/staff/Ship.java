@@ -24,11 +24,14 @@ import org.bricks.engine.event.overlap.SmallEventStrategy;
 import org.bricks.engine.item.MultiWalkRoller2D;
 import org.bricks.engine.neve.ContainsEntityPrint;
 import org.bricks.engine.neve.PlanePointsPrint;
+import org.bricks.engine.neve.WalkLastPrint;
 import org.bricks.engine.neve.WalkPrint;
 import org.bricks.engine.processor.Processor;
 import org.bricks.engine.staff.Entity;
 import org.bricks.engine.staff.Subject;
 import org.bricks.engine.staff.Walker;
+import org.bricks.engine.tool.Accelerator;
+import org.bricks.engine.tool.Accelerator2D;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Origin2D;
 import org.bricks.exception.Validate;
@@ -78,8 +81,8 @@ import com.odmyhal.sf.process.ShipGunVRollProcessor;
 import com.odmyhal.sf.process.ShipGunVRollSuperProcessor;
 import com.odmyhal.sf.process.ShipSinkProcessor;
 
-public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkPrint<?, Fpoint>> 
-	implements RenderableProvider, SpaceDebug, DurableRoutedWalker<WalkPrint<?, Fpoint>>, Butt {
+public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, Roll, ModelBrickOperable>, WalkLastPrint<?, Fpoint>> 
+	implements RenderableProvider, SpaceDebug, DurableRoutedWalker<WalkLastPrint<?, Fpoint>>, Butt {
 	
 	public static final Preferences prefs = Preferences.userRoot().node("sf.ship.defaults");
 	public static final Preferences cameraPrefs = Preferences.userRoot().node("sf.camera.defaults");
@@ -98,7 +101,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	private boolean isLiveing = true;
 	public final Gun mainGun, backGun;
 
-	private boolean gotShipHit = false;
+	private long shitHitTime;
 	private Processor<Ship>[] beforeGetOut;
 
 	public Ship(AssetManager assets) {
@@ -321,13 +324,12 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		producer = PrintOverlapEvent.PrintOverlapEventExtractor.class)
 	public void hitAnotherShip(PrintOverlapEvent<PlanePointsPrint<? extends SpaceSubject>, PlanePointsPrint<? extends SpaceSubject<?, ?, ?, ?, ?>>, Fpoint, ?> event){
 
-		ContainsEntityPrint<?, WalkPrint<?, Fpoint>> ssPrint = 
-				(ContainsEntityPrint<?, WalkPrint<?, Fpoint>>) event.getSourcePrint();
-		WalkPrint<?, Fpoint> walker = ssPrint.linkEntityPrint();
+		ContainsEntityPrint<?, WalkLastPrint<? extends Walker<?, Fpoint>, Fpoint>> ssPrint = 
+				(ContainsEntityPrint<?, WalkLastPrint<? extends Walker<?, Fpoint>, Fpoint>>) event.getSourcePrint();
+		WalkLastPrint<? extends Walker<?, Fpoint>, Fpoint> walker = ssPrint.linkEntityPrint();
 		Fpoint hitVector = new Fpoint();
 		Point touchPoint = event.getTouchPoint();
-		
-		WalkerHelper.generalPointVector(walker, touchPoint, hitVector);
+		WalkerHelper.generalLastPointVector(walker, touchPoint, hitVector);
 		
 		ContainsEntityPrint<?, WalkPrint<?, Fpoint>> mySubjectPrint = 
 				(ContainsEntityPrint<?, WalkPrint<?, Fpoint>>) event.getTargetPrint();
@@ -342,8 +344,7 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		}
 		
 		this.setUpdate();
-//		this.removeHistory(BaseEvent.touchEventCode);
-		gotShipHit = true;
+		shitHitTime = event.getEventTime();
 	}
 	
 	private boolean replyShipHit(Fpoint hitVector, Point touchPoint, Fpoint myOrigin, double myRotation){
@@ -371,14 +372,14 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		
 		boolean reply = false;
 		if(VectorHelper.hasSameDirection(moveProjection, moveVector)){
-			templateOrigin.source.set(moveProjection.x / 100, moveProjection.y / 100);
+			templateOrigin.source.set(moveProjection.x/* / 100*/, moveProjection.y/* / 100*/);
 			this.translate(templateOrigin, false);
 			reply = true;
 		}
 		
 		if(VectorHelper.hasSameDirection(rollProjection, rollVector)){
 			float rotation = (float) (VectorHelper.vectorLen(rollProjection) / len) * rollK;
-			this.setToRotation(this.getRotation() + rotation / 500);
+			this.setToRotation(this.getRotation() + rotation/* / 500*/);
 			reply = true;
 		}
 		Cache.put(moveVector);
@@ -392,10 +393,11 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 	public RenderableProvider debugModel() {
 		return skeletonDebug;
 	}
-
-	public boolean correctRoute() {
-		if(gotShipHit){
-			gotShipHit = false;
+	
+	int cnt = 0;
+	public boolean correctRoute(long curTime) {
+		if( this.shitHitTime > 0 && (curTime - this.shitHitTime) > 200){
+			this.shitHitTime = 0;
 			return true;
 		}
 		return false;
@@ -427,5 +429,15 @@ public class Ship extends MultiWalkRoller2D<SpaceSubjectOperable<?, ?, Fpoint, R
 		dest.y = shipCenter.getFY() - stepBack * (float) Math.sin(rotation);
 		dest.z = 50f;
 		wp.free();
+	}
+
+	@Override
+	protected Accelerator<Fpoint> provideAcceleration() {
+		return new Accelerator2D();
+	}
+	
+	@Override
+	public WalkLastPrint<?, Fpoint> print(){
+		return new WalkLastPrint(this.printStore);
 	}
 }

@@ -26,6 +26,7 @@ public class DropBubbleProcessor extends Processor<Ship> {
 	private long bubbleTime;
 	
 	private Fpoint tmpVector = new Fpoint();
+	private boolean stopped;
 
 	public DropBubbleProcessor(BlabKeeper bk) {
 		super(DBP_CHECKER_TYPE);
@@ -34,32 +35,41 @@ public class DropBubbleProcessor extends Processor<Ship> {
 
 	@Override
 	public void process(Ship ship, long currentTime) {
-		float diffTime = currentTime - bubbleTime;
 		Fpoint shipVector = ship.getVector().source;
 		float vectorLen = (float) VectorHelper.vectorLen(shipVector);
-		float intervalTime = maxBubbleInterval - (maxBubbleInterval - minBubbleInterval) * vectorLen / maxSpeed;
-		if(diffTime > intervalTime){
-			Fpoint shipCenter = ship.origin().source;
-	
-			double rotation = ship.getRotation();
-			tmpVector.setX(shipCenter.getFX() - stepBack * (float) Math.cos(rotation));
-			tmpVector.setY(shipCenter.getFY() - stepBack * (float) Math.sin(rotation));
-			
-			float maxRadius = minBubbleRadius + (maxBubbleRadius - minBubbleRadius) * vectorLen / maxSpeed;
-			float amplitude = minBubbleAmplitude + (maxBubbleAmplitude - minBubbleAmplitude) * vectorLen / maxSpeed;
-			BlabKeeper.Blab bubble = blabKeeper.emptyBlub();
-			bubble.init(tmpVector.x, tmpVector.y, amplitude, timeToLive, startBubbleRadius, maxRadius);
-			
-			blabKeeper.pushBlab(bubble);
-			
-			bubbleTime = currentTime;
-		}
+		if(vectorLen > 0){
+			if(stopped){
+				bubbleTime = currentTime;
+				stopped = false;
+				return;
+			}
+//			float diffTime = currentTime - bubbleTime;
+			float intervalTime = maxBubbleInterval - (maxBubbleInterval - minBubbleInterval) * vectorLen / maxSpeed;
+			if( currentTime - bubbleTime > intervalTime ){
+				Fpoint shipCenter = ship.origin().source;
 		
+				double rotation = ship.getRotation();
+				tmpVector.setX(shipCenter.getFX() - stepBack * (float) Math.cos(rotation));
+				tmpVector.setY(shipCenter.getFY() - stepBack * (float) Math.sin(rotation));
+				
+				float maxRadius = minBubbleRadius + (maxBubbleRadius - minBubbleRadius) * vectorLen / maxSpeed;
+				float amplitude = minBubbleAmplitude + (maxBubbleAmplitude - minBubbleAmplitude) * vectorLen / maxSpeed;
+				BlabKeeper.Blab bubble = blabKeeper.emptyBlub();
+				bubble.init(tmpVector.x, tmpVector.y, amplitude, timeToLive, startBubbleRadius, maxRadius);
+//				System.out.println(" time " + currentTime + " adding bubble of ship " + ship + ", interval: " + intervalTime + " speed: " + vectorLen + ", maxSpeed: " + maxSpeed);
+				blabKeeper.pushBlab(bubble);
+				
+				bubbleTime = currentTime;
+			}
+		}else if(!stopped){
+			stopped = true;
+		}
 	}
 
 	public void activate(Ship target, long curTime){
 		super.activate(target, curTime);
 		bubbleTime = curTime;
+		stopped = true;
 /*		System.out.println("Sets checkTime to blabKeeper " + curTime);
 		this.blabKeeper.setCheckTime(curTime);*/
 	}

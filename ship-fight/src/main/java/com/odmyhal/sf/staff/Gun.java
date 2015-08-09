@@ -1,6 +1,8 @@
 package com.odmyhal.sf.staff;
 
 import org.bricks.engine.tool.Origin;
+import org.bricks.enterprise.inform.Informator;
+import org.bricks.extent.processor.tbroll.RollNodeToWalkerVProcessor;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
 import org.bricks.extent.space.overlap.MarkPoint;
@@ -65,10 +67,14 @@ public class Gun {
 		
 		fireOrigin.source.set(baseVector);
 		ammo.translate(fireOrigin);
+//		ammo.startTime = fireTime;
+//		Informator.log(String.format("AmmoStart: %s, Acceleration: %.5f", fireOrigin.source, Ammunition.accelerationZ));
 
 		double hRad = ship.getRotation() + hOperator.rotatedRadians() - Math.PI / 2;
 		double vRad = Math.PI - vOperator.rotatedRadians();
-		helpVector.set(1000f * (float) Math.cos(hRad), 1000f * (float) Math.sin(hRad), 1000f * (float) Math.tan(vRad));
+		helpVector.set((float)(1000f * Math.cos(hRad)), (float)(1000 * Math.sin(hRad)), (float)(1000 * Math.tan(vRad)));
+		
+//		helpVector.set(1000 * Math.cos(hRad) * Math.cos(vRad), 1000f * Math.sin(hRad) * Math.cos(vRad), 1000f * (float) Math.tan(vRad));
 		
 		//Little randomazation of direction
 		h2V.set(helpVector.y, helpVector.z, helpVector.x);
@@ -93,9 +99,12 @@ public class Gun {
 		//Sets ammo acceleration
 		float ammoSpeed = Ammunition.prefs.getFloat("ship.ammo1.speed.directional", 1f);
 		helpVector.nor();
-
-		
+//		String data = String.format("Shoot: direction: %s , speed: %.2f", helpVector, ammoSpeed);
 		helpVector.scl(ammoSpeed);
+//		data += " , vector " + helpVector;
+//		Informator.log(RollNodeToWalkerVProcessor.testTargetVRotation);
+//		Informator.log(data);
+//		Informator.log("---------------------------------------");
 		ammo.getVector().source.set(helpVector);
 		fireOrigin.source.set(0f, 0f, Ammunition.accelerationZ);
 		ammo.setAcceleration(fireOrigin, fireTime);

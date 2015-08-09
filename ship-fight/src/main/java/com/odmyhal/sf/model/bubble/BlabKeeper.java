@@ -48,7 +48,6 @@ public class BlabKeeper implements Iterable<BlabKeeper.Blab>, Motorable{
 		for(Blab b : quarantine){
 			bubbles.add(b);
 			++size;
-//			System.out.println("BlabKeeper added bubble " + size);
 			Validate.isFalse(size > BLAB_COUNT_TOTAL, "BlabKeeper exceeded maximum amound of bubbles..." );
 		}
 		long diffTime = currentTime - checkTime;

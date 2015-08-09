@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector3;
 
 public class SfTest {
 	
-	@Test
+//	@Test
 	public void rotateTest(){
 		
 		Vector3 point = new Vector3(0f, 1f, 0f);
@@ -30,4 +30,11 @@ public class SfTest {
 		System.out.println("Result point: " + Math.sqrt(80.0 * 80.0 * 2));
 	}
 	
+	@Test
+	public void floatTest(){
+		float one = 5.5f;
+		float two = -5.5f;
+		System.out.println("One: " + one + ", " + ((int)one));
+		System.out.println("Two: " + two + ", " + ((int)two));
+	}
 }

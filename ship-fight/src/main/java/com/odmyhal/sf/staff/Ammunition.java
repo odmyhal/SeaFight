@@ -6,6 +6,7 @@ import java.util.prefs.Preferences;
 import org.bircks.entierprise.model.ModelStorage;
 import org.bricks.annotation.EventHandle;
 import org.bricks.annotation.OverlapCheck;
+import org.bricks.engine.Engine;
 import org.bricks.engine.Motor;
 import org.bricks.engine.event.PrintOverlapEvent;
 import org.bricks.engine.event.check.OverlapChecker;
@@ -14,12 +15,15 @@ import org.bricks.engine.item.OriginMover;
 import org.bricks.engine.neve.EntityPrint;
 import org.bricks.engine.neve.OriginMovePrint;
 import org.bricks.engine.staff.Subject;
+import org.bricks.engine.tool.Accelerator;
 import org.bricks.engine.tool.Origin;
 import org.bricks.engine.tool.Walk;
+import org.bricks.enterprise.inform.Informator;
 import org.bricks.extent.effects.BricksParticleSystem;
 import org.bricks.extent.effects.EffectSubject;
 import org.bricks.extent.effects.TemporaryEffect;
 import org.bricks.extent.processor.CheckInWorldProcessor;
+import org.bricks.extent.space.Accelerator3D;
 import org.bricks.extent.space.Origin3D;
 import org.bricks.extent.space.Roll3D;
 import org.bricks.extent.space.SpaceSubject;
@@ -134,6 +138,8 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		this.setToRotation(0f);
 		this.subject.linkModelBrick().reset();
 		this.adjustCurrentPrint();
+//		startTime = 0;
+//		hooks = 0;
 		Cache.put(this);
 	}
 /*	
@@ -176,6 +182,8 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		EffectSubject.Transfered effect = Cache.get(EffectSubject.Transfered.class, WATER_BALL_CACHE_NAME);
 		effect.setToTranslation(event.touchPoint());
 		effect.applyEngine(this.getEngine());
+//		Informator.log(String.format("Face water in %s, vector: %s", event.touchPoint(), this.getVector().source));
+//		Informator.log(String.format("FaceWaterData FlyTime: %d, hooks: %d, lastMove: %s", event.getEventTime() - this.startTime, this.hooks, this.lastMove.source));
 	}
 	
 	@EventHandle(eventType = Ship.SHIP_SOURCE_TYPE)
@@ -188,6 +196,9 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		if(event.getSourcePrint().linkEntityPrint().getTarget().equals(myShip)){
 			this.disappear();
 		}else{
+//			Informator.log(String.format("Face  ship in %s, vector: %s", event.getTouchPoint(), this.getVector().source));
+//			Informator.log(String.format("FaceShipData  FlyTime: %d, hooks: %d, lastMove: %s", event.getEventTime() - this.startTime, this.hooks, this.lastMove.source));
+//			Informator.log(" MaxHookPer: " + this.maxHookPer);
 			hitStone(event);
 		}
 	}
@@ -228,7 +239,28 @@ public class Ammunition extends OriginMover<SpaceSubject<?, ?, Vector3, Roll3D, 
 		return new Roll3D();
 	}
 
-	
+	@Override
+	protected Accelerator<Vector3> provideAcceleration() {
+		return new Accelerator3D();
+	}
+/*
+	public long startTime = 0;
+	public int hooks = 0;
+	public long lastTime = 0;
+	public long hookPer = 0;
+	public long maxHookPer = 0;
+	protected void innerProcess(long currentTime){
+		++hooks;
+		if(lastTime == currentTime){
+			hookPer++;
+			maxHookPer = Math.max(maxHookPer, hookPer);
+		}else{
+			hookPer = 0;
+			lastTime = currentTime;
+		}
+		super.innerProcess(currentTime);
+	}
+	*/
 //	private static final CheckerType chType = CheckerType.registerCheckerType(); 
 
 }
