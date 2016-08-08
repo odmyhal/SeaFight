@@ -1,0 +1,89 @@
+package com.barcap.test.data.hackerrank
+
+import scala.annotation.tailrec
+
+/**
+ * Created by myhalole on 08/08/2016.
+ */
+
+object Solution {
+
+  def main(args: Array[String]) = {
+
+    val tests = readInt()
+        implicit val moves = List((-2, -1), (-2, 1), (-1, 2), (1, 2))
+        for(i <- 1 to tests){
+          val pNumber = readInt()
+          val points = readPoints(Nil, pNumber).toSet
+          val (graf, store) = makeGraf(points)
+          println("Graf created...")
+          if(graf.sureWin)
+            println("First")
+          else
+            println("Second")
+        }
+
+    @tailrec
+    def readPoints(points: List[(Int, Int)], cnt: Int): List[(Int, Int)] = {
+      cnt match {
+        case 0 => points
+        case nm if (nm > 0) => {
+          val ar = readLine().split(" ").map(_.toInt)
+          readPoints((ar(0), ar(1)) :: points, cnt - 1)
+        }
+      }
+    }
+  }
+
+  def makeGraf(points: Set[(Int, Int)], store: Map[Set[(Int, Int)], Graf] = Map[Set[(Int, Int)], Graf]())(implicit moves: List[(Int, Int)]): (Graf, Map[Set[(Int, Int)], Graf]) = {
+    if ( store.contains(points) ) {
+      println(s"has data for $points")
+      (store.get(points).get, store)
+    } else {
+      println(s"Look for points: $points" )
+      val nPoints = points.flatMap(p => {
+        val s1 = points - p
+        val nMoves = moves.map(m => {
+          (p._1 + m._1, p._2 + m._2)
+        })
+          .filter(np => np._1 > 0 && np._1 < 16 && np._2 > 0 && np._2 < 16)
+        nMoves.map(s1 + _)
+      }).toList
+      if (nPoints.size > 0){
+        val (grafs, nStore) = constructGraf(nPoints, store)
+        (new Mult(grafs), nStore)
+      }
+      else{
+        val last = new Last
+        (last, store + {(points, last)})
+      }
+    }
+  }
+
+  def constructGraf(points: List[Set[(Int, Int)]], store: Map[Set[(Int, Int)], Graf])(implicit moves: List[(Int, Int)]): (List[Graf], Map[Set[(Int, Int)], Graf]) = {
+    points match {
+      case Nil => {
+        (List[Graf](), store)
+      }
+      case h :: t => {
+        val (graf, nStore) = makeGraf(h, store)
+        val (gList, nnStore) = constructGraf(t, nStore)
+        (graf :: gList, nnStore)
+      }
+    }
+  }
+
+  trait Graf {
+    def sureWin: Boolean
+  }
+
+  class Last extends Graf {
+    override def sureWin = true
+  }
+
+  class Mult(val cases: List[Graf]) extends Graf {
+    //    override def sureWin = cases.forall( !_.sureWin )
+    override def sureWin = cases.exists(_.sureWin)
+  }
+
+}
